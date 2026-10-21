@@ -215,7 +215,7 @@ namespace SettlementTradeOverview.Tests.Query
 
         private static TradeInventorySnapshot CreateInventory(params TraderSnapshot[] traders)
         {
-            return new TradeInventorySnapshot(SnapshotAvailability.Partial, 1000, 10, null, traders);
+            return new TradeInventorySnapshot(SnapshotAvailability.Partial, 1000, 10, 0, null, traders);
         }
 
         private static TraderSnapshot CreateTrader(

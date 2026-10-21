@@ -24,20 +24,20 @@ namespace SettlementTradeOverview.Integration.Planner
             "XenogermPlanner.Api.GenepackRelevanceUnavailableReason, XenogermPlanner";
 
         internal const string ItemStatusTypeName = "XenogermPlanner.Api.GenepackRelevanceItemStatus, XenogermPlanner";
-
-        private readonly Type _batchStatusType;
-        private readonly Type _itemResultType;
-        private readonly Type _itemStatusType;
-        private readonly Type _planMatchType;
-        private readonly Type _requestListType;
-        private readonly ConstructorInfo _requestConstructor;
-        private readonly MethodInfo _queryMethod;
         private readonly PropertyInfo _batchResultsProperty;
         private readonly PropertyInfo _batchStatusProperty;
+
+        private readonly Type _batchStatusType;
         private readonly PropertyInfo _itemMatchesProperty;
+        private readonly Type _itemResultType;
         private readonly PropertyInfo _itemStatusProperty;
+        private readonly Type _itemStatusType;
         private readonly PropertyInfo _matchDisplayNameProperty;
         private readonly PropertyInfo _matchPlanIdProperty;
+        private readonly Type _planMatchType;
+        private readonly MethodInfo _queryMethod;
+        private readonly ConstructorInfo _requestConstructor;
+        private readonly Type _requestListType;
 
         private XenogermPlannerApiV1Binding(
             Type requestType,
@@ -117,12 +117,8 @@ namespace SettlementTradeOverview.Integration.Planner
                         "None",
                         "NoGame",
                         "NoActiveMap",
-                        "PlannerStateUnavailable") || !ValidateEnumValues(
-                        itemStatusType,
-                        "Success",
-                        "InvalidInput",
-                        "UnknownGeneDef",
-                        "Failed"))
+                        "PlannerStateUnavailable") ||
+                    !ValidateEnumValues(itemStatusType, "Success", "InvalidInput", "UnknownGeneDef", "Failed"))
                 {
                     return false;
                 }
@@ -176,9 +172,13 @@ namespace SettlementTradeOverview.Integration.Planner
                     "DisplayName",
                     typeof(string));
 
-                if (batchStatusProperty == null || batchUnavailableReasonProperty == null ||
-                    batchResultsProperty == null || itemStatusProperty == null || itemMatchesProperty == null ||
-                    matchPlanIdProperty == null || matchDisplayNameProperty == null)
+                if (batchStatusProperty == null ||
+                    batchUnavailableReasonProperty == null ||
+                    batchResultsProperty == null ||
+                    itemStatusProperty == null ||
+                    itemMatchesProperty == null ||
+                    matchPlanIdProperty == null ||
+                    matchDisplayNameProperty == null)
                 {
                     return false;
                 }
@@ -363,7 +363,8 @@ namespace SettlementTradeOverview.Integration.Planner
         {
             PropertyInfo property = ownerType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public);
 
-            if (property == null || property.PropertyType != expectedPropertyType ||
+            if (property == null ||
+                property.PropertyType != expectedPropertyType ||
                 property.GetIndexParameters().Length != 0)
             {
                 return null;
@@ -393,7 +394,9 @@ namespace SettlementTradeOverview.Integration.Planner
 
                 ParameterInfo[] parameters = method.GetParameters();
 
-                if (method.IsGenericMethod || method.ReturnType != returnType || parameters.Length != 1 ||
+                if (method.IsGenericMethod ||
+                    method.ReturnType != returnType ||
+                    parameters.Length != 1 ||
                     parameters[0].ParameterType != parameterType)
                 {
                     return null;

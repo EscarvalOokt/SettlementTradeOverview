@@ -41,7 +41,7 @@ namespace SettlementTradeOverview.Integration.Snapshots
             try
             {
                 int absoluteTick = GenDate.TickGameToAbs(nextRestockTick);
-                Vector2 longLat = context.WorldGrid.LongLatOf(context.OriginMap.Tile);
+                Vector2 longLat = context.WorldGrid.LongLatOf(context.OriginTile);
 
                 return new TradeRestockMoment(absoluteTick, longLat.x, longLat.y);
             }

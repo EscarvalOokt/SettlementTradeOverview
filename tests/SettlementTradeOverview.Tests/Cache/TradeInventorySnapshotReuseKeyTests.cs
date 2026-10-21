@@ -32,6 +32,20 @@ namespace SettlementTradeOverview.Tests.Cache
         }
 
         [Test]
+        public void SameMapAndTileOnDifferentLayers_AreNotReusable()
+        {
+            TradeInventorySnapshotReuseKey surface = CreateAvailableKey(originLayerId: 0);
+            TradeInventorySnapshotReuseKey orbit = CreateAvailableKey(originLayerId: 1);
+
+            Assert.That(surface.MapId, Is.EqualTo(orbit.MapId));
+            Assert.That(surface.OriginTile, Is.EqualTo(orbit.OriginTile));
+            Assert.That(surface.Equals(orbit), Is.False);
+            Assert.That(orbit.OriginLayerId, Is.EqualTo(1));
+            Assert.That(orbit.Equals(CreateAvailableKey(originLayerId: 1)), Is.True);
+            Assert.That(orbit.GetHashCode(), Is.EqualTo(CreateAvailableKey(originLayerId: 1).GetHashCode()));
+        }
+
+        [Test]
         public void NegotiatorPresenceIdentityLabelOrModifierChange_ChangesKey()
         {
             TradeInventorySnapshotReuseKey withoutNegotiator = CreateAvailableKey();
@@ -154,6 +168,7 @@ namespace SettlementTradeOverview.Tests.Cache
                     _ = TradeInventorySnapshotReuseKey.CreateAvailableContext(
                         -1,
                         10,
+                        0,
                         null,
                         SettlementEligibilityCriteria.Default,
                         hasPoweredCommsConsole: true,
@@ -167,17 +182,23 @@ namespace SettlementTradeOverview.Tests.Cache
                     _ = TradeInventorySnapshotReuseKey.CreateAvailableContext(
                         1,
                         -1,
+                        0,
                         null,
                         SettlementEligibilityCriteria.Default,
                         hasPoweredCommsConsole: true,
                         isRoyaltyActive: false);
                 }),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
+
+            Assert.That(
+                (Action)(() => CreateAvailableKey(originLayerId: -1)),
+                Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         private static TradeInventorySnapshotReuseKey CreateAvailableKey(
             int mapId = 1,
             int originTile = 10,
+            int originLayerId = 0,
             TradeNegotiatorSnapshot negotiator = null,
             SettlementEligibilityCriteria criteria = null,
             bool hasPoweredCommsConsole = true,
@@ -186,6 +207,7 @@ namespace SettlementTradeOverview.Tests.Cache
             return TradeInventorySnapshotReuseKey.CreateAvailableContext(
                 mapId,
                 originTile,
+                originLayerId,
                 negotiator,
                 criteria ?? SettlementEligibilityCriteria.Default,
                 hasPoweredCommsConsole,

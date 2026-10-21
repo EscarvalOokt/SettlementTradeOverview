@@ -43,37 +43,37 @@ namespace SettlementTradeOverview.UI.SettlementStock
             });
 
         private readonly SettlementIdentity _settlementIdentity;
-
-        private string _settlementLabel;
         private TradeCategory _activeCategory = TradeCategory.All;
-        private string _searchText = string.Empty;
+        private IReadOnlyList<TradeCategory> _availableCategories = _allCategoryOnly;
+        private bool _categoryAvailabilityDirty = true;
+        private string _categorySearchText;
 
-        private SortableHeaderState<TradeSortMode> _sortState =
-            new SortableHeaderState<TradeSortMode>(TradeSortMode.Name, SharedSortDirection.Ascending);
-
-        private Vector2 _scrollPosition;
-
-        private SnapshotRequestKind _pendingSnapshotRequest;
-        private bool _snapshotRequestLoadingStateDrawn;
-        private Exception _snapshotRequestException;
+        private TraderSnapshot _categoryTrader;
         private SettlementEligibilityCriteria _pendingEligibilityCriteria = SettlementEligibilityCriteria.Default;
         private int _pendingEligibilityRevision;
-        private int _processedEligibilityRevision = -1;
 
-        private TradeInventorySnapshot _relevanceSnapshot;
-        private TraderSnapshot _relevanceTrader;
-        private PlannerTradeRelevanceProjection _relevanceProjection = PlannerTradeRelevanceProjection.Empty;
+        private SnapshotRequestKind _pendingSnapshotRequest;
+        private int _processedEligibilityRevision = -1;
 
         private TradeInventorySnapshot _projectedSnapshot;
         private TraderSnapshot _projectedTrader;
-        private IReadOnlyList<TradeListRowPresentation> _rowPresentations = _emptyRowPresentations;
-        private bool _showDetailsColumn;
         private bool _projectionDirty = true;
+        private PlannerTradeRelevanceProjection _relevanceProjection = PlannerTradeRelevanceProjection.Empty;
 
-        private TraderSnapshot _categoryTrader;
-        private string _categorySearchText;
-        private IReadOnlyList<TradeCategory> _availableCategories = _allCategoryOnly;
-        private bool _categoryAvailabilityDirty = true;
+        private TradeInventorySnapshot _relevanceSnapshot;
+        private TraderSnapshot _relevanceTrader;
+        private IReadOnlyList<TradeListRowPresentation> _rowPresentations = _emptyRowPresentations;
+
+        private Vector2 _scrollPosition;
+        private string _searchText = string.Empty;
+
+        private string _settlementLabel;
+        private bool _showDetailsColumn;
+        private Exception _snapshotRequestException;
+        private bool _snapshotRequestLoadingStateDrawn;
+
+        private SortableHeaderState<TradeSortMode> _sortState =
+            new SortableHeaderState<TradeSortMode>(TradeSortMode.Name, SharedSortDirection.Ascending);
 
         public Dialog_SettlementStock(SettlementIdentity settlementIdentity)
         {
@@ -85,8 +85,7 @@ namespace SettlementTradeOverview.UI.SettlementStock
             forcePause = true;
         }
 
-        public override Vector2 InitialSize =>
-            _initialSize;
+        public override Vector2 InitialSize => _initialSize;
 
         public override void PreOpen()
         {
@@ -178,7 +177,9 @@ namespace SettlementTradeOverview.UI.SettlementStock
                 string operation = request == SnapshotRequestKind.Refresh ? "refresh" : "load";
 
                 Log.Error(
-                    "[Settlement Trade Overview] Failed to " + operation + " the settlement stock snapshot: " +
+                    "[Settlement Trade Overview] Failed to " +
+                    operation +
+                    " the settlement stock snapshot: " +
                     exception);
             }
             finally
@@ -483,9 +484,10 @@ namespace SettlementTradeOverview.UI.SettlementStock
 
             EnsureProjection(snapshot, trader);
 
-            string emptyMessage = forcedEmptyMessage ?? (trader.EntryCount == 0
-                ? "STO.SettlementStock.NoTradeEntries".Translate().ToString()
-                : "STO.SettlementStock.NoMatches".Translate().ToString());
+            string emptyMessage = forcedEmptyMessage ??
+                                  (trader.EntryCount == 0
+                                      ? "STO.SettlementStock.NoTradeEntries".Translate().ToString()
+                                      : "STO.SettlementStock.NoMatches".Translate().ToString());
 
             var listRect = new Rect(
                 contentRect.x,
@@ -607,10 +609,9 @@ namespace SettlementTradeOverview.UI.SettlementStock
 
         private void EnsureCategoryAvailability(TraderSnapshot trader)
         {
-            if (!_categoryAvailabilityDirty && ReferenceEquals(_categoryTrader, trader) && string.Equals(
-                    _categorySearchText,
-                    _searchText,
-                    StringComparison.Ordinal))
+            if (!_categoryAvailabilityDirty &&
+                ReferenceEquals(_categoryTrader, trader) &&
+                string.Equals(_categorySearchText, _searchText, StringComparison.Ordinal))
             {
                 return;
             }
@@ -632,7 +633,8 @@ namespace SettlementTradeOverview.UI.SettlementStock
         {
             EnsureRelevanceProjection(snapshot, trader);
 
-            if (!_projectionDirty && ReferenceEquals(_projectedSnapshot, snapshot) &&
+            if (!_projectionDirty &&
+                ReferenceEquals(_projectedSnapshot, snapshot) &&
                 ReferenceEquals(_projectedTrader, trader))
             {
                 return;

@@ -7,8 +7,8 @@ namespace SettlementTradeOverview.Query
 {
     internal sealed class TradeQueryEntryComparer : IComparer<TradeQueryEntry>
     {
-        private readonly TradeSortMode _mode;
         private readonly TradeSortDirection _direction;
+        private readonly TradeSortMode _mode;
         private readonly Func<TradeEntryIdentity, int?> _relevanceMatchCountResolver;
 
         public TradeQueryEntryComparer(

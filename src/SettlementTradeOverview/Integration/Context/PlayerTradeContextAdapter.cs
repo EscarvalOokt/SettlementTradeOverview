@@ -38,6 +38,7 @@ namespace SettlementTradeOverview.Integration.Context
             context = new PlayerTradeContext(
                 reuseContext.OriginMap,
                 reuseContext.OriginTile,
+                reuseContext.OriginLayerId,
                 reuseContext.WorldGrid,
                 settlements,
                 reuseContext.Colonists,
@@ -58,9 +59,23 @@ namespace SettlementTradeOverview.Integration.Context
             if (originMap == null || world == null || worldGrid == null || world.worldObjects == null)
                 return false;
 
-            int originTile = originMap.Tile.tileId;
+            PlanetTile originTile = originMap.Tile;
 
-            if (originTile < 0)
+            if (!originTile.Valid)
+                return false;
+
+            int originLayerId;
+
+            try
+            {
+                originLayerId = originTile.Layer.LayerID;
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (originLayerId < 0)
                 return false;
 
             var colonists = new List<Pawn>();
@@ -74,6 +89,7 @@ namespace SettlementTradeOverview.Integration.Context
             context = new PlayerTradeReuseContext(
                 originMap,
                 originTile,
+                originLayerId,
                 worldGrid,
                 colonists,
                 HasPoweredCommsConsole(originMap),

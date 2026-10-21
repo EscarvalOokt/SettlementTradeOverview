@@ -648,11 +648,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
 
         public sealed class BatchWithoutResults
         {
-            public ValidBatchStatus Status =>
-                ValidBatchStatus.Success;
+            public ValidBatchStatus Status => ValidBatchStatus.Success;
 
-            public ValidUnavailableReason UnavailableReason =>
-                ValidUnavailableReason.None;
+            public ValidUnavailableReason UnavailableReason => ValidUnavailableReason.None;
         }
 
         public static class BatchWithoutResultsFacade

@@ -17,15 +17,13 @@ namespace SettlementTradeOverview.Domain.Snapshots
             Value = value;
         }
 
-        public static TradePrice Unavailable =>
-            new TradePrice(TradePriceState.Unavailable, null);
+        public static TradePrice Unavailable => new TradePrice(TradePriceState.Unavailable, null);
 
         public TradePriceState State { get; }
 
         public float? Value { get; }
 
-        public bool HasValue =>
-            Value.HasValue;
+        public bool HasValue => Value.HasValue;
 
         public static TradePrice Negotiated(float value)
         {

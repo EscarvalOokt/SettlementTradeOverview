@@ -43,8 +43,7 @@ namespace SettlementTradeOverview.UI.TradeList
             OmittedCount = omittedCount;
         }
 
-        public IReadOnlyList<string> DisplayNames =>
-            _displayNames;
+        public IReadOnlyList<string> DisplayNames => _displayNames;
 
         public int OmittedCount { get; }
 

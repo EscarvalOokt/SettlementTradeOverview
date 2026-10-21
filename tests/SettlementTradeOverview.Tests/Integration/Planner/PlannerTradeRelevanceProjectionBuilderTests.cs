@@ -406,7 +406,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
 
         private static TradeInventorySnapshot CreateInventory(params TraderSnapshot[] traders)
         {
-            return new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, null, traders);
+            return new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, 0, null, traders);
         }
 
         private static TraderSnapshot CreateTrader(

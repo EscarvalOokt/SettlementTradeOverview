@@ -11,8 +11,10 @@ namespace SettlementTradeOverview.Domain.Snapshots
 
             if (kind == PawnTradeDetailKind.Rideable)
             {
-                if (!caravanRidingSpeedFactor.HasValue || float.IsNaN(caravanRidingSpeedFactor.Value) ||
-                    float.IsInfinity(caravanRidingSpeedFactor.Value) || caravanRidingSpeedFactor.Value <= 0f)
+                if (!caravanRidingSpeedFactor.HasValue ||
+                    float.IsNaN(caravanRidingSpeedFactor.Value) ||
+                    float.IsInfinity(caravanRidingSpeedFactor.Value) ||
+                    caravanRidingSpeedFactor.Value <= 0f)
                 {
                     throw new ArgumentOutOfRangeException(nameof(caravanRidingSpeedFactor));
                 }

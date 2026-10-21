@@ -14,14 +14,11 @@ namespace SettlementTradeOverview.Application.Snapshots
     {
         private static readonly TradeInventorySnapshotCache _cache = new TradeInventorySnapshotCache();
 
-        public static TradeInventorySnapshotCacheState State =>
-            _cache.State;
+        public static TradeInventorySnapshotCacheState State => _cache.State;
 
-        public static TradeInventorySnapshot CurrentSnapshot =>
-            _cache.Snapshot;
+        public static TradeInventorySnapshot CurrentSnapshot => _cache.Snapshot;
 
-        public static bool HasSnapshot =>
-            _cache.HasSnapshot;
+        public static bool HasSnapshot => _cache.HasSnapshot;
 
         public static bool TryReuseLoadedSnapshot(
             SettlementEligibilityCriteria criteria,
@@ -49,7 +46,8 @@ namespace SettlementTradeOverview.Application.Snapshots
 
                     reuseKey = TradeInventorySnapshotReuseKey.CreateAvailableContext(
                         context.OriginMap.uniqueID,
-                        context.OriginTile,
+                        context.OriginTile.tileId,
+                        context.OriginLayerId,
                         negotiatorSelection.Snapshot,
                         criteria,
                         context.HasPoweredCommsConsole,
@@ -120,7 +118,8 @@ namespace SettlementTradeOverview.Application.Snapshots
 
             var reuseKey = TradeInventorySnapshotReuseKey.CreateAvailableContext(
                 context.OriginMap.uniqueID,
-                context.OriginTile,
+                context.OriginTile.tileId,
+                context.OriginLayerId,
                 negotiatorSelection.Snapshot,
                 criteria,
                 context.HasPoweredCommsConsole,

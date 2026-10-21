@@ -10,6 +10,7 @@ namespace SettlementTradeOverview.Cache
             bool isContextAvailable,
             int? mapId,
             int? originTile,
+            int? originLayerId,
             TradeNegotiatorSnapshot negotiator,
             SettlementEligibilityCriteria criteria,
             bool hasPoweredCommsConsole,
@@ -21,6 +22,7 @@ namespace SettlementTradeOverview.Cache
             IsContextAvailable = isContextAvailable;
             MapId = mapId;
             OriginTile = originTile;
+            OriginLayerId = originLayerId;
 
             HasNegotiator = negotiator != null;
             NegotiatorPawnId = negotiator?.PawnId;
@@ -42,6 +44,8 @@ namespace SettlementTradeOverview.Cache
         public int? MapId { get; }
 
         public int? OriginTile { get; }
+
+        public int? OriginLayerId { get; }
 
         public bool HasNegotiator { get; }
 
@@ -65,10 +69,36 @@ namespace SettlementTradeOverview.Cache
 
         public bool IsRoyaltyActive { get; }
 
+        public bool Equals(TradeInventorySnapshotReuseKey other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return IsContextAvailable == other.IsContextAvailable &&
+                   MapId == other.MapId &&
+                   OriginTile == other.OriginTile &&
+                   OriginLayerId == other.OriginLayerId &&
+                   HasNegotiator == other.HasNegotiator &&
+                   StringComparer.Ordinal.Equals(NegotiatorPawnId, other.NegotiatorPawnId) &&
+                   StringComparer.Ordinal.Equals(NegotiatorLabel, other.NegotiatorLabel) &&
+                   Nullable.Equals(NegotiatorTradePriceImprovement, other.NegotiatorTradePriceImprovement) &&
+                   RequirePoweredCommsConsole == other.RequirePoweredCommsConsole &&
+                   MinimumTechnologyLevel == other.MinimumTechnologyLevel &&
+                   MaximumDistanceInTiles == other.MaximumDistanceInTiles &&
+                   RequireReachable == other.RequireReachable &&
+                   RequireRoyaltyTradePermission == other.RequireRoyaltyTradePermission &&
+                   HasPoweredCommsConsole == other.HasPoweredCommsConsole &&
+                   IsRoyaltyActive == other.IsRoyaltyActive;
+        }
+
         public static TradeInventorySnapshotReuseKey CreateUnavailableContext(SettlementEligibilityCriteria criteria)
         {
             return new TradeInventorySnapshotReuseKey(
                 false,
+                null,
                 null,
                 null,
                 null,
@@ -80,6 +110,7 @@ namespace SettlementTradeOverview.Cache
         public static TradeInventorySnapshotReuseKey CreateAvailableContext(
             int mapId,
             int originTile,
+            int originLayerId,
             TradeNegotiatorSnapshot negotiator,
             SettlementEligibilityCriteria criteria,
             bool hasPoweredCommsConsole,
@@ -91,35 +122,18 @@ namespace SettlementTradeOverview.Cache
             if (originTile < 0)
                 throw new ArgumentOutOfRangeException(nameof(originTile));
 
+            if (originLayerId < 0)
+                throw new ArgumentOutOfRangeException(nameof(originLayerId));
+
             return new TradeInventorySnapshotReuseKey(
                 true,
                 mapId,
                 originTile,
+                originLayerId,
                 negotiator,
                 criteria,
                 hasPoweredCommsConsole,
                 isRoyaltyActive);
-        }
-
-        public bool Equals(TradeInventorySnapshotReuseKey other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            if (ReferenceEquals(other, null))
-                return false;
-
-            return IsContextAvailable == other.IsContextAvailable && MapId == other.MapId &&
-                   OriginTile == other.OriginTile && HasNegotiator == other.HasNegotiator &&
-                   StringComparer.Ordinal.Equals(NegotiatorPawnId, other.NegotiatorPawnId) &&
-                   StringComparer.Ordinal.Equals(NegotiatorLabel, other.NegotiatorLabel) &&
-                   Nullable.Equals(NegotiatorTradePriceImprovement, other.NegotiatorTradePriceImprovement) &&
-                   RequirePoweredCommsConsole == other.RequirePoweredCommsConsole &&
-                   MinimumTechnologyLevel == other.MinimumTechnologyLevel &&
-                   MaximumDistanceInTiles == other.MaximumDistanceInTiles &&
-                   RequireReachable == other.RequireReachable &&
-                   RequireRoyaltyTradePermission == other.RequireRoyaltyTradePermission &&
-                   HasPoweredCommsConsole == other.HasPoweredCommsConsole && IsRoyaltyActive == other.IsRoyaltyActive;
         }
 
         public override bool Equals(object obj)
@@ -134,6 +148,7 @@ namespace SettlementTradeOverview.Cache
             hashCode = CombineHashCode(hashCode, IsContextAvailable.GetHashCode());
             hashCode = CombineHashCode(hashCode, MapId.GetHashCode());
             hashCode = CombineHashCode(hashCode, OriginTile.GetHashCode());
+            hashCode = CombineHashCode(hashCode, OriginLayerId.GetHashCode());
             hashCode = CombineHashCode(hashCode, HasNegotiator.GetHashCode());
             hashCode = CombineHashCode(hashCode, GetStringHashCode(NegotiatorPawnId));
             hashCode = CombineHashCode(hashCode, GetStringHashCode(NegotiatorLabel));

@@ -22,17 +22,17 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
             for (var index = 0; index < tradeables.Count; index++)
             {
-                copiedTradeables[index] = tradeables[index] ?? throw new ArgumentException(
-                    "Tradeables cannot contain null values.",
-                    nameof(tradeables));
+                copiedTradeables[index] = tradeables[index] ??
+                                          throw new ArgumentException(
+                                              "Tradeables cannot contain null values.",
+                                              nameof(tradeables));
             }
 
             _tradeables = Array.AsReadOnly(copiedTradeables);
             FailureCount = failureCount;
         }
 
-        public IReadOnlyList<Tradeable> Tradeables =>
-            _tradeables;
+        public IReadOnlyList<Tradeable> Tradeables => _tradeables;
 
         public int FailureCount { get; }
     }
@@ -89,7 +89,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
                     Log.Warning(
                         $"{LogPrefix} Failed to group trader good {DescribeThing(thing)}. " +
-                        "The remaining goods will still be processed.\n" + exception);
+                        "The remaining goods will still be processed.\n" +
+                        exception);
                 }
             }
 
@@ -100,7 +101,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
             {
                 try
                 {
-                    bool shouldInclude = tradeable.IsCurrency || trader.TraderKind.WillTrade(tradeable.ThingDef) ||
+                    bool shouldInclude = tradeable.IsCurrency ||
+                                         trader.TraderKind.WillTrade(tradeable.ThingDef) ||
                                          !hideNotWillingToTrade;
 
                     if (shouldInclude)
@@ -112,7 +114,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
                     Log.Warning(
                         $"{LogPrefix} Failed to validate a grouped tradeable. " +
-                        "The remaining groups will still be processed.\n" + exception);
+                        "The remaining groups will still be processed.\n" +
+                        exception);
                 }
             }
 

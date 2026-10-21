@@ -2,8 +2,6 @@
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Escarval.RimWorld.UI", "..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI\Escarval.RimWorld.UI.csproj", "{E56B25EC-7AB1-4D2B-B54B-B42317B1B458}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SettlementTradeOverview", "SettlementTradeOverview\SettlementTradeOverview.csproj", "{AA4082A4-A91C-4270-9AD6-EE5935001278}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SettlementTradeOverview.Tests", "..\tests\SettlementTradeOverview.Tests\SettlementTradeOverview.Tests.csproj", "{D2E6F407-07F7-4EA0-8DCA-98ED2049C761}"
@@ -14,10 +12,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E56B25EC-7AB1-4D2B-B54B-B42317B1B458}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E56B25EC-7AB1-4D2B-B54B-B42317B1B458}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E56B25EC-7AB1-4D2B-B54B-B42317B1B458}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E56B25EC-7AB1-4D2B-B54B-B42317B1B458}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA4082A4-A91C-4270-9AD6-EE5935001278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA4082A4-A91C-4270-9AD6-EE5935001278}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA4082A4-A91C-4270-9AD6-EE5935001278}.Release|Any CPU.ActiveCfg = Release|Any CPU

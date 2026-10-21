@@ -388,10 +388,40 @@ namespace SettlementTradeOverview.Tests.Cache
             Assert.That(cache.State, Is.EqualTo(TradeInventorySnapshotCacheState.Failed));
         }
 
-        private static TradeInventorySnapshotCacheKey CreateKey(int mapId)
+        [Test]
+        public void LayerChange_RejectsReopenReuseAndRebuildsTheSnapshot()
+        {
+            var cache = new TradeInventorySnapshotCache();
+            TradeInventorySnapshot surface = CreateAvailableSnapshot(100);
+            var orbit = new TradeInventorySnapshot(
+                SnapshotAvailability.Empty,
+                200,
+                10,
+                1,
+                null,
+                Array.Empty<TraderSnapshot>());
+            cache.GetOrBuild(CreateKey(1, originLayerId: 0), () => surface);
+
+            bool reused = cache.TryGetReusableSnapshot(CreateReuseKey(1, originLayerId: 1), out _);
+            var buildCount = 0;
+            TradeInventorySnapshot result = cache.GetOrBuild(
+                CreateKey(1, originLayerId: 1),
+                () =>
+                {
+                    buildCount++;
+                    return orbit;
+                });
+
+            Assert.That(reused, Is.False);
+            Assert.That(buildCount, Is.EqualTo(1));
+            Assert.That(result, Is.SameAs(orbit));
+            Assert.That(result.OriginLayerId, Is.EqualTo(1));
+        }
+
+        private static TradeInventorySnapshotCacheKey CreateKey(int mapId, int originLayerId = 0)
         {
             return TradeInventorySnapshotCacheKey.CreateAvailableContext(
-                CreateReuseKey(mapId),
+                CreateReuseKey(mapId, originLayerId),
                 new[]
                 {
                     new TraderIdentity("Settlement:1")
@@ -399,11 +429,12 @@ namespace SettlementTradeOverview.Tests.Cache
                 0);
         }
 
-        private static TradeInventorySnapshotReuseKey CreateReuseKey(int mapId)
+        private static TradeInventorySnapshotReuseKey CreateReuseKey(int mapId, int originLayerId = 0)
         {
             return TradeInventorySnapshotReuseKey.CreateAvailableContext(
                 mapId,
                 10,
+                originLayerId,
                 null,
                 SettlementEligibilityCriteria.Default,
                 hasPoweredCommsConsole: true,
@@ -425,6 +456,7 @@ namespace SettlementTradeOverview.Tests.Cache
                         availability,
                         capturedAtTick,
                         10,
+                        0,
                         null,
                         new[]
                         {
@@ -439,6 +471,7 @@ namespace SettlementTradeOverview.Tests.Cache
                         SnapshotAvailability.Empty,
                         capturedAtTick,
                         10,
+                        0,
                         null,
                         Array.Empty<TraderSnapshot>());
 
@@ -448,12 +481,14 @@ namespace SettlementTradeOverview.Tests.Cache
                         capturedAtTick,
                         null,
                         null,
+                        null,
                         Array.Empty<TraderSnapshot>());
 
                 case SnapshotAvailability.Failed:
                     return new TradeInventorySnapshot(
                         SnapshotAvailability.Failed,
                         capturedAtTick,
+                        null,
                         null,
                         null,
                         Array.Empty<TraderSnapshot>());

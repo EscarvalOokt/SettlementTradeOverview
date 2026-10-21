@@ -58,7 +58,9 @@ namespace SettlementTradeOverview.Tests.Project
                     }
                 }
 
-                const BindingFlags PropertyFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                const BindingFlags PropertyFlags = BindingFlags.Instance |
+                                                   BindingFlags.Static |
+                                                   BindingFlags.Public |
                                                    BindingFlags.NonPublic;
 
                 foreach (PropertyInfo property in integrationType.GetProperties(PropertyFlags))
@@ -72,7 +74,9 @@ namespace SettlementTradeOverview.Tests.Project
                     AssertTypeIsPlannerFree(integrationType, $"property '{property.Name}'", property.PropertyType);
                 }
 
-                const BindingFlags MethodFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                const BindingFlags MethodFlags = BindingFlags.Instance |
+                                                 BindingFlags.Static |
+                                                 BindingFlags.Public |
                                                  BindingFlags.NonPublic;
 
                 foreach (MethodInfo method in integrationType.GetMethods(MethodFlags))

@@ -12,6 +12,7 @@ namespace SettlementTradeOverview.Domain.Snapshots
             SnapshotAvailability availability,
             int capturedAtTick,
             int? originTile,
+            int? originLayerId,
             TradeNegotiatorSnapshot negotiator,
             IReadOnlyList<TraderSnapshot> traders)
         {
@@ -20,6 +21,12 @@ namespace SettlementTradeOverview.Domain.Snapshots
 
             if (originTile.HasValue && originTile.Value < 0)
                 throw new ArgumentOutOfRangeException(nameof(originTile));
+
+            if (originLayerId.HasValue && originLayerId.Value < 0)
+                throw new ArgumentOutOfRangeException(nameof(originLayerId));
+
+            if (originTile.HasValue != originLayerId.HasValue)
+                throw new ArgumentException("Origin tile and layer must both be available or both be absent.");
 
             if (traders == null)
                 throw new ArgumentNullException(nameof(traders));
@@ -32,9 +39,10 @@ namespace SettlementTradeOverview.Domain.Snapshots
             {
                 TraderSnapshot trader = traders[index];
 
-                copiedTraders[index] = trader ?? throw new ArgumentException(
-                    "Traders cannot contain null values.",
-                    nameof(traders));
+                copiedTraders[index] = trader ??
+                                       throw new ArgumentException(
+                                           "Traders cannot contain null values.",
+                                           nameof(traders));
                 entryCount = checked(entryCount + trader.EntryCount);
 
                 if (trader.EntryCount > 0 || trader.Currency != null)
@@ -46,6 +54,7 @@ namespace SettlementTradeOverview.Domain.Snapshots
             Availability = availability;
             CapturedAtTick = capturedAtTick;
             OriginTile = originTile;
+            OriginLayerId = originLayerId;
             Negotiator = negotiator;
             _traders = Array.AsReadOnly(copiedTraders);
             EntryCount = entryCount;
@@ -57,13 +66,13 @@ namespace SettlementTradeOverview.Domain.Snapshots
 
         public int? OriginTile { get; }
 
+        public int? OriginLayerId { get; }
+
         public TradeNegotiatorSnapshot Negotiator { get; }
 
-        public IReadOnlyList<TraderSnapshot> Traders =>
-            _traders;
+        public IReadOnlyList<TraderSnapshot> Traders => _traders;
 
-        public int TraderCount =>
-            _traders.Count;
+        public int TraderCount => _traders.Count;
 
         public int EntryCount { get; }
 

@@ -13,14 +13,13 @@ namespace SettlementTradeOverview.UI.TradeList
     [StaticConstructorOnStartup]
     internal static class TradeListView
     {
-        private static readonly ReloadableTexture2D _warningIcon = new ReloadableTexture2D("UI/Icons/Warning");
-
         private const float DetailsColumnWidth = 144f;
         private const float CountColumnWidth = 72f;
         private const float PriceColumnWidth = 92f;
         private const float DistanceColumnWidth = 120f;
         private const float RestockColumnWidth = 100f;
         private const float GlobalItemColumnShare = 0.56f;
+        private static readonly ReloadableTexture2D _warningIcon = new ReloadableTexture2D("UI/Icons/Warning");
 
         public static bool Draw(
             Rect rect,
@@ -281,7 +280,8 @@ namespace SettlementTradeOverview.UI.TradeList
 
             TipSignal? nativeTooltip = null;
 
-            if (Mouse.IsOver(labelRect) && TradeEntryRuntimeAdapter.TryCreateNativeTooltip(
+            if (Mouse.IsOver(labelRect) &&
+                TradeEntryRuntimeAdapter.TryCreateNativeTooltip(
                     entry,
                     pawn,
                     representative,
@@ -526,7 +526,10 @@ namespace SettlementTradeOverview.UI.TradeList
             private static TradeListColumnLayout CalculateGlobal(Rect rect, bool showDetailsColumn)
             {
                 float detailsWidth = showDetailsColumn ? DetailsColumnWidth : 0f;
-                float fixedWidth = detailsWidth + CountColumnWidth + PriceColumnWidth + DistanceColumnWidth +
+                float fixedWidth = detailsWidth +
+                                   CountColumnWidth +
+                                   PriceColumnWidth +
+                                   DistanceColumnWidth +
                                    RestockColumnWidth;
 
                 float flexibleWidth = Mathf.Max(0f, rect.width - fixedWidth);

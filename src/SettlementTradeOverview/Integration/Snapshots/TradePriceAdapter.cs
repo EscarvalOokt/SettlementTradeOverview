@@ -32,7 +32,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
             Thing representative = tradeable.AnyThing;
 
-            if (representative != null && TryReadMarketValue(representative, out float marketValue) &&
+            if (representative != null &&
+                TryReadMarketValue(representative, out float marketValue) &&
                 TradePriceStateResolver.IsValidValue(marketValue))
             {
                 return TradePrice.MarketValueFallback(marketValue);

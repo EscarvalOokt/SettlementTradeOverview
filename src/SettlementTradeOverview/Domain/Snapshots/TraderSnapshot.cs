@@ -43,9 +43,10 @@ namespace SettlementTradeOverview.Domain.Snapshots
             {
                 TradeEntrySnapshot entry = entries[index];
 
-                copiedEntries[index] = entry ?? throw new ArgumentException(
-                    "Entries cannot contain null values.",
-                    nameof(entries));
+                copiedEntries[index] = entry ??
+                                       throw new ArgumentException(
+                                           "Entries cannot contain null values.",
+                                           nameof(entries));
             }
 
             ValidateAvailability(availability, copiedEntries.Length, currency != null);
@@ -75,13 +76,11 @@ namespace SettlementTradeOverview.Domain.Snapshots
 
         public TradeRestock Restock { get; }
 
-        public IReadOnlyList<TradeEntrySnapshot> Entries =>
-            _entries;
+        public IReadOnlyList<TradeEntrySnapshot> Entries => _entries;
 
         public TradeCurrencySnapshot Currency { get; }
 
-        public int EntryCount =>
-            _entries.Count;
+        public int EntryCount => _entries.Count;
 
         private static void ValidateAvailability(SnapshotAvailability availability, int entryCount, bool hasCurrency)
         {

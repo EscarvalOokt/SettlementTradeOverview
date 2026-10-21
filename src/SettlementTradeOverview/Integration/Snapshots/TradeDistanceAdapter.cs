@@ -17,67 +17,24 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 throw new ArgumentNullException(nameof(context));
 
             int? eligibilityDistance = source.EligibilityFacts.DistanceInTiles;
-            int? calculatedDistance = eligibilityDistance.HasValue ? null : TryCalculateDistance(source, context);
+            int? calculatedDistance = eligibilityDistance.HasValue
+                ? null
+                : TradeLocationAdapter.TryCalculateDistance(
+                    context.WorldGrid,
+                    source.Settlement.Tile,
+                    context.OriginTile);
 
             SettlementReachabilityState reachability = source.EligibilityFacts.Reachability;
 
             if (reachability == SettlementReachabilityState.Unavailable)
-                reachability = TryCalculateReachability(source, context);
+            {
+                reachability = TradeLocationAdapter.TryCalculateReachability(
+                    context.WorldGrid,
+                    source.Settlement.Tile,
+                    context.OriginTile);
+            }
 
             return TradeDistanceStateResolver.Resolve(eligibilityDistance, calculatedDistance, reachability);
-        }
-
-        private static int? TryCalculateDistance(DiscoveredTraderSource source, PlayerTradeContext context)
-        {
-            try
-            {
-                int settlementTile = source.Settlement.Tile.tileId;
-
-                if (settlementTile < 0 || context.OriginTile < 0)
-                    return null;
-
-                float distance = context.WorldGrid.ApproxDistanceInTiles(settlementTile, context.OriginTile);
-
-                if (float.IsNaN(distance) || float.IsInfinity(distance) || distance < 0f || distance > int.MaxValue)
-                {
-                    return null;
-                }
-
-                return (int)distance;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static SettlementReachabilityState TryCalculateReachability(
-            DiscoveredTraderSource source,
-            PlayerTradeContext context)
-        {
-            try
-            {
-                int settlementTile = source.Settlement.Tile.tileId;
-
-                if (settlementTile < 0 || context.OriginTile < 0)
-                    return SettlementReachabilityState.Unavailable;
-
-                int traversalDistance = context.WorldGrid.TraversalDistanceBetween(
-                    settlementTile,
-                    context.OriginTile,
-                    false);
-
-                if (traversalDistance == int.MaxValue)
-                    return SettlementReachabilityState.Unreachable;
-
-                return traversalDistance < 0
-                    ? SettlementReachabilityState.Unavailable
-                    : SettlementReachabilityState.Reachable;
-            }
-            catch
-            {
-                return SettlementReachabilityState.Unavailable;
-            }
         }
     }
 
@@ -92,7 +49,11 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 IsValidDistance(calculatedDistance) ? calculatedDistance : null;
 
             if (!distance.HasValue)
-                return TradeDistance.Unavailable;
+            {
+                return reachability == SettlementReachabilityState.Unreachable
+                    ? TradeDistance.Unreachable(null)
+                    : TradeDistance.Unavailable;
+            }
 
             switch (reachability)
             {

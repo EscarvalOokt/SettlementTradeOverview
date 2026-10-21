@@ -72,6 +72,15 @@ namespace SettlementTradeOverview.UI.TradeList
 
             if (!tiles.HasValue)
             {
+                if (distance.RouteState == TradeRouteState.Unreachable)
+                {
+                    return new TradeCellPresentation(
+                        UnavailableValue,
+                        "STO.TradeList.Distance.UnreachableTooltip".Translate().ToString(),
+                        RimWorldUiStyle.Colors.Warning,
+                        showWarningIcon: true);
+                }
+
                 return new TradeCellPresentation(
                     UnavailableValue,
                     "STO.TradeList.Distance.UnavailableTooltip".Translate().ToString(),
@@ -166,7 +175,8 @@ namespace SettlementTradeOverview.UI.TradeList
                 string expectedLabel = GenDate.DateFullStringWithHourAt(moment.AbsoluteTick, longLat);
 
                 return "STO.TradeList.Restock.ScheduledWithExpectedTimeTooltip"
-                    .Translate(expectedLabel, remainingPeriod).ToString();
+                    .Translate(expectedLabel, remainingPeriod)
+                    .ToString();
             }
             catch
             {

@@ -62,8 +62,7 @@ namespace SettlementTradeOverview.Integration.Planner
 
         public PlannerGenepackRelevanceItemStatus Status { get; }
 
-        public IReadOnlyList<PlannerGenepackRelevancePlanMatch> Matches =>
-            _matches;
+        public IReadOnlyList<PlannerGenepackRelevancePlanMatch> Matches => _matches;
 
         public static PlannerGenepackRelevanceItemResult CreateSuccess(
             IEnumerable<PlannerGenepackRelevancePlanMatch> matches)
@@ -150,8 +149,7 @@ namespace SettlementTradeOverview.Integration.Planner
 
         public PlannerGenepackRelevanceBatchStatus Status { get; }
 
-        public IReadOnlyList<PlannerGenepackRelevanceItemResult> Results =>
-            _results;
+        public IReadOnlyList<PlannerGenepackRelevanceItemResult> Results => _results;
 
         public static PlannerGenepackRelevanceBatchResult CreateSuccess(
             IEnumerable<PlannerGenepackRelevanceItemResult> results)

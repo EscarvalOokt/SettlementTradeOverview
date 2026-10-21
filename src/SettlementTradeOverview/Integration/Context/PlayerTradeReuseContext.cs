@@ -12,7 +12,8 @@ namespace SettlementTradeOverview.Integration.Context
 
         public PlayerTradeReuseContext(
             Map originMap,
-            int originTile,
+            PlanetTile originTile,
+            int originLayerId,
             WorldGrid worldGrid,
             IReadOnlyList<Pawn> colonists,
             bool hasPoweredCommsConsole,
@@ -21,8 +22,11 @@ namespace SettlementTradeOverview.Integration.Context
             if (originMap == null)
                 throw new ArgumentNullException(nameof(originMap));
 
-            if (originTile < 0)
+            if (!originTile.Valid)
                 throw new ArgumentOutOfRangeException(nameof(originTile));
+
+            if (originLayerId < 0)
+                throw new ArgumentOutOfRangeException(nameof(originLayerId));
 
             if (worldGrid == null)
                 throw new ArgumentNullException(nameof(worldGrid));
@@ -37,6 +41,7 @@ namespace SettlementTradeOverview.Integration.Context
 
             OriginMap = originMap;
             OriginTile = originTile;
+            OriginLayerId = originLayerId;
             WorldGrid = worldGrid;
             _colonists = Array.AsReadOnly(copiedColonists);
             HasPoweredCommsConsole = hasPoweredCommsConsole;
@@ -45,12 +50,13 @@ namespace SettlementTradeOverview.Integration.Context
 
         public Map OriginMap { get; }
 
-        public int OriginTile { get; }
+        public PlanetTile OriginTile { get; }
+
+        public int OriginLayerId { get; }
 
         public WorldGrid WorldGrid { get; }
 
-        public IReadOnlyList<Pawn> Colonists =>
-            _colonists;
+        public IReadOnlyList<Pawn> Colonists => _colonists;
 
         public bool HasPoweredCommsConsole { get; }
 

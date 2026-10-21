@@ -661,7 +661,13 @@ namespace SettlementTradeOverview.Tests.Query
                 CreateEntry("A", "A", count: 2));
 
             var resolverCallCount = 0;
-            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, null, new[] { trader });
+            var snapshot = new TradeInventorySnapshot(
+                SnapshotAvailability.Available,
+                1000,
+                10,
+                0,
+                null,
+                new[] { trader });
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(
                 snapshot,
@@ -817,7 +823,7 @@ namespace SettlementTradeOverview.Tests.Query
             Func<TradeEntryIdentity, int?> resolver,
             params TraderSnapshot[] traders)
         {
-            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, null, traders);
+            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, 0, null, traders);
 
             return TradeSnapshotQuery.Execute(
                 snapshot,
@@ -830,7 +836,7 @@ namespace SettlementTradeOverview.Tests.Query
             TradeSortDirection direction,
             params TraderSnapshot[] traders)
         {
-            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, null, traders);
+            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, 0, null, traders);
 
             return TradeSnapshotQuery.Execute(
                 snapshot,

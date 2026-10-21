@@ -152,7 +152,8 @@ namespace SettlementTradeOverview.Integration.Runtime
                     {
                         Log.Warning(
                             $"{LogPrefix} Failed to open the representative info card for " +
-                            $"trade entry '{entry.Identity}'. The definition fallback will be used.\n" + exception);
+                            $"trade entry '{entry.Identity}'. The definition fallback will be used.\n" +
+                            exception);
                     }
                 }
 

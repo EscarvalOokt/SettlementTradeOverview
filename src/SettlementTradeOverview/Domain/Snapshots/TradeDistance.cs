@@ -23,22 +23,20 @@ namespace SettlementTradeOverview.Domain.Snapshots
             RouteState = routeState;
         }
 
-        public static TradeDistance Unavailable =>
-            new TradeDistance(null, TradeRouteState.Unavailable);
+        public static TradeDistance Unavailable => new TradeDistance(null, TradeRouteState.Unavailable);
 
         public int? Tiles { get; }
 
         public TradeRouteState RouteState { get; }
 
-        public bool HasTileDistance =>
-            Tiles.HasValue;
+        public bool HasTileDistance => Tiles.HasValue;
 
         public static TradeDistance Reachable(int tiles)
         {
             return new TradeDistance(tiles, TradeRouteState.Reachable);
         }
 
-        public static TradeDistance Unreachable(int tiles)
+        public static TradeDistance Unreachable(int? tiles)
         {
             return new TradeDistance(tiles, TradeRouteState.Unreachable);
         }

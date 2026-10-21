@@ -38,11 +38,9 @@ namespace SettlementTradeOverview.Integration.Planner
 
         public TradeEntryIdentity EntryIdentity { get; }
 
-        public IReadOnlyList<PlannerGenepackRelevancePlanMatch> Matches =>
-            _matches;
+        public IReadOnlyList<PlannerGenepackRelevancePlanMatch> Matches => _matches;
 
-        public int MatchCount =>
-            _matches.Count;
+        public int MatchCount => _matches.Count;
     }
 
     internal sealed class PlannerTradeRelevanceProjection
@@ -77,8 +75,7 @@ namespace SettlementTradeOverview.Integration.Planner
         public static PlannerTradeRelevanceProjection Empty { get; } =
             new PlannerTradeRelevanceProjection(Array.Empty<PlannerTradeEntryRelevance>());
 
-        public int Count =>
-            _entriesByIdentity.Count;
+        public int Count => _entriesByIdentity.Count;
 
         public bool TryGet(TradeEntryIdentity entryIdentity, out PlannerTradeEntryRelevance relevance)
         {

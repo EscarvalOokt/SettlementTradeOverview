@@ -45,46 +45,59 @@ namespace SettlementTradeOverview.Cache
 
         public TradeInventorySnapshotReuseKey ReuseKey { get; }
 
-        public bool IsContextAvailable =>
-            ReuseKey.IsContextAvailable;
+        public bool IsContextAvailable => ReuseKey.IsContextAvailable;
 
-        public int? MapId =>
-            ReuseKey.MapId;
+        public int? MapId => ReuseKey.MapId;
 
-        public int? OriginTile =>
-            ReuseKey.OriginTile;
+        public int? OriginTile => ReuseKey.OriginTile;
 
-        public bool HasNegotiator =>
-            ReuseKey.HasNegotiator;
+        public int? OriginLayerId => ReuseKey.OriginLayerId;
 
-        public string NegotiatorPawnId =>
-            ReuseKey.NegotiatorPawnId;
+        public bool HasNegotiator => ReuseKey.HasNegotiator;
 
-        public string NegotiatorLabel =>
-            ReuseKey.NegotiatorLabel;
+        public string NegotiatorPawnId => ReuseKey.NegotiatorPawnId;
 
-        public float? NegotiatorTradePriceImprovement =>
-            ReuseKey.NegotiatorTradePriceImprovement;
+        public string NegotiatorLabel => ReuseKey.NegotiatorLabel;
 
-        public bool RequirePoweredCommsConsole =>
-            ReuseKey.RequirePoweredCommsConsole;
+        public float? NegotiatorTradePriceImprovement => ReuseKey.NegotiatorTradePriceImprovement;
 
-        public SettlementTechnologyLevel? MinimumTechnologyLevel =>
-            ReuseKey.MinimumTechnologyLevel;
+        public bool RequirePoweredCommsConsole => ReuseKey.RequirePoweredCommsConsole;
 
-        public int? MaximumDistanceInTiles =>
-            ReuseKey.MaximumDistanceInTiles;
+        public SettlementTechnologyLevel? MinimumTechnologyLevel => ReuseKey.MinimumTechnologyLevel;
 
-        public bool RequireReachable =>
-            ReuseKey.RequireReachable;
+        public int? MaximumDistanceInTiles => ReuseKey.MaximumDistanceInTiles;
 
-        public bool RequireRoyaltyTradePermission =>
-            ReuseKey.RequireRoyaltyTradePermission;
+        public bool RequireReachable => ReuseKey.RequireReachable;
 
-        public IReadOnlyList<string> TraderIdentities =>
-            _traderIdentities;
+        public bool RequireRoyaltyTradePermission => ReuseKey.RequireRoyaltyTradePermission;
+
+        public IReadOnlyList<string> TraderIdentities => _traderIdentities;
 
         public int DiscoveryFailureCount { get; }
+
+        public bool Equals(TradeInventorySnapshotCacheKey other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (ReferenceEquals(other, null))
+                return false;
+
+            if (!ReuseKey.Equals(other.ReuseKey) ||
+                DiscoveryFailureCount != other.DiscoveryFailureCount ||
+                _traderIdentities.Count != other._traderIdentities.Count)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < _traderIdentities.Count; index++)
+            {
+                if (!StringComparer.Ordinal.Equals(_traderIdentities[index], other._traderIdentities[index]))
+                    return false;
+            }
+
+            return true;
+        }
 
         public static TradeInventorySnapshotCacheKey CreateUnavailableContext(SettlementEligibilityCriteria criteria)
         {
@@ -116,37 +129,15 @@ namespace SettlementTradeOverview.Cache
 
             for (var index = 0; index < traderIdentities.Count; index++)
             {
-                TraderIdentity identity = traderIdentities[index] ?? throw new ArgumentException(
-                    "Trader identities cannot contain null values.",
-                    nameof(traderIdentities));
+                TraderIdentity identity = traderIdentities[index] ??
+                                          throw new ArgumentException(
+                                              "Trader identities cannot contain null values.",
+                                              nameof(traderIdentities));
 
                 copiedIdentityValues[index] = identity.Value;
             }
 
             return new TradeInventorySnapshotCacheKey(reuseKey, copiedIdentityValues, discoveryFailureCount);
-        }
-
-        public bool Equals(TradeInventorySnapshotCacheKey other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            if (ReferenceEquals(other, null))
-                return false;
-
-            if (!ReuseKey.Equals(other.ReuseKey) || DiscoveryFailureCount != other.DiscoveryFailureCount ||
-                _traderIdentities.Count != other._traderIdentities.Count)
-            {
-                return false;
-            }
-
-            for (var index = 0; index < _traderIdentities.Count; index++)
-            {
-                if (!StringComparer.Ordinal.Equals(_traderIdentities[index], other._traderIdentities[index]))
-                    return false;
-            }
-
-            return true;
         }
 
         public override bool Equals(object obj)

@@ -30,6 +30,7 @@ namespace SettlementTradeOverview.Integration.Snapshots
                         capturedAtTick,
                         null,
                         null,
+                        null,
                         Array.Empty<TraderSnapshot>());
                 }
 
@@ -46,7 +47,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 return new TradeInventorySnapshot(
                     SnapshotAvailability.Failed,
                     capturedAtTick,
-                    context?.OriginTile,
+                    context?.OriginTile.tileId,
+                    context?.OriginLayerId,
                     negotiatorSelection.Snapshot,
                     Array.Empty<TraderSnapshot>());
             }
@@ -76,7 +78,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 return new TradeInventorySnapshot(
                     SnapshotAvailability.Failed,
                     capturedAtTick,
-                    context.OriginTile,
+                    context.OriginTile.tileId,
+                    context.OriginLayerId,
                     negotiatorSelection.Snapshot,
                     Array.Empty<TraderSnapshot>());
             }
@@ -93,7 +96,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 return new TradeInventorySnapshot(
                     SnapshotAvailability.Unavailable,
                     capturedAtTick,
-                    context.OriginTile,
+                    context.OriginTile.tileId,
+                    context.OriginLayerId,
                     negotiatorSelection.Snapshot,
                     Array.Empty<TraderSnapshot>());
             }
@@ -112,7 +116,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 {
                     Log.Warning(
                         $"{LogPrefix} Unexpected trader snapshot failure for " +
-                        $"{source.TraderIdentity}. The remaining traders will still be processed.\n" + exception);
+                        $"{source.TraderIdentity}. The remaining traders will still be processed.\n" +
+                        exception);
 
                     traderSnapshot = TraderSnapshotAdapter.CreateFailedSnapshot(
                         source,
@@ -129,7 +134,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
             return new TradeInventorySnapshot(
                 availability,
                 capturedAtTick,
-                context.OriginTile,
+                context.OriginTile.tileId,
+                context.OriginLayerId,
                 negotiatorSelection.Snapshot,
                 traderSnapshots);
         }
@@ -175,9 +181,10 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
             foreach (TraderSnapshot candidate in traders)
             {
-                TraderSnapshot trader = candidate ?? throw new ArgumentException(
-                    "Trader snapshots cannot contain null values.",
-                    nameof(traders));
+                TraderSnapshot trader = candidate ??
+                                        throw new ArgumentException(
+                                            "Trader snapshots cannot contain null values.",
+                                            nameof(traders));
 
                 if (trader.EntryCount > 0 || trader.Currency != null)
                     hasStockData = true;

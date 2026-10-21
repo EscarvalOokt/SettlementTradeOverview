@@ -18,8 +18,7 @@ namespace SettlementTradeOverview.Domain.Snapshots
             ExpectedMoment = expectedMoment;
         }
 
-        public static TradeRestock Unavailable =>
-            new TradeRestock(TradeRestockState.Unavailable, null, null);
+        public static TradeRestock Unavailable => new TradeRestock(TradeRestockState.Unavailable, null, null);
 
         public static TradeRestock PendingGeneration =>
             new TradeRestock(TradeRestockState.PendingGeneration, null, null);
@@ -30,11 +29,9 @@ namespace SettlementTradeOverview.Domain.Snapshots
 
         public TradeRestockMoment? ExpectedMoment { get; }
 
-        public bool HasNextRestockTick =>
-            NextRestockTick.HasValue;
+        public bool HasNextRestockTick => NextRestockTick.HasValue;
 
-        public bool HasExpectedMoment =>
-            ExpectedMoment.HasValue;
+        public bool HasExpectedMoment => ExpectedMoment.HasValue;
 
         public static TradeRestock Scheduled(int nextRestockTick, TradeRestockMoment? expectedMoment = null)
         {

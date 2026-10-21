@@ -37,35 +37,34 @@ namespace SettlementTradeOverview.UI.GlobalOverview
             });
 
         private TradeCategory _activeCategory = TradeCategory.All;
+        private IReadOnlyList<TradeCategory> _availableCategories = _allCategoryOnly;
+        private bool _categoryAvailabilityDirty = true;
+        private string _categorySearchText;
+
+        private TradeInventorySnapshot _categorySnapshot;
+        private SettlementEligibilityCriteria _pendingEligibilityCriteria = SettlementEligibilityCriteria.Default;
+        private int _pendingEligibilityRevision;
+
+        private SnapshotRequestKind _pendingSnapshotRequest;
+        private int _processedEligibilityRevision = -1;
+
+        private TradeInventorySnapshot _projectedSnapshot;
+        private bool _projectionDirty = true;
+        private PlannerTradeRelevanceProjection _relevanceProjection = PlannerTradeRelevanceProjection.Empty;
+
+        private TradeInventorySnapshot _relevanceSnapshot;
+        private IReadOnlyList<TradeListRowPresentation> _rowPresentations = _emptyRowPresentations;
+
+        private Vector2 _scrollPosition;
         private string _searchText = string.Empty;
+        private bool _showDetailsColumn;
+        private Exception _snapshotRequestException;
+        private bool _snapshotRequestLoadingStateDrawn;
 
         private SortableHeaderState<TradeSortMode> _sortState =
             new SortableHeaderState<TradeSortMode>(TradeSortMode.Name, SharedSortDirection.Ascending);
 
-        private Vector2 _scrollPosition;
-
-        private SnapshotRequestKind _pendingSnapshotRequest;
-        private bool _snapshotRequestLoadingStateDrawn;
-        private Exception _snapshotRequestException;
-        private SettlementEligibilityCriteria _pendingEligibilityCriteria = SettlementEligibilityCriteria.Default;
-        private int _pendingEligibilityRevision;
-        private int _processedEligibilityRevision = -1;
-
-        private TradeInventorySnapshot _relevanceSnapshot;
-        private PlannerTradeRelevanceProjection _relevanceProjection = PlannerTradeRelevanceProjection.Empty;
-
-        private TradeInventorySnapshot _projectedSnapshot;
-        private IReadOnlyList<TradeListRowPresentation> _rowPresentations = _emptyRowPresentations;
-        private bool _showDetailsColumn;
-        private bool _projectionDirty = true;
-
-        private TradeInventorySnapshot _categorySnapshot;
-        private string _categorySearchText;
-        private IReadOnlyList<TradeCategory> _availableCategories = _allCategoryOnly;
-        private bool _categoryAvailabilityDirty = true;
-
-        public override Vector2 RequestedTabSize =>
-            _requestedTabSize;
+        public override Vector2 RequestedTabSize => _requestedTabSize;
 
         public override void PreOpen()
         {
@@ -144,7 +143,9 @@ namespace SettlementTradeOverview.UI.GlobalOverview
                 string operation = request == SnapshotRequestKind.Refresh ? "refresh" : "load";
 
                 Log.Error(
-                    "[Settlement Trade Overview] Failed to " + operation + " the global overview snapshot: " +
+                    "[Settlement Trade Overview] Failed to " +
+                    operation +
+                    " the global overview snapshot: " +
                     exception);
             }
             finally
@@ -175,7 +176,8 @@ namespace SettlementTradeOverview.UI.GlobalOverview
                 TradeInventorySnapshot snapshot = TradeInventorySnapshotService.CurrentSnapshot;
 
                 if ((state == GlobalOverviewPresentationState.Available ||
-                     state == GlobalOverviewPresentationState.Partial) && snapshot == null)
+                     state == GlobalOverviewPresentationState.Partial) &&
+                    snapshot == null)
                 {
                     state = GlobalOverviewPresentationState.Error;
                 }
@@ -365,10 +367,9 @@ namespace SettlementTradeOverview.UI.GlobalOverview
 
         private void EnsureCategoryAvailability(TradeInventorySnapshot snapshot)
         {
-            if (!_categoryAvailabilityDirty && ReferenceEquals(_categorySnapshot, snapshot) && string.Equals(
-                    _categorySearchText,
-                    _searchText,
-                    StringComparison.Ordinal))
+            if (!_categoryAvailabilityDirty &&
+                ReferenceEquals(_categorySnapshot, snapshot) &&
+                string.Equals(_categorySearchText, _searchText, StringComparison.Ordinal))
             {
                 return;
             }

@@ -284,7 +284,7 @@ namespace SettlementTradeOverview.Tests.Query
         [TestCase(SnapshotAvailability.Failed)]
         public void Execute_NonQueryableGlobalAvailability_ReturnsEmptyResult(SnapshotAvailability availability)
         {
-            var snapshot = new TradeInventorySnapshot(availability, 0, null, null, Array.Empty<TraderSnapshot>());
+            var snapshot = new TradeInventorySnapshot(availability, 0, null, null, null, Array.Empty<TraderSnapshot>());
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(snapshot, TradeQueryCriteria.Default);
 
@@ -442,7 +442,9 @@ namespace SettlementTradeOverview.Tests.Query
             foreach (Type contractType in _publicContractTypes)
             {
                 foreach (PropertyInfo property in contractType.GetProperties(
-                             BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                             BindingFlags.Instance |
+                             BindingFlags.Static |
+                             BindingFlags.Public |
                              BindingFlags.DeclaredOnly))
                 {
                     AssertTypeIsAllowed(contractType, $"property '{property.Name}'", property.PropertyType);
@@ -461,7 +463,9 @@ namespace SettlementTradeOverview.Tests.Query
                 }
 
                 foreach (MethodInfo method in contractType.GetMethods(
-                             BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                             BindingFlags.Instance |
+                             BindingFlags.Static |
+                             BindingFlags.Public |
                              BindingFlags.DeclaredOnly))
                 {
                     AssertTypeIsAllowed(contractType, $"method '{method.Name}' return value", method.ReturnType);
@@ -525,7 +529,7 @@ namespace SettlementTradeOverview.Tests.Query
             SnapshotAvailability availability,
             params TraderSnapshot[] traders)
         {
-            return new TradeInventorySnapshot(availability, 1000, 10, null, traders);
+            return new TradeInventorySnapshot(availability, 1000, 10, 0, null, traders);
         }
 
         private static TraderSnapshot CreateTrader(

@@ -37,14 +37,17 @@ namespace SettlementTradeOverview.Integration.Discovery
             {
                 DiscoveredTraderSource source = sources[index];
 
-                copiedSources[index] = source ?? throw new ArgumentException(
-                    "Sources cannot contain null values.",
-                    nameof(sources));
+                copiedSources[index] = source ??
+                                       throw new ArgumentException(
+                                           "Sources cannot contain null values.",
+                                           nameof(sources));
             }
 
             if (!isContextAvailable)
             {
-                if (copiedSources.Length > 0 || candidateCount != 0 || rejectedCandidateCount != 0 ||
+                if (copiedSources.Length > 0 ||
+                    candidateCount != 0 ||
+                    rejectedCandidateCount != 0 ||
                     failedCandidateCount != 0)
                 {
                     throw new ArgumentException(
@@ -79,12 +82,10 @@ namespace SettlementTradeOverview.Integration.Discovery
 
         public bool IsContextAvailable { get; }
 
-        public IReadOnlyList<DiscoveredTraderSource> Sources =>
-            _sources;
+        public IReadOnlyList<DiscoveredTraderSource> Sources => _sources;
 
         public int FailedCandidateCount { get; }
 
-        public bool HasFailures =>
-            FailedCandidateCount > 0;
+        public bool HasFailures => FailedCandidateCount > 0;
     }
 }

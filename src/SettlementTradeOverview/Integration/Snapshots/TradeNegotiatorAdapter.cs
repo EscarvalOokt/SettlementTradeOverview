@@ -63,7 +63,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
                 if (float.IsNaN(statValue) || float.IsInfinity(statValue))
                     continue;
 
-                if (bestPawn == null || statValue > bestStat ||
+                if (bestPawn == null ||
+                    statValue > bestStat ||
                     (statValue.Equals(bestStat) && pawn.thingIDNumber < bestPawn.thingIDNumber))
                 {
                     bestPawn = pawn;

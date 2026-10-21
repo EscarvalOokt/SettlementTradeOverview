@@ -27,14 +27,11 @@ namespace SettlementTradeOverview.Settings
 
         private static int _eligibilityRevision;
 
-        public static SettlementEligibilityCriteria CurrentEligibilityCriteria =>
-            _currentEligibilityCriteria;
+        public static SettlementEligibilityCriteria CurrentEligibilityCriteria => _currentEligibilityCriteria;
 
-        public static bool ShowGlobalOverviewTab =>
-            _showGlobalOverviewTab;
+        public static bool ShowGlobalOverviewTab => _showGlobalOverviewTab;
 
-        public static int EligibilityRevision =>
-            _eligibilityRevision;
+        public static int EligibilityRevision => _eligibilityRevision;
 
         public static SettlementTradeOverviewSettingsApplyResult Apply(SettlementTradeOverviewSettingsValues values)
         {

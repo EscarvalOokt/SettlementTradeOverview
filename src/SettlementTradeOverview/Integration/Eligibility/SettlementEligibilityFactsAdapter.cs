@@ -30,7 +30,8 @@ namespace SettlementTradeOverview.Integration.Eligibility
             bool isTradeAvailable =
                 settlementFaction != null && settlement.TraderKind != null && settlement.CanTradeNow;
 
-            bool isHostileToPlayer = settlementFaction == null || playerFaction == null ||
+            bool isHostileToPlayer = settlementFaction == null ||
+                                     playerFaction == null ||
                                      settlementFaction.HostileTo(playerFaction);
 
             SettlementTechnologyLevel technologyLevel = settlementFaction?.def == null
@@ -68,19 +69,7 @@ namespace SettlementTradeOverview.Integration.Eligibility
             if (!criteria.MaximumDistanceInTiles.HasValue)
                 return null;
 
-            int settlementTile = settlement.Tile.tileId;
-
-            if (settlementTile < 0 || context.OriginTile < 0)
-                return null;
-
-            float distance = context.WorldGrid.ApproxDistanceInTiles(settlementTile, context.OriginTile);
-
-            if (float.IsNaN(distance) || float.IsInfinity(distance) || distance < 0f || distance > int.MaxValue)
-            {
-                return null;
-            }
-
-            return (int)distance;
+            return TradeLocationAdapter.TryCalculateDistance(context.WorldGrid, settlement.Tile, context.OriginTile);
         }
 
         private static SettlementReachabilityState CalculateReachability(
@@ -91,21 +80,10 @@ namespace SettlementTradeOverview.Integration.Eligibility
             if (!criteria.RequireReachable)
                 return SettlementReachabilityState.Unavailable;
 
-            int settlementTile = settlement.Tile.tileId;
-
-            if (settlementTile < 0 || context.OriginTile < 0)
-                return SettlementReachabilityState.Unavailable;
-
-            int traversalDistance =
-                context.WorldGrid.TraversalDistanceBetween(settlementTile, context.OriginTile, false);
-
-            if (traversalDistance == int.MaxValue)
-                return SettlementReachabilityState.Unreachable;
-
-            if (traversalDistance < 0)
-                return SettlementReachabilityState.Unavailable;
-
-            return SettlementReachabilityState.Reachable;
+            return TradeLocationAdapter.TryCalculateReachability(
+                context.WorldGrid,
+                settlement.Tile,
+                context.OriginTile);
         }
     }
 }

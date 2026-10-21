@@ -18,11 +18,13 @@ namespace SettlementTradeOverview.Integration.Snapshots
             if (trader == null)
                 throw new ArgumentNullException(nameof(trader));
 
-            Thing representative = tradeable.AnyThing ?? throw new InvalidOperationException(
-                "Tradeable does not contain a representative thing.");
+            Thing representative = tradeable.AnyThing ??
+                                   throw new InvalidOperationException(
+                                       "Tradeable does not contain a representative thing.");
 
-            ThingDef definition = tradeable.ThingDef ?? representative.def ?? throw new InvalidOperationException(
-                "Tradeable definition is unavailable.");
+            ThingDef definition = tradeable.ThingDef ??
+                                  representative.def ??
+                                  throw new InvalidOperationException("Tradeable definition is unavailable.");
 
             if (string.IsNullOrWhiteSpace(definition.defName))
                 throw new InvalidOperationException("Tradeable definition name is unavailable.");
@@ -67,11 +69,13 @@ namespace SettlementTradeOverview.Integration.Snapshots
             if (tradeable == null)
                 throw new ArgumentNullException(nameof(tradeable));
 
-            Thing representative = tradeable.AnyThing ?? throw new InvalidOperationException(
-                "Currency tradeable does not contain a representative thing.");
+            Thing representative = tradeable.AnyThing ??
+                                   throw new InvalidOperationException(
+                                       "Currency tradeable does not contain a representative thing.");
 
-            ThingDef definition = tradeable.ThingDef ?? representative.def ??
-                throw new InvalidOperationException("Currency definition is unavailable.");
+            ThingDef definition = tradeable.ThingDef ??
+                                  representative.def ??
+                                  throw new InvalidOperationException("Currency definition is unavailable.");
 
             if (string.IsNullOrWhiteSpace(definition.defName))
                 throw new InvalidOperationException("Currency definition name is unavailable.");

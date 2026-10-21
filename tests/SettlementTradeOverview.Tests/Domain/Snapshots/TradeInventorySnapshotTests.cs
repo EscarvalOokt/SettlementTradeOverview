@@ -21,6 +21,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 SnapshotAvailability.Available,
                 120000,
                 15,
+                0,
                 null,
                 new[]
                 {
@@ -44,7 +45,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 first
             };
 
-            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 120000, 15, null, traders);
+            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 120000, 15, 0, null, traders);
 
             traders[0] = CreateAvailableTrader("Settlement:2", 2, "Beta", "Gold");
 
@@ -61,6 +62,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 SnapshotAvailability.Available,
                 120000,
                 15,
+                0,
                 null,
                 new[]
                 {
@@ -81,6 +83,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 SnapshotAvailability.Available,
                 120000,
                 15,
+                3,
                 negotiator,
                 new[]
                 {
@@ -89,6 +92,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
 
             Assert.That(snapshot.CapturedAtTick, Is.EqualTo(120000));
             Assert.That(snapshot.OriginTile, Is.EqualTo(15));
+            Assert.That(snapshot.OriginLayerId, Is.EqualTo(3));
             Assert.That(snapshot.Negotiator, Is.SameAs(negotiator));
         }
 
@@ -100,12 +104,14 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 120000,
                 null,
                 null,
+                null,
                 new[]
                 {
                     CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
                 });
 
             Assert.That(snapshot.OriginTile, Is.Null);
+            Assert.That(snapshot.OriginLayerId, Is.Null);
             Assert.That(snapshot.Negotiator, Is.Null);
         }
 
@@ -116,6 +122,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 SnapshotAvailability.Empty,
                 120000,
                 15,
+                0,
                 null,
                 new[]
                 {
@@ -137,6 +144,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         SnapshotAvailability.Empty,
                         120000,
                         15,
+                        0,
                         null,
                         new[]
                         {
@@ -157,6 +165,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         availability,
                         120000,
                         15,
+                        0,
                         null,
                         new[]
                         {
@@ -176,6 +185,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         SnapshotAvailability.Available,
                         120000,
                         15,
+                        0,
                         null,
                         new[]
                         {
@@ -194,6 +204,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             Assert.That(first.Availability, Is.EqualTo(second.Availability));
             Assert.That(first.CapturedAtTick, Is.EqualTo(second.CapturedAtTick));
             Assert.That(first.OriginTile, Is.EqualTo(second.OriginTile));
+            Assert.That(first.OriginLayerId, Is.EqualTo(second.OriginLayerId));
             Assert.That(first.TraderCount, Is.EqualTo(second.TraderCount));
             Assert.That(first.EntryCount, Is.EqualTo(second.EntryCount));
 
@@ -213,6 +224,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         -1,
                         null,
                         null,
+                        null,
                         Array.Empty<TraderSnapshot>());
                 }),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
@@ -228,6 +240,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         SnapshotAvailability.Empty,
                         0,
                         -1,
+                        0,
                         null,
                         Array.Empty<TraderSnapshot>());
                 }),
@@ -245,6 +258,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         0,
                         null,
                         null,
+                        null,
                         new TraderSnapshot[]
                         {
                             null
@@ -253,12 +267,42 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 Throws.TypeOf<ArgumentException>());
         }
 
+        [TestCase(15, null)]
+        [TestCase(null, 1)]
+        public void Constructor_IncompleteOrigin_Throws(int? originTile, int? originLayerId)
+        {
+            Assert.That(
+                (Action)(() => new TradeInventorySnapshot(
+                    SnapshotAvailability.Empty,
+                    0,
+                    originTile,
+                    originLayerId,
+                    null,
+                    Array.Empty<TraderSnapshot>())),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void Constructor_NegativeOriginLayer_Throws()
+        {
+            Assert.That(
+                (Action)(() => new TradeInventorySnapshot(
+                    SnapshotAvailability.Empty,
+                    0,
+                    15,
+                    -1,
+                    null,
+                    Array.Empty<TraderSnapshot>())),
+                Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
         private static TradeInventorySnapshot CreateEquivalentSnapshot()
         {
             return new TradeInventorySnapshot(
                 SnapshotAvailability.Available,
                 120000,
                 15,
+                0,
                 new TradeNegotiatorSnapshot("Pawn:7", "Alex", 0.18f),
                 new[]
                 {

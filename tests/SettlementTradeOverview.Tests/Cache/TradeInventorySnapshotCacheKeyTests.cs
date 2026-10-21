@@ -33,6 +33,18 @@ namespace SettlementTradeOverview.Tests.Cache
         }
 
         [Test]
+        public void SameMapAndTileOnDifferentLayers_ChangesFullAndReuseKeys()
+        {
+            TradeInventorySnapshotCacheKey surface = CreateAvailableKey(originLayerId: 0);
+            TradeInventorySnapshotCacheKey orbit = CreateAvailableKey(originLayerId: 1);
+
+            Assert.That(surface.OriginTile, Is.EqualTo(orbit.OriginTile));
+            Assert.That(orbit.OriginLayerId, Is.EqualTo(1));
+            Assert.That(surface.Equals(orbit), Is.False);
+            Assert.That(surface.ReuseKey.Equals(orbit.ReuseKey), Is.False);
+        }
+
+        [Test]
         public void NegotiatorPresenceOrIdentityChange_ChangesKey()
         {
             TradeInventorySnapshotCacheKey withoutNegotiator = CreateAvailableKey();
@@ -165,6 +177,7 @@ namespace SettlementTradeOverview.Tests.Cache
         private static TradeInventorySnapshotCacheKey CreateAvailableKey(
             int mapId = 1,
             int originTile = 10,
+            int originLayerId = 0,
             TradeNegotiatorSnapshot negotiator = null,
             SettlementEligibilityCriteria criteria = null,
             IReadOnlyList<TraderIdentity> traderIdentities = null,
@@ -172,14 +185,16 @@ namespace SettlementTradeOverview.Tests.Cache
             bool hasPoweredCommsConsole = true,
             bool isRoyaltyActive = false)
         {
-            IReadOnlyList<TraderIdentity> effectiveTraderIdentities = traderIdentities ?? new[]
-            {
-                new TraderIdentity("Settlement:1")
-            };
+            IReadOnlyList<TraderIdentity> effectiveTraderIdentities = traderIdentities ??
+                                                                      new[]
+                                                                      {
+                                                                          new TraderIdentity("Settlement:1")
+                                                                      };
 
             TradeInventorySnapshotReuseKey reuseKey = CreateReuseKey(
                 mapId,
                 originTile,
+                originLayerId,
                 negotiator,
                 criteria,
                 hasPoweredCommsConsole,
@@ -194,6 +209,7 @@ namespace SettlementTradeOverview.Tests.Cache
         private static TradeInventorySnapshotReuseKey CreateReuseKey(
             int mapId = 1,
             int originTile = 10,
+            int originLayerId = 0,
             TradeNegotiatorSnapshot negotiator = null,
             SettlementEligibilityCriteria criteria = null,
             bool hasPoweredCommsConsole = true,
@@ -202,6 +218,7 @@ namespace SettlementTradeOverview.Tests.Cache
             return TradeInventorySnapshotReuseKey.CreateAvailableContext(
                 mapId,
                 originTile,
+                originLayerId,
                 negotiator,
                 criteria ?? SettlementEligibilityCriteria.Default,
                 hasPoweredCommsConsole,

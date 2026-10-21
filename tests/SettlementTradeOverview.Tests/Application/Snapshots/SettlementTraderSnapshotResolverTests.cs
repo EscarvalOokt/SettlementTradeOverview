@@ -107,7 +107,7 @@ namespace SettlementTradeOverview.Tests.Application.Snapshots
         {
             SnapshotAvailability availability = SnapshotAvailability.Partial;
 
-            return new TradeInventorySnapshot(availability, 1000, 10, null, traders);
+            return new TradeInventorySnapshot(availability, 1000, 10, 0, null, traders);
         }
 
         private static TraderSnapshot CreateTrader(

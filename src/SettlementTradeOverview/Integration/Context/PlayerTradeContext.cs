@@ -8,12 +8,13 @@ namespace SettlementTradeOverview.Integration.Context
 {
     internal sealed class PlayerTradeContext
     {
-        private readonly ReadOnlyCollection<Settlement> _settlements;
         private readonly ReadOnlyCollection<Pawn> _colonists;
+        private readonly ReadOnlyCollection<Settlement> _settlements;
 
         public PlayerTradeContext(
             Map originMap,
-            int originTile,
+            PlanetTile originTile,
+            int originLayerId,
             WorldGrid worldGrid,
             IReadOnlyList<Settlement> settlements,
             IReadOnlyList<Pawn> colonists,
@@ -23,8 +24,11 @@ namespace SettlementTradeOverview.Integration.Context
             if (originMap == null)
                 throw new ArgumentNullException(nameof(originMap));
 
-            if (originTile < 0)
+            if (!originTile.Valid)
                 throw new ArgumentOutOfRangeException(nameof(originTile));
+
+            if (originLayerId < 0)
+                throw new ArgumentOutOfRangeException(nameof(originLayerId));
 
             if (worldGrid == null)
                 throw new ArgumentNullException(nameof(worldGrid));
@@ -47,6 +51,7 @@ namespace SettlementTradeOverview.Integration.Context
 
             OriginMap = originMap;
             OriginTile = originTile;
+            OriginLayerId = originLayerId;
             WorldGrid = worldGrid;
             _settlements = Array.AsReadOnly(copiedSettlements);
             _colonists = Array.AsReadOnly(copiedColonists);
@@ -56,15 +61,15 @@ namespace SettlementTradeOverview.Integration.Context
 
         public Map OriginMap { get; }
 
-        public int OriginTile { get; }
+        public PlanetTile OriginTile { get; }
+
+        public int OriginLayerId { get; }
 
         public WorldGrid WorldGrid { get; }
 
-        public IReadOnlyList<Settlement> Settlements =>
-            _settlements;
+        public IReadOnlyList<Settlement> Settlements => _settlements;
 
-        public IReadOnlyList<Pawn> Colonists =>
-            _colonists;
+        public IReadOnlyList<Pawn> Colonists => _colonists;
 
         public bool HasPoweredCommsConsole { get; }
 

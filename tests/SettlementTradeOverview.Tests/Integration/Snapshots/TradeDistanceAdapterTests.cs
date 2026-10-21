@@ -72,6 +72,19 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         }
 
         [Test]
+        public void Resolve_UnreachableWithoutNumericDistance_PreservesRouteWarning()
+        {
+            TradeDistance result = TradeDistanceStateResolver.Resolve(
+                null,
+                null,
+                SettlementReachabilityState.Unreachable);
+
+            Assert.That(result.RouteState, Is.EqualTo(TradeRouteState.Unreachable));
+            Assert.That(result.Tiles, Is.Null);
+            Assert.That(result.HasTileDistance, Is.False);
+        }
+
+        [Test]
         public void Resolve_NegativeCalculatedDistance_ReturnsUnavailable()
         {
             TradeDistance result = TradeDistanceStateResolver.Resolve(null, -1, SettlementReachabilityState.Reachable);

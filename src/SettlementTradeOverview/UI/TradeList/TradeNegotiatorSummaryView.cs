@@ -26,8 +26,9 @@ namespace SettlementTradeOverview.UI.TradeList
                 throw new ArgumentNullException(nameof(navigateToNegotiator));
 
             var summary = "STO.GlobalOverview.NegotiatorSummary".Translate(
-                negotiator.Label,
-                negotiator.TradePriceImprovement.ToStringPercent()).ToString();
+                    negotiator.Label,
+                    negotiator.TradePriceImprovement.ToStringPercent())
+                .ToString();
 
             float iconSize = RimWorldUiStyle.Metrics.IconButtonSize;
             float leftWidth = iconSize * 2f + RimWorldUiStyle.Metrics.IconButtonGap * 2f;

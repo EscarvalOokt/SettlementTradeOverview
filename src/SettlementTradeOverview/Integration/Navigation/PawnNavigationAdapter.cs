@@ -15,7 +15,9 @@ namespace SettlementTradeOverview.Integration.Navigation
 
             try
             {
-                if (!PawnRuntimeAdapter.TryResolve(pawnId, out Pawn pawn) || pawn.Destroyed || !pawn.Spawned ||
+                if (!PawnRuntimeAdapter.TryResolve(pawnId, out Pawn pawn) ||
+                    pawn.Destroyed ||
+                    !pawn.Spawned ||
                     pawn.MapHeld == null)
                 {
                     return false;

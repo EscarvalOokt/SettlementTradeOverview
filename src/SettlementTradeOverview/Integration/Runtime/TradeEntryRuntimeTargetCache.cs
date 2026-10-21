@@ -48,10 +48,10 @@ namespace SettlementTradeOverview.Integration.Runtime
 
     internal sealed class TradeEntryRuntimeTargetRegistry<TTarget> where TTarget : class
     {
+        private readonly Func<TTarget, bool> _isValid;
+
         private readonly Dictionary<TradeEntryIdentity, TTarget> _targets =
             new Dictionary<TradeEntryIdentity, TTarget>();
-
-        private readonly Func<TTarget, bool> _isValid;
 
         public TradeEntryRuntimeTargetRegistry(Func<TTarget, bool> isValid)
         {

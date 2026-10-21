@@ -1,19 +1,28 @@
-
 <Project>
     <PropertyGroup>
         <!--
-        Set this to the Managed directory of your local RimWorld installation.
+        Set this to the RimWorld 1.7 directory containing Assembly-CSharp.dll
+        and UnityStubs.dll (the game root on Windows).
         Example for a default Steam installation on Windows:
-        C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed
+        C:\Program Files (x86)\Steam\steamapps\common\RimWorld
         -->
-        <RimWorldManagedDir>C:\Path\To\RimWorld\RimWorldWin64_Data\Managed</RimWorldManagedDir>
+        <RimWorldManagedDir>C:\Path\To\RimWorld</RimWorldManagedDir>
 
         <!--
-        Set this to the Assemblies directory of the local RimWorld mod installation
-        used for development deployment.
-        Example:
-        C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\SettlementTradeOverview\Assemblies\Current
+        Ordinary build and test commands do not deploy to the game.
+        Set this optional destination before explicitly building with
+        -p:DeployToGame=true. The destination must end in 1.7\Assemblies.
+        Only the current SettlementTradeOverview.dll is copied; first install
+        the complete package prepared with -t:PackageMod in a clean directory.
+        The preserved 1.6 DLL is never rebuilt or deployed by this project.
         -->
-        <RimWorldModAssembliesDir>C:\Path\To\RimWorld\Mods\SettlementTradeOverview\Assemblies\Current</RimWorldModAssembliesDir>
+        <!-- <RimWorldModAssembliesDir>C:\Path\To\RimWorld\Mods\SettlementTradeOverview\1.7\Assemblies</RimWorldModAssembliesDir> -->
+
+        <!--
+        Shared UI source is detected when its checkout is next to the mod,
+        or next to the parent Released directory. Override this path only
+        for a different workspace layout. The provider project is not built.
+        -->
+        <!-- <EscarvalRimWorldUiProjectDir>C:\Path\To\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir> -->
     </PropertyGroup>
 </Project>

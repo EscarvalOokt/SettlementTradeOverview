@@ -1,487 +1,172 @@
-
 # Settlement Trade Overview testing policy
 
-This document defines automated testing and runtime acceptance boundaries for Settlement Trade Overview.
-
-The project contains the NUnit-based `SettlementTradeOverview.Tests` project. The current full automated suite passes for the implemented baseline after the composition, optional Planner integration, Details, runtime-target, distance, restock, tint-aware icon, localization and normalized asset changes. The suite covers the project smoke pipeline, the shared-source consumer assembly boundary, domain snapshots, query semantics, search-sensitive category availability, settlement eligibility, settings defaults and policy, command-state policy, live-to-snapshot transformations, canonical genepack compositions, pawn trade details, optional Planner binding and transient projection, full Details sorting, runtime target registry behavior, presentation policies, full cache-key semantics, lightweight reuse-key compatibility and cache lifecycle contracts. Generic UI helper contracts belong to the canonical `Escarval.RimWorld.UI.Tests` project. The final SVG sources and regenerated packaged PNG textures are part of the current baseline. The agreed in-game compatibility, optional-integration, asset, localization and regression scenarios have also been completed successfully.
-
-This is a testing policy, not a product architecture specification, RoadMap or vanilla implementation reference.
+This document defines automated test boundaries and reproducible in-game acceptance scenarios. Build and test commands, including deployment behavior, are in [README](../README.md#development). Implementation contracts are in [Architecture](architecture.md).
 
 ## Testing principle
 
-Settlement Trade Overview uses a risk-based, contract-oriented testing approach.
+Protect meaningful project-owned behavior: which settlements and offers appear, their ordering and displayed values, settings semantics, cache lifetime, isolation of failures and separation from live game objects.
 
-The primary question before adding or retaining an automated test is:
+Use deterministic tests for STO decisions given supplied inputs. Use source inspection for a specific external implementation. Use the game for actual stock generation, save/load, Def initialization, optional integrations, input and rendering. None substitutes for the others, and a scenario written here is not evidence that it ran.
 
-> Which meaningful Settlement Trade Overview-owned contract does this test protect, and which realistic regression can it detect?
+Test count and method coverage are not acceptance goals. Do not reproduce private RimWorld systems in mocks or add production abstractions solely to inspect a literal UI value.
 
-Automated tests should protect behavior where a regression can silently change which settlements or goods are shown, produce incorrect ordering or pricing presentation, break cache or settings lifecycle rules, or expose live runtime state across project-owned boundaries.
+## Validation status
 
-Test count and broad method-level coverage are not goals by themselves.
+The 1.7 source review on 2026-10-21 examined game version `1.7.4984 rev1242` and `Assembly-CSharp` version `1.7.9789.37269`. It addressed settlement stock lifecycle, native world-object components, genepack grouping, world-layer identity and the UI compatibility paths used by STO.
 
-A test should not be retained only because the corresponding class or method exists.
+The Release solution build passed with no warnings or errors using .NET SDK `10.0.401`. STO passed 552/552 tests on the normal `net472` test host. An isolated `net10.0` test project also passed 552/552 while referencing the same production `net472` DLL, using runtime `10.0.12`. The supplier's unchanged source/tests passed 64/64 separately on each host. These results belong to the 2026-10-21 working-tree migration and production DLL SHA-256 `28182d1a31980b870a1c6f3ce1ae52fde2a0f8a3bcbe4003b6baf426e341b031`.
 
-## Test project boundary
+All 28 package XML files parsed; the five language sets each contained 95 matching keyed entries with matching placeholders and the expected main-button DefInjected paths. Ordinary builds did not deploy files, including with an empty deployment destination. Explicit deployment was checked against a scratch directory, and enabling it without a destination produced the expected validation error.
 
-The automated test boundary is implemented through the dedicated `SettlementTradeOverview.Tests` project under `tests/SettlementTradeOverview.Tests`, included in `src/SettlementTradeOverview.sln`. Its assembly name, namespace and behavioral ownership are unchanged.
+The maintainer subsequently reported a successful local build/test run, error-free game startup and normal mod operation on 1.7. On 2026-10-21, the maintainer confirmed that the main manual runtime scenarios passed without errors. This is a reported manual pass; diagnostic scenarios remain unverified.
 
-The current foundation provides:
+The report does not identify the exact runtime build, tested DLL hash, DLC/mod list, languages or individual scenario/configuration results. The earlier assembly versions, DLL hash and test counts above identify the automated/source baseline, not the maintainer's later game session. The aggregate manual pass does not establish every optional configuration, specialized fixture or instrumented assertion in R01–R28.
 
-* NUnit-based execution through `Microsoft.NET.Test.Sdk` and `NUnit3TestAdapter`;
-* Debug and Release solution integration;
-* a reference to the production project;
-* a minimal smoke test proving that the test pipeline runs;
-* contract-oriented fixtures added together with project-owned implementation stages.
+Historical 1.6 project records report successful stock lifecycle, settlement-component, grouping, integration, localization and performance acceptance. Their original run dates and exact runtime build were not recorded. Those results remain historical documentary evidence, not a 1.7 pass or a general compatibility claim.
 
-The smoke test is infrastructure validation and is not presented as product behavior coverage.
+The package was subsequently corrected to retain the historical 1.6 DLL alongside the current 1.7 DLL. `PackageMod` completed with no warnings or errors, and deployment checks accepted `1.7/Assemblies/` while rejecting a 1.6 destination, an unversioned destination, a missing destination and an installation retaining root-level DLLs. The new `LoadFolders.xml` was checked against the inspected 1.6 and 1.7 loader implementations. This package change requires a separate installed-package smoke check under each game version (R28); it has not been launched in either game version and does not invalidate the earlier 1.7 gameplay report.
 
-The full current suite is green on the current build. Runtime acceptance remains separate because the deterministic host does not reproduce the complete RimWorld, Verse or Unity runtime.
+## Automated test boundary
 
-The normalized test-project location and solution membership preserve all existing fixtures and discovery behavior. Generic shared tests remain outside STO and the runtime acceptance boundary is unchanged.
+The NUnit project at [tests/SettlementTradeOverview.Tests](../tests/SettlementTradeOverview.Tests/SettlementTradeOverview.Tests.csproj) references the production project. It runs outside the complete game. Its smoke fixture establishes test discovery/execution only.
 
-Tests that require reflection over production types must remain within the assemblies available to the deterministic test host. A test must not force Unity or the full game runtime to load merely to inspect a UI-only implementation detail that belongs to runtime acceptance.
+| Area | Meaningful project contracts |
+| --- | --- |
+| Query | Search across items, pawns and settlements; categories; search-sensitive category availability; all sort modes/directions; deterministic ties; empty and unavailable data. |
+| Eligibility and commands | Trade/hostility/technology criteria; communications, distance, reachability and Royalty rules from supplied facts; enabled/disabled/hidden state and disabled-reason selection. |
+| Snapshot conversion | One adapter capture per trader build; counts/currency; runtime-free pawn details and canonical gene names; safe malformed/missing metadata; per-trader failure isolation. |
+| Price/restock/distance policies | Validity and fallback states; negotiated versus market-value presentation; independent numeric distance and route state; restock ticks and origin-relative moment data. |
+| Layer identity | Origin layer in snapshots and cache/reuse equality; rejection of cross-layer distance comparison; safe unavailable or unreachable results; same-layer behavior without replacing endpoints by surface IDs. |
+| Cache | Full key versus lightweight reuse key; map/origin/layer/negotiator/criteria changes; conditional communications/Royalty facts; refresh/invalidation; unavailable context and failure states. |
+| Settings | Defaults, normalization, optional criteria and upper distance bound; global-button visibility independent of eligibility; defaults for missing persisted values. |
+| Planner adapter | Exact API-version/public-shape acceptance, missing/incompatible API, invalid/failed replies, copied stable IDs/names, ordinary-stock fallback and transient projection. |
+| Presentation and runtime targets | Details ordering, formatting policies, target registration/reset and safe missing-target fallback without live values entering immutable contracts. |
+| Source composition | Shared UI types are compiled into the STO assembly; no separate runtime UI assembly is required. |
 
-## What automated tests protect
+These checks establish STO behavior under their supplied inputs. They do not prove that RimWorld supplies those facts, that `Goods` is pure, that Scribe saves correctly, or that a real Planner version has the behavior of a fixture.
 
-### Core query semantics
+Generic UI helper tests belong to `Escarval.RimWorld.UI.Tests` at the supplier. Their execution is recorded separately; passing supplier tests does not establish consumer rendering or input correctness. STO keeps its own composition and integration checks.
 
-Project-owned deterministic query behavior should be tested thoroughly.
+Package inspection complements the suite: verify XML parsing, Def references, language keys/placeholders, `DefInjected/<DefType>/` placement, referenced textures, load-folder selection and assembly contents. Check that each supported version selects exactly one STO DLL and that the preserved 1.6 DLL retains its checksum. File presence does not establish successful loading or translation quality.
 
-This includes:
+## Runtime acceptance boundary
 
-* category assignment;
-* item, pawn and settlement search semantics;
-* filter composition;
-* all supported sorting modes and directions, including the implemented Details ordering across Planner relevance, colonist and slave outcomes, rideable factors and neutral rows;
-* deterministic tie-breaking;
-* stable behavior for empty and unavailable data;
-* distinction between negotiator-specific price estimates and market-value fallbacks;
-* search-sensitive category availability before active-category filtering.
+The scenarios below remain the procedures and acceptance criteria for 1.7, with R28 additionally checking package selection on 1.6. The main manual checks have a maintainer-reported pass as summarized above; this does not mark every assertion in the tables passed. In particular, separate visible behavior from internal state and call counts that require diagnostic observation. Do not derive a runtime pass from source analysis or an automated fixture.
 
-A regression that hides a valid trade entry, includes an ineligible settlement, changes a deterministic order or misrepresents a price state requires automated protection.
+### Diagnostic checks still unverified
 
-Category-availability tests protect the direct unsorted scan contract. They do not benchmark IMGUI performance, but they should detect a semantic regression if category metadata stops matching the search projection.
+| Scenario | Outstanding diagnostic observation |
+| --- | --- |
+| R05–R06, R10 | Exact public stock-read counts, absence of rediscovery/capture during compatible reopen, and internal cache invalidation/reuse decisions. Successful opening and Refresh alone do not prove these counts. |
+| R07–R08 | Tracker state and the exact destruction/generation sequence around expiry and save/load, including empty stock. Manual display/load outcomes are distinct from observing the tracker. |
+| R09 | Settlement removal/unavailability with a retained snapshot and an injected failing trader; isolation of failures and destroyed runtime targets. |
+| R14 | Restoration of the internal `TradeSession` fields after capture. Visible price comparisons do not establish restoration. |
+| R19 | Empty, unavailable or malformed genepack composition fixtures and the actual grouping/conversion failure boundary. |
+| R20 | A deliberately incompatible Planner API fixture/build and its runtime fallback. Ordinary operation with or without Planner does not cover this branch. |
 
-### Settlement eligibility policy
+Other assertions requiring component/snapshot inspection, API-result comparison, callback tracing or profiling also remain unverified without their own observations. Optional DLC, layer, language, save add/remove and package-identity cases have no separately recorded outcomes in the aggregate report; do not infer that every configuration or fixture was exercised.
 
-When eligibility rules are project-owned, tests should protect combinations such as:
+### Candidate, environments and observations
 
-* trade availability;
-* faction hostility;
-* technology requirements;
-* communication-console requirements;
-* maximum distance;
-* world reachability;
-* Royalty-aware title and permit eligibility when Royalty is active, with safe core behavior when it is absent.
+Before a run, record the date, game version/revision, operating system, STO source revision and DLL SHA-256, shared UI source revision, complete DLC/mod list and load order, settings, language, resolution and UI scale. Record the candidate package path and verify that its DLL matches the one being evaluated.
 
-The tests should exercise project-owned policy from supplied boundary data. They must not claim to prove how RimWorld discovers settlements, identifies player-home maps or calculates paths internally.
+Use disposable copies of saves for lifecycle and add/remove cases. Record the world seed, origin map/layer/tile, settlement IDs, relevant pawn IDs and initial game tick so another run can restore the same starting state. Keep a copy before stock access, expiry, settlement removal and each save transition.
 
-The powered-console map scope and live `Building_CommsConsole` power state require runtime validation. Automated tests protect the criteria and settings policy that decide whether the requirement is enabled.
+Use these configurations as separate rows in the results:
 
-### Snapshot and aggregation contracts
+| Configuration | Content |
+| --- | --- |
+| Core | Core plus STO; no optional DLC, Planner or Harmony mod. |
+| Royalty | Core, Royalty and STO, including qualifying and non-qualifying colonists. |
+| Biotech | Core, Biotech and STO, with physical genepacks and trade pawns. |
+| Planner | Biotech configuration plus an identified compatible Planner API version 1 build. |
+| Incompatible Planner | A separately identified test fixture or Planner build exposing an unsupported public API; never modify the installed production Planner merely to manufacture the case. |
+| Inherited settlement | The DLC/configuration providing an Archonexus settlement Def, or a recorded test fixture inheriting vanilla Settlement. |
+| Multiple layers | An identified DLC/test configuration providing at least two world layers and reproducible map/settlement endpoints. |
 
-Tests should cover non-trivial transformation from runtime boundary data into project-owned snapshots.
+Where a configuration or fixture is unavailable, record that case as not run with the missing prerequisite. A core-only pass does not cover it.
 
-This includes:
+Capture the log interval and visible result for each case. For claims about capture count, cache reuse, tracker state, trade-session restoration or component multiplicity, observe the named members with debugger breakpoints/watches or temporary diagnostic instrumentation in an isolated candidate. State exactly how the observation was made; screen appearance alone cannot prove that no stock read occurred. Remove diagnostic changes before checking the release candidate.
 
-* grouping equivalent tradeable objects under the selected project rule;
-* runtime-free genepack composition projection according to the verified vanilla trade-row grouping policy;
-* currency separation;
-* pawn handling, including runtime-free purchase-outcome and rideable metadata;
-* per-trader and global aggregation;
-* preservation of trader identity where required;
-* count and restock metadata projection, including runtime-free expected-restock moment data when available;
-* independent distance and ground-route state, including numeric distance preservation for settlements without a traversable ground route;
-* isolation of malformed or unavailable trader data;
-* deterministic snapshot output for equivalent input;
-* immediate conversion from supplied runtime values into project-owned values;
-* absence of live `Thing`, `Pawn`, `Genepack`, `GeneDef`, `GeneSet`, `Tradeable` or mutable vanilla collections from long-lived snapshot state;
-* safe absence of genetics composition metadata for non-genepack entries;
-* one canonical composition per supported genepack row, using distinct non-empty gene definition names in deterministic ordinal order;
-* equivalent canonical output for reordered genes or duplicate multiplicity;
-* preservation of ordinary trade-row data with absent composition metadata when the representative, `GeneSet` or resulting canonical composition is malformed, unavailable or empty;
-* independent support for several trade rows that expose the same canonical composition.
+For a failed case, retain the starting save, exact actions and relevant log. Separate failure, not run and deliberate support exclusion.
 
-The immutable snapshot boundary remains a meaningful automated contract. UI-owned row presentation is a runtime-facing presentation implementation and must not be tested through reflection in a way that requires loading Unity modules in the deterministic test host.
+### Loading and entry points
 
-### Trader adapter contracts
+| ID | Setup | Action | Expected result |
+| --- | --- | --- | --- |
+| R01 | Clean Core configuration and complete candidate package, no other STO copy. | Start RimWorld, enable STO, restart, create/load a colony and open both entry points. | Metadata, Defs, patches, assemblies and textures load without STO errors. Global overview and eligible settlement window open without Harmony or Planner. |
+| R02 | Current map with no powered console; eligible friendly settlement otherwise within configured limits. | Open the global overview and select the settlement. Enable/disable the console requirement, then power a console on/off. | Availability follows the setting and actual power state; disabled command explains the reason. An unchanged eligible case can open normally. |
+| R03 | New world and a save made before STO was enabled; supported settlement and a player-owned settlement. | Inspect commands in both games; save/reload twice and inspect component instances. | Exactly one STO command/component on supported targets, vanilla commands retained, no STO command on player-owned targets. No duplicate after load. |
+| R04 | Inherited-settlement configuration plus an independently defined settlement-like fixture, if available. | Select each object and inspect its Def/components and gizmos. | Inheritance follows the patched comps list; player-owned Archonexus objects suppress trade access. Independent Defs are not treated as guaranteed coverage; record their actual behavior without adding a Harmony workaround. |
 
-Automated tests may protect the project-owned behavior surrounding a supplied trader boundary without claiming to simulate vanilla stock generation.
+### Stock and cache lifecycle
 
-Meaningful contracts include:
+For R05–R08 observe `Settlement_TraderTracker` stock state and public restock values before and after the action. Avoid reading `Goods` merely to inspect the precondition: the getter can generate stock.
 
-* one stock-capture operation per trader snapshot build;
-* immediate conversion of each supplied live entry into project-owned values;
-* extraction of genepack gene def names only during that conversion boundary;
-* no later `ITrader.Goods` access from query or UI layers;
-* correct treatment of empty, malformed and failed reads, including preserving ordinary row data when only genepack composition extraction fails;
-* preservation of public restock metadata and trade-origin expected-time inputs in the resulting snapshot state;
-* registration of transient representative item targets without placing live `Thing` values in snapshots;
-* safe invalidation and fallback when a representative target is missing or destroyed;
-* safe rejection of a trader that becomes unavailable before conversion completes.
-
-Tests should use the smallest practical seam. They must not reproduce `Settlement_TraderTracker` internally or claim to prove when vanilla generates or destroys stock.
-
-### Cache and lifecycle rules
-
-Project-owned cache transitions and compatibility rules are covered by the current automated suite.
-
-The implemented cache model has two related contracts:
-
-* the full cache key protects complete build reuse and includes the base runtime context, ordered trader identities and discovery failure state;
-* the lightweight reuse key protects immediate window reopen and intentionally excludes trader identities and discovery failures.
-
-Automated coverage should include:
-
-* first complete build;
-* reuse of a valid snapshot through an equivalent full key;
-* full-key changes for map, origin, negotiator, eligibility criteria, trader identity order or discovery failure state;
-* equivalent lightweight reuse keys producing equal values and hash codes;
-* reuse-key changes for map, origin, negotiator or relevant eligibility context;
-* powered-console state affecting reuse only when that requirement is enabled;
-* Royalty-active state affecting reuse only when the Royalty requirement is enabled;
-* trader identities and discovery failures not being exposed by the reuse key;
-* read-only reusable-snapshot lookup returning the same snapshot without invoking a factory or changing cache state;
-* incompatible reuse keys returning no reusable snapshot;
-* explicit manual full refresh replacing the current snapshot;
-* complete invalidation removing both full-build and reopen reuse;
-* reset after new-game or load boundaries;
-* failure isolation between traders;
-* Planner relevance not participating in full-key or lightweight-reuse-key equality;
-* reusable stock snapshots remaining reusable when only Planner state changes.
-
-Manual refresh tests should protect the project contract:
-
-```text
-discard project-owned snapshot
-→ request a new full adapter capture
-→ replace the snapshot with newly converted values
-```
-
-They must not assert that the underlying vanilla `Goods` getter is side-effect free. Vanilla lazy generation belongs to runtime acceptance.
-
-Trader-specific partial refresh is not part of the first-release lifecycle. Tests for partial invalidation and fallback to complete refresh are added only if a new measured post-release requirement leads to that feature being approved and implemented.
-
-Tests should target transition and compatibility contracts rather than the existence of individual methods.
-
-### Settings contracts
-
-The current automated suite protects deterministic mod-owned settings behavior.
-
-This includes:
-
-* accepted default values;
-* conversion to `SettlementEligibilityCriteria`;
-* disabling technology and distance filters through nullable criteria values;
-* equivalence comparison for eligibility-relevant settings;
-* normalization of negative maximum distance to the default value;
-* clamping maximum distance to the supported upper bound of `3000`;
-* independence of the global-tab visibility setting from settlement eligibility;
-* safe defaults for newly introduced persisted values.
-
-The settings tests use the runtime-free values and policy boundary. They do not attempt to reproduce the complete RimWorld Scribe or mod-settings UI runtime.
-
-Actual persistence, settings-window interaction, main-button visibility and cache invalidation after player changes require runtime acceptance.
-
-Settings for deferred prototype features are not test targets because those features are not implemented.
-
-### Presentation and projection metadata contracts
-
-Presentation tests are appropriate when they protect non-trivial user-facing policy.
-
-Examples include:
-
-* which status is shown when several fallback states apply;
-* user-facing ordering when ordering changes interpretation;
-* formatting that combines price, distance, restock or negotiator state;
-* loading, empty, unavailable and partial-error state selection;
-* search-sensitive category availability;
-* Details-column visibility for pawn metadata and optional relevance presentation;
-* deterministic Details sorting across every value rendered in the column;
-* bounded Planner relevance tooltip presentation;
-* distance presentation that keeps numeric tiles separate from ground-route warnings;
-* static restock presentation that combines remaining time with an expected timestamp relative to the active trade origin;
-* disabled reasons that combine multiple settings or runtime conditions.
-
-Projection metadata and row presentation are cached as part of the UI lifecycle. Automated tests should protect deterministic policies feeding that cache, not frame-level allocations or direct IMGUI calls.
-
-Automated tests are generally not required for:
-
-* literal labels;
-* direct translation-key forwarding;
-* individual colors;
-* spacing or fixed layout constants;
-* the presence of a simple glyph;
-* direct `Widgets` calls;
-* whether a tooltip region is registered on a specific IMGUI event;
-* private UI model shape when inspecting it requires Unity runtime assemblies.
-
-A simple presentation helper should not be extracted only to create a trivial mapping test.
-
-### Shared UI API contracts
-
-The compile-time/shared-source UI project tests deterministic helpers with meaningful behavior, such as:
-
-* sortable-header state transitions;
-* fixed-height and variable-height visible-range calculations;
-* list geometry and clipping projections;
-* restoration helpers for global IMGUI state;
-* disabled-state or action-policy decisions that combine several values.
-
-The project is connected to the external sibling source. Canonical generic tests belong to `Escarval.RimWorld.UI.Tests` and run through `../../Escarval.RimWorld.UI/src/Escarval.RimWorld.UI.sln`, while STO retains consumer-specific smoke, presentation and integration tests. The existing consumer integration test and current build validation confirm that shared types are compiled into `SettlementTradeOverview.dll`, the source is included once and no runtime UI assembly is required. The STO solution retains the shared production project for navigation and build ordering but does not include the canonical shared test project.
-
-Shared UI tests must protect generic contracts rather than Settlement Trade Overview or Xenogerm Planner business behavior. The implemented tint-aware helpers preserve the generic normal/disabled rendering boundary; consumer integration and the current automated builds confirm source ownership and assembly inclusion. Literal per-icon colors, texture appearance and final tint rendering remain runtime acceptance rather than unit-test targets.
-
-Direct `Widgets` calls, literal colors, spacing constants and single localization-key mappings generally do not require unit tests.
-
-### Optional Xenogerm Planner integration contracts
-
-The implemented optional integration boundary is protected by deterministic tests that do not depend on the real Planner assembly where a supplied adapter result is sufficient.
-
-Current automated coverage includes:
-
-* absence of Planner producing a neutral no-integration result;
-* incompatible API version producing safe degradation;
-* conversion of runtime-free gene compositions into documented API requests;
-* preservation of returned stable `PlanId` and `DisplayName`;
-* deterministic row-level matching projection;
-* isolation of a failed composition or API call from unrelated trade rows;
-* indicator visibility only for genepack rows with valid composition metadata and one or more matches;
-* neutral ordinary presentation for malformed, empty or unavailable compositions;
-* deterministic Details-column sorting without moving relevance into stock snapshots or cache keys;
-* identical projection behavior for the common `TradeListView` used by global and settlement-specific windows;
-* relevance remaining outside `TradeInventorySnapshot`, full cache keys, lightweight reuse keys and persisted settings;
-* rebuilding relevance on window reopen over a reusable stock snapshot without invoking the stock factory;
-* an already open projection remaining unchanged until the normal window lifecycle rebuilds it.
-
-STO tests must not reproduce Coverage, Exact payload, degraded-plan or prerequisite semantics. Those rules belong to the Planner API contract. Consumer tests supply representative API results and verify that STO handles them correctly. End-to-end semantic compatibility with actual Planner versions belongs to runtime acceptance.
-
-## Vanilla-facing boundaries
-
-RimWorld-facing adapters may be tested through minimal injected seams when Settlement Trade Overview applies its own classification, transformation or fallback rules to game data.
-
-Examples include:
-
-* conversion of trader goods to project-owned snapshot entries;
-* conversion of a supplied live genepack representative to one canonical runtime-free def-name composition under the verified grouping rule;
-* negotiator selection from supplied pawn data;
-* transformation of approximate distance and ground-route state into independent project-owned values;
-* transformation of scheduled restock data into game-tick and optional runtime-free expected-moment values;
-* safe handling of missing optional DLC state;
-* isolation of a failed or unavailable integration.
-
-These tests answer:
-
-> Given boundary data with state X, does Settlement Trade Overview apply project rule Y?
-
-They do not prove that RimWorld itself produces state X or implements the corresponding vanilla behavior in a particular way.
-
-Verified vanilla behavior remains grounded in the installed RimWorld implementation, source analysis and runtime validation.
-
-Production architecture should not be expanded with a parallel abstraction solely to make a trivial vanilla API call unit-testable.
-
-## Native settlement integration testing
-
-The implemented settlement-specific entry point uses `WorldObjectCompProperties_SettlementTradeOverview` and a stateless `WorldObjectComp` added to the vanilla `Settlement` Def through XML patching. It does not use a Harmony patch for `Settlement.GetGizmos()`.
-
-Automated tests should protect only deterministic project-owned contracts used by the component, such as:
-
-* settlement eligibility and command visibility policy;
-* enabled, disabled and hidden command-state selection;
-* disabled-reason selection for structurally supported potential traders;
-* safe behavior for an unavailable or no-longer-resolvable settlement;
-* delegation from command policy to the application window-opening boundary.
-
-The XML patch, Def inheritance, component initialization, actual gizmo enumeration and save/load behavior require the real RimWorld runtime and belong to runtime acceptance.
-
-## Vanilla settlement stock lifecycle testing
-
-Static analysis confirms that settlement `ITrader.Goods` access can lazily generate stock when the internal stock container is absent or empty. Expired stock is destroyed by the vanilla tracker tick and generated again by a later public `Goods` access.
-
-Automated project tests must not replace this behavior with a simulated private tracker implementation.
-
-The following belong to runtime acceptance:
-
-* the first public `Goods` read before stock has been generated;
-* the resulting change to public restock metadata;
-* active stock surviving save/load;
-* expiry followed by vanilla stock destruction;
-* the next public read causing vanilla lazy generation;
-* behavior when a generated or traded stock becomes completely empty;
-* destruction of live stock objects when a settlement is removed;
-* a compatible loaded project snapshot reopening without another stock read;
-* an incompatible context or manual refresh returning to the full discovery and stock-capture path.
-
-The project suite instead protects the adapter, full cache-key, reuse-key and invalidation contracts around the public boundary.
-
-## Runtime acceptance
-
-Scenarios requiring the actual RimWorld, Verse or Unity runtime should be checked in game rather than simulated in the test host.
-
-This includes:
-
-* mod loading and metadata;
-* Def loading;
-* actual settlement and trader discovery;
-* vanilla `Tradeable` grouping of physical genepacks and confirmation of the source-derived single-composition `AnyThing` representative contract;
-* real trade stock generation and expiration;
-* first-access and post-expiry lazy generation through public `ITrader.Goods`;
-* public `EverVisited`, `RestockedSinceLastVisit` and `NextRestockTick` transitions;
-* save/load of active and expired settlement stock;
-* actual trade-price calculations;
-* world path and distance behavior;
-* Royalty title and permit requirements with Royalty active, and safe core behavior without Royalty;
-* communication-console scope across the current and other player-home maps;
-* strict powered-console behavior for `Building_CommsConsole` and `CompPowerTrader.PowerOn`;
-* settings persistence and settings UI interaction;
-* global MainButton visibility changes without disabling settlement-specific commands;
-* cache invalidation after eligibility-setting changes;
-* application of the settlement `WorldObjectDef` XML patch;
-* `WorldObjectComp` initialization for new games and loaded saves;
-* settlement-command appearance without duplication or loss of vanilla gizmos;
-* inherited Archonexus settlement Def behavior and command suppression for unsupported or player-owned settlements;
-* settlement-specific entry-point behavior;
-* compatible global and settlement-specific reopen without a mandatory loading frame or full rediscovery;
-* optional Planner absence, compatible API discovery and incompatible API-version handling;
-* Coverage, Exact payload and exact-conflict-only relevance returned by the real Planner API;
-* exclusion of Ready and Degraded plans by the real Planner API;
-* relevance refresh on window reopen after plan changes without another `ITrader.Goods` read;
-* no automatic update of an already open STO window after Planner changes;
-* loading and rendering of the STO-owned relevance PNG in the Details column, bounded tooltip behavior and full Details interaction in both global and settlement-specific lists;
-* instance-aware item icons, native item tooltips and info cards with safe `ThingDef` fallback;
-* numeric distance plus the ground-route warning icon, including route-unavailable and reachable states;
-* expected restock timestamps relative to the active trade origin and static snapshot-time remaining values;
-* runtime tinting of final code-rendered monochrome icons and preservation of source colors for multicolor assets after the accepted icon stages;
-* final STO and Planner ModIcon, MainButton and `PlannerRelevance` packaged resources;
-* fallback to full discovery when the requested settlement is absent from the loaded snapshot;
-* IMGUI layout, clipping, scrolling, tooltip behavior and interaction;
-* final user-friendly English layouts for both mods;
-* Russian and Ukrainian STO layouts after translation, together with synchronized Planner layouts;
-* window lifecycle across new games and save loading;
-* actual Scribe behavior;
-* clean-install packaging and development deployment.
-
-Runtime acceptance should verify visible and integration behavior that cannot be established reliably through deterministic project-owned logic alone.
-
-The following have been validated in game:
-
-* the global overview, settlement-specific stock window and native settlement command;
-* first access, active stock, expiry, vanilla destruction, post-expiry lazy generation and manual refresh through public `ITrader.Goods`;
-* save/load with active and expired stock, settlement removal and completely empty generated stock handling;
-* all supported eligibility and disabled-reason paths, with Royalty active and inactive;
-* `WorldObjectComp` initialization, XML inheritance and absence of duplicate commands after save/load;
-* runtime confirmation of the accepted single-composition genepack grouping contract, including labels, ordering and malformed or empty composition degradation;
-* compatible snapshot reopen without full settlement rediscovery or another stock read;
-* Planner absence, API version `1`, unsupported-version degradation and representative Coverage, Exact payload and exact-conflict relevance in both STO surfaces;
-* relevance refresh on reopen without moving Planner state into stock snapshots or cache keys;
-* final icon, tint and packaged asset paths;
-* English, Russian and Ukrainian layouts and fallback behavior;
-* representative extreme-world UI performance after projection, runtime-target and row-presentation caching.
-
-The agreed compatibility and regression matrix is complete for the current pre-release baseline. The known performance risk is a temporary hitch during synchronous first build or manual refresh when many eligible settlements require vanilla stock generation. This is a release performance consideration, not an automated pass/fail threshold and not evidence of constant open-window overhead.
-
-## Regression tests
-
-A bug does not automatically require a new automated test.
-
-Add a regression test when:
-
-* the defect belongs to deterministic project-owned logic;
-* the original failure can be reproduced through the normal contract of the affected layer;
-* the test protects meaningful behavior from realistic recurrence.
-
-Good targets include:
-
-* an eligible settlement being excluded by an incorrect rule combination;
-* descending sorting applying ascending tie-breakers inconsistently;
-* a market-value fallback being reported as a negotiated price;
-* complete invalidation leaving stale trader data in the active snapshot;
-* a reusable snapshot being returned for an incompatible map, origin, negotiator or eligibility context;
-* trader identities accidentally becoming part of lightweight reuse compatibility;
-* a manual refresh reusing an old project snapshot instead of replacing it;
-* settings normalization allowing unsupported distance values;
-* a trader adapter exposing a live runtime stock object beyond the conversion boundary;
-* a genepack row producing a non-canonical composition or exposing live genetics state contrary to the verified grouping policy;
-* malformed genepack composition data removing an otherwise valid ordinary trade row;
-* Details sorting becoming non-deterministic or ignoring one of the displayed pawn or Planner detail kinds;
-* approximate distance being discarded when no ground route is available;
-* expected restock moment data using trader-local coordinates instead of the active trade origin;
-* a transient runtime target entering immutable snapshot or row-presentation contracts;
-* Planner relevance accidentally entering stock-cache compatibility;
-* an unavailable optional integration preventing ordinary stock presentation.
-
-A test is usually not justified only to protect the test host from artificial fixture behavior, absent RimWorld initialization or a visual layout detail.
-
-## Guard clauses and invalid input
-
-Null and invalid-input tests should be selective.
-
-They are valuable when:
-
-* the tested method is a public or important internal boundary;
-* invalid data can realistically arrive from runtime integration or persistence;
-* safe degradation or the type of failure is part of the contract.
-
-Tests should not be added mechanically for every guard clause.
-
-## Stress and performance testing
-
-Fast deterministic stress tests may run in the regular suite when they protect:
-
-* large trade-entry sets;
-* repeat determinism;
-* stable sorting under many equal values;
-* fixed-height and variable-height visible-range calculations;
-* large runtime-free genepack composition sets and relevance projections;
-* bounded cache or projection behavior.
-
-Performance benchmarks and runtime profiling are diagnostic tools.
-
-They should remain separate from the regular suite, run locally in Release configuration and report useful measurements without workstation-specific pass/fail thresholds unless a requirement is separately justified.
-
-Representative profiling has already validated the current constant UI path and compatible reopen behavior. On the tested system, both the rebuilt implementation and the prototype reached the same configured TPS and FPS limits after the agreed optimizations. These values must not be presented as universal guarantees.
-
-Future performance work requires a new measured problem. Trader-specific partial refresh is not part of the first-release plan because current profiling did not demonstrate a need for it. Temporary synchronous stock-generation hitches should be documented for release and evaluated separately from constant UI rendering performance.
-
-## Test decision checklist
-
-Before adding or retaining an automated test, use the following sequence:
-
-```text
-Can the regression change which settlements or goods are shown?
-→ Yes: test it.
-
-Can it change project-owned pricing, sorting, settings or cache semantics?
-→ Yes: test it.
-
-Can it return a cached snapshot for an incompatible base context?
-→ Yes: test the full or reuse key contract.
-
-Can it expose live vanilla stock or genetics objects beyond the adapter boundary?
-→ Yes: test it.
-
-Can it lose or corrupt mod-owned persisted settings?
-→ Test the runtime-free settings policy where practical, then validate actual persistence in game.
-
-Is this a non-trivial project-owned lifecycle or state transition?
-→ Yes: test it.
-
-Is this deterministic filtering, aggregation or transformation?
-→ Yes: test it.
-
-Is this a RimWorld-facing or optional-integration adapter where the project applies its own rule?
-→ Test the project-owned rule through the smallest practical seam without duplicating Planner semantics.
-
-Is this only a literal label, color, spacing value or direct Widgets call?
-→ Usually do not unit-test it.
-
-Does reliable verification require the actual RimWorld or Unity runtime?
-→ Use runtime acceptance.
-
-Would production architecture or test deployment need to change only to inspect a trivial UI detail?
-→ The test is probably not justified.
-```
-
-The automated suite should remain focused on meaningful project contracts.
-
-Runtime acceptance complements the suite; it is not a substitute for deterministic project-owned tests, and the test suite is not a substitute for the game runtime.
+| ID | Setup | Action | Expected result |
+| --- | --- | --- | --- |
+| R05 | Friendly eligible settlement with stock not generated; record initial public metadata and tick. | Open STO once, before opening vanilla trade. | One public capture builds a displayable snapshot, accepting vanilla lazy generation. Public restock values reflect generated stock. STO does not invoke private regeneration or alter the schedule. |
+| R06 | Nonempty active stock from R05; fixed origin, negotiator and settings. | Close/reopen both windows, observe capture counts, then press Refresh. | Compatible reopen reuses stock without full rediscovery/capture. Refresh performs full discovery and one new capture per trader; it does not force a replacement for still-active nonempty stock. |
+| R07 | Active stock with recorded next-restock tick; separate save copy. | Advance time beyond the expiry threshold, observe the tracker tick, then reopen a compatible cached view and finally Refresh. | Vanilla destroys expired stock without immediate replacement. Cached presentation can remain a snapshot; the next required public capture accepts lazy regeneration. No private lifecycle control or new read is attributed to reopen without observing it. |
+| R08 | Save copies with active stock, expired/absent stock and completely empty generated stock. | Save/reload each; open STO and Refresh once. | Vanilla stock/schedule states survive as appropriate. STO rebuilds derived state after load. Empty stock follows vanilla getter behavior without an STO retry loop or corruption of other traders. |
+| R09 | Loaded snapshot containing several settlements; disposable save. | Remove one settlement or make it unavailable, then reopen/Refresh. Separately introduce one failing trader using a recorded fixture. | Unresolvable cached traders prevent stale reuse; unrelated traders remain usable. Supported failure paths produce unavailable/partial state without retaining destroyed targets. |
+| R10 | Loaded snapshot and a second map; record map, layer, tile and negotiator. | Change the active map, best negotiator, eligibility setting, applicable console power or Royalty context one at a time; reopen after each. | Each relevant context change prevents incompatible reuse. Hiding the main tab alone does not change eligibility or settlement access. Opening a settlement absent from the loaded snapshot follows the full path. |
+
+### Filters, prices, distance and restock
+
+| ID | Setup | Action | Expected result |
+| --- | --- | --- | --- |
+| R11 | Settlements covering friendly/hostile, trader/no-trader and below/at-Industrial technology cases; record distances and settings. | Toggle one filter at a time and inspect global rows and settlement-command reasons. | Discovery and command policy agree. Each supported failure explains itself; unsupported/player-owned objects stay hidden. |
+| R12 | Current map, another player home map and a non-home map, with controlled console locations and power. | Leave only one powered console at each location in turn, then turn all off. | Current or other home-map console satisfies the enabled rule; a console exclusively on an unrelated non-home map does not. |
+| R13 | Royalty configuration, a settlement requiring a title, qualifying/non-qualifying colonists; separate Core case. | Enable the Royalty filter and switch qualifying availability, then repeat with Royalty inactive. | Permission affects eligibility only when the filter and DLC apply. Core browsing remains usable without Royalty. |
+| R14 | Trade goods with known current values; best-price colonist and another candidate. Record pre-existing `TradeSession` negotiator/trader/gift mode. | Compare STO player-buy estimates with vanilla trade using the same context; change candidates; exercise a map without an eligible negotiator. | Negotiator selection is deterministic. Estimates correspond to the selected context; without a negotiator valid market value is clearly a fallback. TradeSession fields are restored after capture. Invalid negotiated calculations display unavailable state. |
+| R15 | Same-layer settlements with a reachable route and a known route failure; turn distance/reachability filters off initially. | Compare displayed distance with the same vanilla approximate-distance call; enable each filter independently. | Valid numeric distance survives route failure and shows the route warning. Reachability and distance thresholds filter independently; invalid distance is not shown as zero. |
+| R16 | Multiple-layer configuration with full origin/target identities recorded, including the same numeric tile ID on different layers when constructible. | Inspect cross-layer stock with filters off; toggle distance and route filters; change active origin layer and reopen. | Cross-layer distance displays unavailable and no ground route. Either relevant filter excludes the case. Layer changes do not reuse a snapshot merely because numeric tile IDs match. No surface substitution occurs. |
+| R17 | Scheduled restock, recorded capture tick and origin coordinates; two origins with different local times if available. | Compare expected timestamp with vanilla date conversion, leave the window open while time advances, then Refresh from each origin. | Timestamp uses the active origin's local context. Displayed remaining time is fixed to capture until refreshed; it is not advertised as a live countdown. |
+
+### Grouping and optional integration
+
+| ID | Setup | Action | Expected result |
+| --- | --- | --- | --- |
+| R18 | Biotech trader stock containing recorded physical genepacks: equal composition/label, different genes, equal genes/different labels and reordered genes. | Compare vanilla and STO grouping; inspect each row's `AnyThing` and copied gene names. | A supported row has one set-based composition; labels/stacking rules can split equal compositions. Copied names are distinct and ordinally sorted. A row's representative describes every supported member. |
+| R19 | Isolated fixture for empty/unavailable/malformed composition and ordinary goods in the same capture. Record whether the fault occurs during grouping or later conversion. | Capture the fixture and inspect ordinary rows, composition metadata and other traders. | Conversion failures do not create false Planner matches; ordinary rows survive when only composition extraction fails. A vanilla grouping exception is isolated at its actual boundary and is not falsely reported as a successful malformed-row conversion. |
+| R20 | Core/Biotech without Planner; then compatible and incompatible Planner configurations. | Open/Refresh both STO windows in each configuration. | Core stock browsing works throughout. Compatible API v1 can produce relevance; missing or rejected API produces neutral relevance without making Planner mandatory. |
+| R21 | Real Planner with recorded unfinished coverage and exact-gene-set plans, exact-conflict-only, ready, degraded and prerequisite-only cases. | Compare indicators and tooltip names with the Planner API result. Change a plan while STO remains open, then close/reopen without Refresh. | STO shows only returned matches. It does not invent readiness rules or count offers as acquired. Already-open projection remains unchanged; reopen recomputes relevance without a new stock capture. Details sorting remains consistent in both windows. |
+
+### UI, settings, save changes and packaging
+
+| ID | Setup | Action | Expected result |
+| --- | --- | --- | --- |
+| R22 | Both windows with mixed goods/pawns/genepacks, empty result, unavailable context and large result set. Record resolution and supported UI scale. | Type/edit/clear search, switch categories, sort every visible column both ways, scroll, resize or change UI scale, hover icons and open info cards/navigation. | Input, clipping, scrolling, tooltips and hit targets remain aligned; category availability matches search before category filtering. Instance icons/details work and destroyed targets use safe fallback. No game errors or persistent stuck-loading state. |
+| R23 | Candidate in each of the five supplied languages. | Open main tab, settlement command, settings, disabled reasons and both lists; inspect substitutions and longer labels. | Translations resolve, including Spanish main-button DefInjected entries; no raw keys/missing parameters or harmful clipping. Fallback behavior is recorded separately from translation quality. |
+| R24 | Recorded settings defaults and non-default values, including distance boundaries. | Change settings, close/reopen settings, restart the game and load a different save; hide/show the main tab and use the settlement command. | Normalized mod settings persist with their intended scope. Eligibility changes invalidate derived stock; main-button visibility stays independent. No persisted stock snapshot is loaded from the save. |
+| R25 | Separate disposable saves: one created without STO, one saved with STO. | Add STO to the former and save/reload; remove STO from the latter, load and save/reload again. Inspect logs and surviving game state separately. | Record actual component and settings consequences for each direction. No stock loss/corruption or continuing STO-related errors is the acceptance target. Missing-component messages must be recorded, not silently counted as clean acceptance. This case does not establish general 1.6-to-1.7 save migration. |
+| R26 | New game and multiple save files with distinguishable settlements/stock. | Alternate new game/load transitions while each window has previously been used. | Previous game's snapshots and live targets do not appear in the next game; loading state and selections degrade safely. |
+| R27 | Representative large-world save; record settlement/row counts, hardware, graphics/UI settings and profiling method. | Measure first capture, manual refresh, compatible reopen and steady open-window rendering separately. | No repeated capture in the steady rendering path; virtualized drawing and reuse behave as intended. Report generation hitches separately from continuous UI cost. No universal FPS/TPS guarantee is inferred. |
+| R28 | The same complete candidate package installed cleanly for separate 1.6 and 1.7 runs, with both versioned DLLs and `LoadFolders.xml`; record both hashes. | In each game version verify the selected STO assembly path/hash, then repeat R01 and a focused browse/Refresh/settings/save-load smoke check. | Exactly one STO DLL loads: the unchanged historical artifact on 1.6, the current build on 1.7. Shared content resolves in both. No root-level, reference/game/test or separate shared UI DLL is loaded. This package-routing check remains unrun after the layout change. |
+
+## Release candidate validation
+
+A candidate is the complete package with an identified DLL for each supported game version. A build output, a source checkout and an installed candidate are different artifacts. Prepare the package with the `PackageMod` command in README; current sources are built only for 1.7.
+
+1. Record the source/shared-source revisions, game references, configuration and current DLL hash, plus the historical 1.6 DLL's unchanged hash.
+2. Inspect the complete package: `About/`, `LoadFolders.xml`, shared `Defs/`, `Patches/`, `Languages/`, `Textures/`, and `SettlementTradeOverview.dll` under both `1.6/Assemblies/` and `1.7/Assemblies/`.
+3. Ensure each supported game version selects only its intended STO DLL. Do not ship unversioned DLLs under root `Assemblies/`, game DLLs, `UnityStubs.dll`, test assemblies or a standalone shared UI DLL.
+4. Install the complete package in clean, isolated development locations for both versions. An opt-in 1.7 DLL copy does not install the remaining package files or remove leftovers from an older layout.
+5. Record actual results against R28 for each version and the applicable 1.7 runtime cases above. Keep unavailable environments and unresolved failures visible rather than broadening a passing subset. The 1.6 check verifies the preserved artifact and package layout; it does not rebuild or port current code to 1.6.
+6. Recheck modified cases after fixes, identify the final installed candidate, and distinguish readiness to publish from actual publication.
+
+Product validation records remain with the project. Public documentation states the provenance, known context and limitations of reported results, including any missing candidate details; it does not require readers to open private records.
+
+## Adding tests
+
+For a defect or changed contract, first identify the realistic regression and its owner.
+
+- Add a deterministic NUnit case when supplied inputs can reproduce the project's wrong decision, transformation, cache transition or fallback.
+- Use the smallest existing seam; do not copy the private tracker, the engine, Scribe or Planner readiness semantics into a fake implementation.
+- Add a runtime case when correctness depends on actual Def loading, stock generation, save/load, the engine's callbacks, input, rendering or a real optional integration.
+- Keep regression cases focused on outcomes such as a hidden valid offer, wrong layer reuse, wrong price state, leaked runtime object or unavailable integration breaking normal browsing.
+- Use guards/invalid-input cases where the input can realistically occur and safe rejection is part of the contract. Avoid tests that only mirror labels, colors, spacing or trivial API forwarding.
+- Keep diagnostic performance runs separate from the regular suite unless a measured requirement justifies a stable threshold.
+
+Update the appropriate procedure when behavior changes. Record execution separately; do not turn a newly added test or scenario into an implied pass.

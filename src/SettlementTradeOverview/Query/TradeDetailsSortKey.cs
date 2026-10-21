@@ -24,8 +24,7 @@ namespace SettlementTradeOverview.Query
 
         public double? NumericValue { get; }
 
-        public bool HasNumericValue =>
-            NumericValue.HasValue;
+        public bool HasNumericValue => NumericValue.HasValue;
 
         public static TradeDetailsSortKey Create(TradeEntrySnapshot entry, int? relevanceMatchCount)
         {

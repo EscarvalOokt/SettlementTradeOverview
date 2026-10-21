@@ -74,7 +74,8 @@ namespace SettlementTradeOverview.Integration.Planner
                 return PlannerTradeRelevanceProjection.Empty;
             }
 
-            if (batchResult == null || batchResult.Status != PlannerGenepackRelevanceBatchStatus.Success ||
+            if (batchResult == null ||
+                batchResult.Status != PlannerGenepackRelevanceBatchStatus.Success ||
                 batchResult.Results.Count != candidates.Count)
             {
                 return PlannerTradeRelevanceProjection.Empty;

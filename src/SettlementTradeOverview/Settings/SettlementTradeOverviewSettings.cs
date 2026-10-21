@@ -5,22 +5,22 @@ namespace SettlementTradeOverview.Settings
 {
     public sealed class SettlementTradeOverviewSettings : ModSettings
     {
-        private bool _showGlobalOverviewTab = SettlementTradeOverviewSettingsValues.DefaultShowGlobalOverviewTab;
+        private bool _limitMaximumDistance = SettlementTradeOverviewSettingsValues.DefaultLimitMaximumDistance;
 
-        private bool _requirePoweredCommsConsole =
-            SettlementTradeOverviewSettingsValues.DefaultRequirePoweredCommsConsole;
+        private int _maximumDistanceInTiles = SettlementTradeOverviewSettingsValues.DefaultMaximumDistanceInTiles;
 
         private bool _requireIndustrialTechnology =
             SettlementTradeOverviewSettingsValues.DefaultRequireIndustrialTechnology;
 
-        private bool _limitMaximumDistance = SettlementTradeOverviewSettingsValues.DefaultLimitMaximumDistance;
-
-        private int _maximumDistanceInTiles = SettlementTradeOverviewSettingsValues.DefaultMaximumDistanceInTiles;
+        private bool _requirePoweredCommsConsole =
+            SettlementTradeOverviewSettingsValues.DefaultRequirePoweredCommsConsole;
 
         private bool _requireReachable = SettlementTradeOverviewSettingsValues.DefaultRequireReachable;
 
         private bool _requireRoyaltyTradePermission =
             SettlementTradeOverviewSettingsValues.DefaultRequireRoyaltyTradePermission;
+
+        private bool _showGlobalOverviewTab = SettlementTradeOverviewSettingsValues.DefaultShowGlobalOverviewTab;
 
         public bool ShowGlobalOverviewTab
         {

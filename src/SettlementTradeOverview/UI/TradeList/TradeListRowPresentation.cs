@@ -33,11 +33,9 @@ namespace SettlementTradeOverview.UI.TradeList
             RelevanceTooltip = relevanceTooltip;
         }
 
-        public TraderSnapshot Trader =>
-            _queryEntry.Trader;
+        public TraderSnapshot Trader => _queryEntry.Trader;
 
-        public TradeEntrySnapshot Entry =>
-            _queryEntry.Entry;
+        public TradeEntrySnapshot Entry => _queryEntry.Entry;
 
         public string CountText { get; }
 

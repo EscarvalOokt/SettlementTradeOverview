@@ -71,7 +71,8 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
                         Log.Warning(
                             $"{LogPrefix} Failed to convert a tradeable group for {source.TraderIdentity}. " +
-                            "The remaining groups will still be processed.\n" + exception);
+                            "The remaining groups will still be processed.\n" +
+                            exception);
                     }
                 }
 

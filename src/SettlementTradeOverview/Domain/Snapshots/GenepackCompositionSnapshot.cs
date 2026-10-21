@@ -27,9 +27,8 @@ namespace SettlementTradeOverview.Domain.Snapshots
                         nameof(geneDefNames));
                 }
 
-                if (copiedGeneDefNames.Count > 0 && StringComparer.Ordinal.Compare(
-                        copiedGeneDefNames[copiedGeneDefNames.Count - 1],
-                        geneDefName) >= 0)
+                if (copiedGeneDefNames.Count > 0 &&
+                    StringComparer.Ordinal.Compare(copiedGeneDefNames[copiedGeneDefNames.Count - 1], geneDefName) >= 0)
                 {
                     throw new ArgumentException(
                         "Gene definition names must be distinct and sorted in ordinal order.",
@@ -42,10 +41,8 @@ namespace SettlementTradeOverview.Domain.Snapshots
             _geneDefNames = copiedGeneDefNames.AsReadOnly();
         }
 
-        public IReadOnlyList<string> GeneDefNames =>
-            _geneDefNames;
+        public IReadOnlyList<string> GeneDefNames => _geneDefNames;
 
-        public int Count =>
-            _geneDefNames.Count;
+        public int Count => _geneDefNames.Count;
     }
 }

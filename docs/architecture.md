@@ -1,571 +1,126 @@
-
 # Settlement Trade Overview architecture
 
-This document defines the accepted product architecture and implementation boundaries for Settlement Trade Overview.
+Settlement Trade Overview reads settlement stock into immutable snapshots and presents it in a global overview and a settlement-specific window. The current source targets RimWorld 1.7. The main manual runtime scenarios passed without errors on the new engine; checks requiring a diagnostic environment remain unverified.
 
-The project provides a validated pre-release baseline for its Harmony-free read-only trade overview, persisted settings, snapshot/cache lifecycle, source-only shared UI connection, localized presentation, optional Planner integration and normalized visual assets. The implemented baseline includes the global MainTab overview, settlement-specific stock window, native settlement command, canonical runtime-free genepack composition snapshots, optional soft binding to Xenogerm Planner API version `1`, transient relevance projection, shared sortable Details presentation, instance-aware item presentation through a transient runtime target cache, independent distance and ground-route state, and snapshot-time restock timestamps relative to the active trade origin. Compatible loaded snapshots can be reused without full settlement rediscovery, Planner relevance remains outside stock ownership, and the current automated suite protects the deterministic contracts. English, Russian and Ukrainian resources are complete, the final ModIcon, MainButton and `PlannerRelevance` assets are integrated, and the agreed build, runtime compatibility and regression matrix has been validated successfully. There is no active implementation stage in the current pre-release development plan.
-
-The legacy prototype remains the behavioral reference for capabilities explicitly selected for migration, but its internal structure is not an architectural requirement for the rebuilt implementation.
-
-This is an architecture specification, not a RoadMap or implementation guide.
+User instructions and development commands are in [README](../README.md). Verification procedures and the limits of available evidence are in [Testing policy](testing.md).
 
 ## Sources of truth
 
-The project uses the following source hierarchy:
+- [Mod entry point](../src/SettlementTradeOverview/SettlementTradeOverviewMod.cs), [snapshot service](../src/SettlementTradeOverview/Application/Snapshots/TradeInventorySnapshotService.cs) and [game lifecycle component](../src/SettlementTradeOverview/Integration/Lifecycle/GameComponent_SettlementTradeOverview.cs) own initialization and application state.
+- [Mod metadata](../mod/About/About.xml), [load-folder mapping](../mod/LoadFolders.xml), [main-button Def](../mod/Defs/MainButtonDefs/STO_GlobalOverview.xml) and [settlement patch](../mod/Patches/STO_SettlementTradeOverview.xml) define declared support, version selection and the packaged entry points.
+- [Production project](../src/SettlementTradeOverview/SettlementTradeOverview.csproj) and [test project](../tests/SettlementTradeOverview.Tests/SettlementTradeOverview.Tests.csproj) define compilation, references and build actions.
+- RimWorld's supplied implementation defines the external trade, world, persistence and UI contracts. The 1.7 source review used game version `1.7.4984 rev1242`, with `Assembly-CSharp` version `1.7.9789.37269`.
+- [Planner API binding](../src/SettlementTradeOverview/Integration/Planner/XenogermPlannerApiV1Binding.cs) defines the exact optional public API shape accepted by STO. Planner remains the owner of relevance semantics.
 
-1. The installed RimWorld 1.6 implementation and verified source analysis define vanilla runtime behavior.
-2. The current production implementation defines the behavior that is actually available in the built mod.
-3. This document defines accepted product and architecture decisions for Settlement Trade Overview.
-4. `docs/testing.md` defines automated testing and runtime acceptance boundaries.
-5. The public Xenogerm Planner integration API version `1` contract defines the optional contract consumed by the implemented soft-binding adapter.
-6. The legacy prototype source defines only previously implemented behavior selected for migration; it does not define the current architecture.
+Code establishes implemented behavior; metadata declares the supported target. Neither metadata nor source inspection establishes that a package has passed in-game checks. The separate maintainer-reported 1.7 runtime result is limited to the main manual scenarios and does not identify an exact tested package or all optional configurations. Historical 1.6 acceptance does not extend automatically to 1.7.
 
-Vanilla behavior must not be inferred from the legacy implementation when it contradicts the installed game implementation.
+## Runtime baseline
 
-Unresolved decisions must remain explicit rather than being encoded indirectly in implementation details.
+The current development target is RimWorld 1.7 on the Waylith engine. Its mod assembly remains `net472`, compiled against the installed `Assembly-CSharp.dll` and `UnityStubs.dll`. The latter provides the Unity-named compatibility types used by the mod and its shared UI source. The compiler target is distinct from the game's own runtime.
 
-## Project identity
+The release package contains both `1.6/Assemblies/SettlementTradeOverview.dll` and `1.7/Assemblies/SettlementTradeOverview.dll`. The former is the preserved historical binary, compiled against the 1.6 game and Unity assemblies. Only the latter is built from current sources. `LoadFolders.xml` selects the package root for shared content plus the matching version directory, so each supported game version sees one STO DLL. There is no unversioned DLL under the package root's `Assemblies/` directory. The implementation described below belongs to the current 1.7 source; it does not imply backports into the frozen 1.6 binary.
 
-The accepted project identity is:
+The production project's explicit `PackageMod` target checks the historical DLL's SHA-256 before staging the current DLL. Ordinary builds and tests leave package preparation separate. Opt-in deployment copies only the 1.7 assembly and rejects a destination for another version or one retaining unversioned DLLs. Package preparation and installation commands are in README.
 
-* display name: `Settlement Trade Overview`;
-* project, assembly and root namespace: `SettlementTradeOverview`;
-* package ID: `escarval.settlementtradeoverview`;
-* localization prefix: `STO`.
+The package ID is `escarval.settlementtradeoverview`; the assembly and root namespace are `SettlementTradeOverview`. No Harmony patches or required runtime framework mod are used. Royalty and Biotech are optional content boundaries, and Xenogerm Planner is an optional integration.
 
-The legacy names `Global Trade Overview`, `GlobalTradeOverview`, `GTO` and `WFS` are not compatibility boundaries because the prototype was not publicly released.
+`Escarval.RimWorld.UI` is included as source in the STO assembly. The supplier's standalone project and tests are separate: no production project reference or extra UI DLL is needed to load STO. Build-time source discovery and opt-in deployment are documented in README.
 
-## Product model
+## Runtime flow
 
-Settlement Trade Overview is a read-only planning and information mod for inspecting trade stock exposed by world settlements.
+1. `SettlementTradeOverviewMod` loads and normalizes settings, applies the settings service and schedules main-button visibility after Def loading.
+2. The main-button Def opens `MainTabWindow_SettlementTradeOverview`. Alternatively, the settlement XML patch adds a stateless `WorldObjectComp`, whose native gizmo delegates to the shared eligibility and command policy before opening `Dialog_SettlementStock`.
+3. A window first asks the snapshot service for a compatible loaded snapshot. Otherwise it displays loading state, waits for a repaint and performs the requested synchronous capture from `WindowUpdate`.
+4. The context adapter takes the current map as origin, retains its full `PlanetTile`, collects its free colonists, and determines powered-console and Royalty context. No active map produces an unavailable context.
+5. Discovery applies settlement eligibility. The trader adapter reads public stock once per captured trader, groups goods through the vanilla trade boundary and immediately converts them to project-owned values.
+6. The service owns snapshot/cache state. Query code produces the search/category/sort projection; the common `TradeListView` renders both windows.
+7. Optional Planner relevance is projected from copied genepack compositions. Reopening a compatible window recomputes relevance without requiring a new stock read.
+8. Manual refresh, relevant settings changes and new-game/load callbacks invalidate derived state and transient item targets.
 
-The intended high-level flow is:
+The 1.7 implementation retains the native component/gizmo and UI update/repaint paths used here. The compatibility layer queues window callbacks differently from the old engine. The reported manual run found no runtime errors; internal execution and failure-path checks requiring diagnostic instrumentation remain unverified.
 
-```text
-world settlements and trader state
-        ↓
-settlement eligibility and trader discovery
-        ↓
-public vanilla stock access
-        ↓
-project-owned inventory snapshots
-        ↓
-search, category, filter and sorting projection
-        ↓
-global overview and settlement-specific presentation
-```
+## Settlement eligibility and commands
 
-The project does not own vanilla trader stock and must not treat cached presentation data as authoritative game state.
+[Eligibility adapters](../src/SettlementTradeOverview/Integration/Eligibility/SettlementEligibilityFactsAdapter.cs) collect facts; [SettlementEligibilityPolicy](../src/SettlementTradeOverview/Domain/Eligibility/SettlementEligibilityPolicy.cs) decides eligibility. The same policy serves discovery and the settlement command.
 
-Remote stock inspection does not imply that the player can complete a trade through this interface.
+Filters cover trade availability, faction hostility, faction technology, powered communications access, maximum distance, ground reachability and optional Royalty trade permission. A powered console on the current map or another `IsPlayerHome` map satisfies communications access; an arbitrary non-home map does not.
 
-## First-release product scope
+[WorldObjectComp_SettlementTradeOverview](../src/SettlementTradeOverview/Integration/Settlements/WorldObjectComp_SettlementTradeOverview.cs) remains thin and stateless. It returns an enabled command for an eligible settlement, a disabled command with a reason for a supported potential trader that fails eligibility, or no command for unsupported/player-owned objects. It does not read stock or own cache state.
 
-The accepted first-release scope contains the read-only trade overview core:
+The XML patch targets the existing `comps` list of the vanilla `Settlement` Def. XML descendants that retain that list inherit the component. A separately defined settlement-like object is not guaranteed to receive it merely because its runtime class derives from `Settlement`. No Harmony fallback is added for that boundary.
 
-* a global settlement-stock overview;
-* a settlement-specific stock window;
-* item categories;
-* search across items, pawns and settlements;
-* deterministic sorting;
-* item count presentation;
-* negotiator-aware estimated prices with a market-value fallback;
-* settlement distance;
-* restock information;
-* manual data refresh;
-* supported settlement-eligibility filters;
-* settings for implemented and supported behavior;
-* an optional Xenogerm Planner relevance indicator for settlement genepacks in both the global and settlement-specific trade lists, using an STO-owned custom icon in the sortable Details column and a tooltip listing matching plans when a compatible Planner API is available.
+## Stock access and snapshots
 
-The first release does not include immediate generation of replacement settlement stock or automatic dirty-cache refresh based on that generation. Xenogerm Planner remains optional: the overview must preserve its complete core behavior when that mod or a compatible API is absent.
+RimWorld owns settlement stock through `Settlement_TraderTracker`. Its public `ITrader.Goods` access can lazily generate stock when the container is absent or empty. Expired stock is destroyed by the tracker; a later read generates replacement stock. `CanTradeNow` does not prove that stock already exists.
 
-Trader-specific partial snapshot refresh is not part of the first release. Representative profiling did not demonstrate a need for it to remove constant UI overhead; it may be reconsidered only if a new measured post-release requirement justifies the additional lifecycle complexity.
+[TraderGoodsCaptureAdapter](../src/SettlementTradeOverview/Integration/Snapshots/TraderGoodsCaptureAdapter.cs) performs one public capture per trader snapshot build. It groups trader-side goods using the applicable `TransferAsOne` mode and converts them synchronously through [TradeEntrySnapshotAdapter](../src/SettlementTradeOverview/Integration/Snapshots/TradeEntrySnapshotAdapter.cs).
 
-A continuously updating restock timer is not part of the first-release scope.
+Snapshots retain identities, labels, counts, categories, price state, pawn details, restock values and optional gene composition. They do not retain live `Thing`, `Pawn`, `Tradeable`, `GeneDef`, `GeneSet` or vanilla collections.
 
-## Architectural boundaries
+For supported genepack rows, grouping compares each candidate against `Tradeable.AnyThing`; matching gene sets and labels are required in addition to generic stacking rules. One representative therefore supplies the row's composition. `GenepackCompositionSnapshot` stores distinct non-empty gene definition names in ordinal order. Equivalent compositions may remain separate rows. Unavailable or empty composition metadata leaves the ordinary row usable without Planner relevance.
 
-The rebuilt project separates the following concerns:
+The public stock read can change vanilla state through lazy generation. STO's read-only boundary means no purchases, direct stock mutation, private tracker reflection, forced regeneration, schedule changes or lifecycle patches. Manual refresh repeats public capture; it is not immediate restocking. Initial capture remains synchronous and can cause temporary generation hitches.
 
-```text
-TRADER DISCOVERY
-────────────────────────
-world settlements
-+ product eligibility rules
-→ eligible trader sources
+## Cache and runtime targets
 
+[TradeInventorySnapshotCache](../src/SettlementTradeOverview/Cache/TradeInventorySnapshotCache.cs) exposes `NotLoaded`, `Loading`, `Available`, `Empty`, `Unavailable`, `Partial` and `Failed` states. Per-trader failures must not discard successfully captured traders.
 
-VANILLA STOCK ACCESS
-────────────────────────
-eligible ITrader source
-+ public Goods / restock metadata
-→ short-lived live runtime values
+The lightweight reuse key includes context availability, active map, origin tile and layer, selected negotiator, eligibility criteria, and the effective communications/Royalty facts when their filters apply. The full key additionally includes ordered trader identities and discovery failure state. Planner state does not participate in either key.
 
+Before reopen reuse, the service verifies that cached settlements can still be resolved. A settlement-specific view can reuse the shared snapshot when its target is present; otherwise it follows full discovery. Reuse does not imply that stock has been reread or that every external change has been detected. Refresh is the explicit way to rebuild the display.
 
-INVENTORY SNAPSHOT
-────────────────────────
-a single public stock read
-+ immediate value conversion
-→ project-owned immutable snapshot data
+[TradeEntryRuntimeTargetCache](../src/SettlementTradeOverview/Integration/Runtime/TradeEntryRuntimeTargetCache.cs) retains representative live items only inside the integration boundary for the lifetime of their snapshot. This supports instance icons, native tooltips and info cards. Missing/destroyed targets degrade to a safe definition-based presentation. Rebuild/invalidation clears the targets; neither immutable snapshots nor row presentation own them.
 
+## Pricing, distance and restock
 
-QUERY AND PRESENTATION
-────────────────────────
-snapshots
-+ search / category / filters / sort
-→ deterministic presentation projection
+[TradeNegotiatorAdapter](../src/SettlementTradeOverview/Integration/Snapshots/TradeNegotiatorAdapter.cs) chooses an eligible free colonist on the active map by `TradePriceImprovement`, with a deterministic pawn-ID tie break. Dead, destroyed, non-colonist and Social-disabled candidates are excluded.
 
+[TradePriceAdapter](../src/SettlementTradeOverview/Integration/Snapshots/TradePriceAdapter.cs) obtains the estimated player-buy price using a bounded trade-session scope and restores the previous negotiator, trader and gift mode. Without a negotiator, it uses valid instance or definition market value. Failed negotiated calculations and invalid values produce unavailable price state rather than a fabricated estimate.
 
-CACHE AND LIFECYCLE
-────────────────────────
-runtime context
-+ full cache key
-+ lightweight reuse key
-+ explicit invalidation rules
-→ current derived snapshot set
+Distance and routes use complete `PlanetTile` endpoints. On one layer, approximate distance and traversable ground-route state are distinct: a route failure can coexist with a numeric distance. Between layers, STO has no comparable approximate-distance result and reports no ground route. It does not reinterpret a layer-local tile ID as a surface tile. An unavailable distance fails an enabled maximum-distance filter; an unavailable/unreachable route fails an enabled reachability filter.
 
+Origin layer identity is validated once and copied as a scalar into runtime context, snapshots and both cache keys. Failure handling uses that copied identity rather than resolving a possibly unavailable live layer again. Complete `PlanetTile` values remain available to distance and restock adapters. Changing layer cannot reuse stock captured for a different origin merely because its numeric tile ID matches.
 
-RIMWORLD INTEGRATION
-────────────────────────
-game entry points
-+ settlement access
-+ pricing / distance / restock adapters
-→ bounded runtime dependencies
+[TradeRestockAdapter](../src/SettlementTradeOverview/Integration/Snapshots/TradeRestockAdapter.cs) copies public restock metadata after stock capture. Scheduled moments retain game ticks, converted absolute ticks and coordinates of the active origin for local date/time presentation. Values are fixed at capture; the UI does not run a continuously updating restock timer.
 
+## Optional Planner integration
 
-OPTIONAL PLANNER INTEGRATION
-────────────────────────
-runtime-free genepack composition
-+ compatible versioned Planner API
-→ transient matching-plan projection
+[PlannerGenepackRelevanceAdapter](../src/SettlementTradeOverview/Integration/Planner/PlannerGenepackRelevanceAdapter.cs) soft-binds to the public facade `XenogermPlanner.Api.XenogermPlannerApi, XenogermPlanner`. Only API version `1` is accepted, followed by exact public request/result/member validation. A newer version is not assumed compatible.
 
+STO supplies runtime-free gene names and copies returned stable plan IDs and display names. Planner owns coverage, exact-payload, readiness and conflict semantics; STO does not recreate them or inspect private Planner state. Expected absence, unsupported versions and unavailable responses produce neutral relevance while ordinary stock remains available.
 
-UI APPLICATION
-────────────────────────
-generic shared UI API
-+ cached project-owned projection metadata
-+ cached row presentation
-+ optional matching-plan projection
-→ mod windows and dialogs
-```
+[PlannerTradeRelevanceProjectionBuilder](../src/SettlementTradeOverview/Integration/Planner/PlannerTradeRelevanceProjectionBuilder.cs) owns transient relevance. It is not saved, does not enter stock snapshots or cache keys, and has no cross-mod event subscription. An already open window is not automatically updated when plans change. Reopen recomputes relevance over a reusable stock snapshot.
 
-These concerns must remain separate.
+The common Details column combines Planner indicators and pawn trade details. Its query-owned [TradeDetailsSortKey](../src/SettlementTradeOverview/Query/TradeDetailsSortKey.cs) orders Planner match counts, colonist/slave purchase outcomes, rideable speed factors and neutral rows through one shared contract. Relevant indicators use the STO-owned `PlannerRelevance` texture and tooltips, with no remote acquisition or change to plan readiness.
 
-In particular:
+## UI and localization
 
-* UI drawing code must not own trader discovery, filtering semantics or cache invalidation rules;
-* project-owned snapshots must not be persisted as an alternative source of truth for vanilla trader stock;
-* presentation code consumes project-owned projections and must not reconstruct business rules locally;
-* query and UI layers must not call `ITrader.Goods` directly;
-* live `Thing`, `Pawn`, `Tradeable` and other runtime stock objects must not become long-lived snapshot or row-presentation state;
-* runtime target caches must remain inside RimWorld integration adapters;
-* optional DLC behavior must be isolated from the core stock-overview model;
-* experimental prototype behavior is not migrated automatically;
-* Planner relevance must remain outside authoritative stock cache keys and must not cause a new `ITrader.Goods` read by itself;
-* optional integration must consume the documented Planner API and must not reproduce readiness semantics locally;
-* the shared UI source must remain generic and must not own trade or genetics business rules.
+Both windows use [TradeListView](../src/SettlementTradeOverview/UI/TradeList/TradeListView.cs), query rules and shared UI controls. Each window owns transient search, category, sort, scroll and presentation state. Category availability is calculated from the search-matching projection before applying the selected category.
 
-## Legacy prototype migration boundary
+Projection metadata and row presentation are cached when their inputs change. List virtualization limits drawing to visible content; runtime targets are resolved through integration adapters. UI code does not discover traders or call `ITrader.Goods` directly.
 
-The legacy prototype provides a behavioral reference for:
+Shared UI owns generic IMGUI controls, layout, scrolling, tooltips and state restoration. STO owns trade semantics and localization. Code-rendered monochrome icons use white textures with semantic tint; multicolor and game-owned icons preserve their intended rendering paths.
 
-* the global settlement-stock overview;
-* the settlement-specific stock window;
-* categories, search and sorting;
-* item count, price, settlement, distance and restock information;
-* configurable settlement eligibility rules;
-* snapshot and cache behavior;
-* experimental immediate-restock and dirty-cache handling.
+The package supplies English, Russian, Ukrainian, Spanish and Latin American Spanish. Annabelesca provided the two Spanish translations. Keyed entries use the `STO.` prefix, and main-button translations are placed beneath `DefInjected/MainButtonDef/`. Package checks can establish key/placeholder and directory consistency; the main-scenario runtime report does not provide separate translation-quality, layout or fallback results for each language.
 
-Migration is selective.
+## Configuration
 
-The accepted migration classification is:
+[SettlementTradeOverviewSettings](../src/SettlementTradeOverview/Settings/SettlementTradeOverviewSettings.cs) owns persisted mod configuration. [The settings policy](../src/SettlementTradeOverview/Settings/SettlementTradeOverviewSettingsPolicy.cs) normalizes values and produces eligibility criteria; windows do not duplicate these rules. User-facing defaults and controls are documented in README.
 
-* the read-only overview capabilities belong to the first-release scope;
-* the global and settlement-specific presentations are retained but redesigned;
-* settlement access is implemented through the verified native `WorldObjectComp` boundary;
-* current settlement stock is read through the public `ITrader.Goods` contract;
-* vanilla lazy generation caused by public `Goods` access is accepted as part of that public contract;
-* immediate-restock generation and its dirty-cache workflow are deferred;
-* trader-specific partial refresh is excluded from the first release after representative profiling did not justify it for constant UI performance;
-* the existing class layout, static state, Harmony patches and reflection-based access are not migration targets by themselves.
+`WriteSettings` normalizes and persists the values, applies the settings service, invalidates stock when eligibility changes, and updates main-button visibility independently. Hiding the global button does not disable settlement-specific access.
 
-## Domain and runtime boundary
+## Persistence and save lifecycle
 
-Project-owned deterministic rules should be represented through types that can be exercised without constructing the complete RimWorld runtime.
+Mod settings use `ModSettings` and `Scribe_Values`. Stock snapshots, cache keys, runtime target references, query state and Planner relevance are derived in-memory data and are not serialized as an alternative stock store.
 
-This includes, where practical:
+`GameComponent_SettlementTradeOverview` invalidates derived state on `StartedNewGame` and `LoadedGame`. The settlement component stores no independent settlement reference or project data; its parent is provided by RimWorld.
 
-* settlement eligibility criteria;
-* settings normalization and conversion to eligibility criteria;
-* category assignment;
-* search and sorting rules;
-* presentation values and fallback states;
-* runtime-free pawn trade details, including purchase outcome and rideable state;
-* snapshot aggregation;
-* full cache-key and lightweight reuse-key compatibility decisions;
-* cache invalidation decisions.
+Vanilla retains ownership of stock serialization and pawn references. Source inspection of component initialization/load supports the intended integration, but adding to/removing from a save, actual Scribe behavior and old-save migration are separate runtime questions. No 1.7 save-safety guarantee follows from the absence of mod-owned stock data.
 
-Direct access to `Find`, `TradeSession`, `ITrader`, `Settlement`, `Pawn`, `Thing` and other live RimWorld types should be concentrated in adapters and composition roots.
+## Project boundaries
 
-A trader snapshot adapter may use live stock objects only during one synchronous conversion operation. It must copy required values immediately and must not expose the live collection or its objects as the project-owned source of truth.
+STO owns discovery policy, immutable snapshots, cache compatibility, presentation and optional integration handling. RimWorld owns trading, stock generation/destruction, world layers/routes, Def initialization and saves. Planner owns its public API and relevance decisions; the shared UI supplier owns generic controls and their tests.
 
-RimWorld `1.6.9676.17735` source analysis and the completed runtime validation confirm that each supported vanilla and current STO genepack trade row has one gene composition relative to `Tradeable.AnyThing`. Every candidate genepack is compared with that representative through `TransferableUtility.TransferAsOne`; the gene collections must be set-equal and their resolved `GeneSet.Label` values must match before the generic stacking conditions are applied. Gene order and duplicate multiplicity are not part of composition identity, although labels and other stacking characteristics may split equivalent compositions into separate rows.
+The product does not include remote trading, forced stock regeneration, private stock lifecycle manipulation, automatic dirty-cache restocking, trader-specific partial refresh or continuous restock countdowns. A new measured requirement would be needed to justify changing these boundaries.
 
-The implemented snapshot boundary copies one canonical runtime-free composition from a genepack row's representative during that same synchronous conversion. The canonical representation contains distinct non-empty `GeneDef.defName` values in deterministic ordinal order. Non-genepack entries contain no genetics state. If the representative is not a valid `Genepack`, its `GeneSet` is unavailable, the composition is empty or no valid definition names remain, the ordinary trade row is preserved without composition metadata and is not eligible for Planner relevance. Malformed composition data is isolated from unrelated rows and traders.
-
-Pawn purchase outcome and caravan rideability are copied into `PawnTradeDetailsSnapshot` during that same conversion boundary. Presentation code consumes the copied enum and numeric values and must not reconstruct a live `Tradeable` or retain a `Pawn` to reproduce vanilla trade-list metadata.
-
-Runtime references used for icons, native tooltips, navigation and info cards may be cached by game- or world-scoped integration adapters. The implemented trade-entry runtime target cache binds an immutable `TradeEntryIdentity` to a representative live `Thing` only for the lifetime of the corresponding stock snapshot. It restores instance-aware item icons, tooltips and info cards while preserving a safe `ThingDef` fallback. These references are cleared with snapshot invalidation or rebuild and are never copied into immutable snapshots or `TradeListRowPresentation`.
-
-Distance snapshots store approximate tile distance independently from the ground-route state. A settlement can therefore retain a numeric distance while reporting that vanilla did not find a traversable ground route. Eligibility may still exclude that settlement when the reachable-route setting is enabled, while presentation uses a warning icon rather than replacing the distance with an absolute unreachable label.
-
-Scheduled restock snapshots preserve the game tick together with a runtime-free absolute tick and world coordinates derived from the active trade origin when those values can be calculated. Presentation formats the expected date and time relative to that origin and remains fixed to the snapshot refresh moment; it does not introduce a continuously updating timer.
-
-The architecture should not introduce abstractions for trivial API forwarding. A boundary is justified when it protects product semantics, lifecycle ownership, performance ownership or testability of non-trivial rules.
-
-## Vanilla settlement stock lifecycle
-
-Vanilla owns settlement stock through `Settlement_TraderTracker`.
-
-The verified lifecycle is:
-
-```text
-tracker exists with no stock
-        ↓ public ITrader.Goods access
-vanilla lazy stock generation
-        ↓
-active stock with NextRestockTick
-        ↓ scheduled tracker tick after expiry
-old stock destruction
-        ↓
-no active stock
-        ↓ next public ITrader.Goods access
-vanilla lazy stock generation
-```
-
-The public `ITrader.Goods` getter is side-effectful for settlements. It generates stock when the internal stock container is absent or empty. This behavior is part of the public vanilla access contract and is accepted by the project.
-
-Settlement Trade Overview must not:
-
-* call `RegenerateStock` or `TryDestroyStock` directly;
-* modify the vanilla restock schedule;
-* patch settlement stock destruction or regeneration;
-* inspect private tracker fields through reflection;
-* retain live stock objects after snapshot conversion.
-
-The mod may:
-
-* read public `ITrader` and `ITraderRestockingInfoProvider` values;
-* perform one public `Goods` access while building a trader snapshot;
-* accept the resulting vanilla lazy generation;
-* immediately convert live values into project-owned snapshot data;
-* repeat that public read during an explicit project snapshot rebuild.
-
-A compatible loaded project snapshot may be reopened without another `Goods` read. A full public stock capture still occurs for the first build, manual refresh or an incompatible runtime context.
-
-`CanTradeNow` is not evidence that stock already exists. A settlement can report that it can trade while its stock has not yet been generated or has been destroyed after expiry.
-
-The initial full build and manual refresh remain synchronous. When many eligible settlements require vanilla lazy stock generation, that operation can cause a temporary performance hitch. This is an accepted first-release limitation to be documented for users, not a reason to introduce private lifecycle control.
-
-## Project snapshot and cache lifecycle
-
-Trade inventory snapshots are derived project-owned runtime state, separate from the vanilla lifecycle.
-
-The implemented project lifecycle contains:
-
-* complete first snapshot construction;
-* reuse of a valid snapshot through the full cache key;
-* immediate reopen reuse through a lightweight compatibility key;
-* explicit manual full refresh;
-* complete invalidation after relevant game lifecycle or eligibility-setting changes;
-* failure isolation between traders.
-
-`TradeInventorySnapshotService` is the application boundary for obtaining, reusing, refreshing and invalidating the current snapshot.
-
-The full cache key includes:
-
-* active map and origin;
-* selected negotiator snapshot;
-* settlement eligibility criteria;
-* effective powered-communications state when that filter is enabled;
-* effective Royalty-active state when that filter is enabled;
-* ordered eligible trader identities;
-* discovery failure state.
-
-The lightweight reuse key contains only the base runtime context required to decide whether a loaded snapshot may be shown again without full settlement discovery. It does not contain trader identities or discovery failures. Before reuse, the service also verifies that settlements already represented by the snapshot can still be resolved.
-
-A compatible global reopen can therefore reuse the loaded snapshot without a mandatory loading frame, full eligibility discovery or new stock reads. A settlement-specific window may reuse the same snapshot only when its target trader is already present; otherwise it falls back to the full discovery path.
-
-`GameComponent_SettlementTradeOverview` invalidates derived snapshot state when a new game starts or a save is loaded. Eligibility-setting changes invalidate an incompatible snapshot through the settings service. UI-only global-tab visibility does not alter settlement-specific access.
-
-The cache stores only immutable project-owned snapshot data. It exposes explicit `NotLoaded`, `Loading`, `Available`, `Empty`, `Unavailable`, `Partial` and `Failed` lifecycle states and does not persist its snapshot or keys through Scribe.
-
-Manual refresh means:
-
-```text
-discard current project-owned snapshot
-        ↓
-repeat full context and trader discovery
-        ↓
-repeat public trader reads
-        ↓
-accept any vanilla lazy generation caused by Goods
-        ↓
-rebuild project-owned snapshot values
-```
-
-Manual refresh does not request an immediate restock, advance game time, call private tracker methods or alter vanilla schedule fields.
-
-The implemented lifecycle defines project behavior for:
-
-* active map or origin changes;
-* selected negotiator changes;
-* eligibility-setting changes;
-* powered-console state when required;
-* Royalty-active state when the Royalty filter is required;
-* settlement removal or unavailability;
-* new-game and load transitions;
-* failed trader reads;
-* a public `Goods` read that returns no displayable entries.
-
-Derived snapshots must not be written to save data unless a later product requirement explicitly justifies persistence.
-
-Trader-specific partial refresh is not part of the first-release lifecycle. Representative profiling showed that cached projection metadata, cached row presentation, runtime target caches and lightweight reopen reuse are sufficient to remove the measured constant UI regression. Partial refresh may be reconsidered only for a new measured post-release requirement.
-
-Planner relevance is a separate transient presentation projection. It is not persisted, is not part of `TradeInventorySnapshot`, the full cache key or the lightweight reuse key, and does not invalidate stock data when plans change. An already open window is not refreshed by cross-mod events. When a compatible cached stock snapshot is opened again, relevance is queried again from the current Planner state without rediscovering settlements or reading `ITrader.Goods`.
-
-Failure to refresh one trader should not corrupt unrelated cached data or block access to the rest of the overview.
-
-## Pricing and negotiator boundary
-
-Displayed prices are derived estimates based on current runtime context.
-
-The pricing layer must explicitly distinguish:
-
-* a valid negotiator-specific estimate;
-* a market-value fallback when no valid negotiator is available;
-* unavailable or structurally invalid price data.
-
-The rule for selecting the negotiator belongs to project-owned policy and must not be duplicated in individual windows. Both full context construction and lightweight reuse validation use the same negotiator-selection logic.
-
-Royalty-aware title and permit requirements belong to the first-release settlement eligibility scope. They remain an optional-DLC RimWorld integration concern rather than part of the generic inventory model, and core behavior must remain available when Royalty is not active.
-
-## Settlement integration and Harmony policy
-
-Static analysis of RimWorld 1.6 confirms the settlement-specific integration boundary:
-
-```text
-WorldObjectDef Settlement
-        ↓
-XML patch adds WorldObjectCompProperties_SettlementTradeOverview to comps
-        ↓
-stateless WorldObjectComp
-        ↓
-WorldObject.GetGizmos()
-        ↓
-Command_Action
-```
-
-The settlement command uses the same native `WorldObjectComp.GetGizmos()` lifecycle as vanilla settlement components. A Harmony patch for `Settlement.GetGizmos()` is not required and must not be introduced. The implemented command is enabled for an eligible settlement, disabled with a localized reason for a structurally supported potential trader that currently fails eligibility, and hidden for player-owned or structurally unsupported objects.
-
-The integration component must remain thin:
-
-* it resolves its current `Settlement` parent;
-* it delegates eligibility and command policy to project-owned services;
-* it returns the resulting native command;
-* it does not read trader stock, own cache lifecycle or contain trade business rules;
-* it does not persist a separate settlement reference or project state.
-
-Classes derived from RimWorld types follow the game's native naming pattern. The accepted properties-class name is `WorldObjectCompProperties_SettlementTradeOverview`.
-
-The XML patch targets the existing `comps` list of the vanilla `Settlement` `WorldObjectDef`. Vanilla XML descendants of that Def inherit the component, while independent modded settlement Defs are not guaranteed to be covered automatically.
-
-The verified public `ITrader.Goods` boundary is also sufficient for approved first-release stock access. No approved first-release behavior requires Harmony or reflection.
-
-Harmony has been removed from the production build, local configuration and mod metadata. Clean Debug and Release builds, the resulting assembly references and runtime loading without Harmony have been validated.
-
-## Shared UI API boundary
-
-Reusable UI infrastructure is implemented as the compile-time/shared-source sibling project `Escarval.RimWorld.UI`. Settlement Trade Overview already resolves that external project through relative build-time paths and compiles its canonical source directly into `SettlementTradeOverview.dll`.
-
-The accepted pre-release structure is:
-
-```text
-RimWorldMods/
-├── Escarval.RimWorld.UI/
-├── SettlementTradeOverview/
-└── XenogermPlanner/
-```
-
-Settlement Trade Overview includes the shared source files directly in its production assembly through relative build-time paths. The project reference remains an IDE/build boundary with `ReferenceOutputAssembly="false"`; no separate runtime UI DLL or mandatory user-installed framework mod is required. The sibling-directory arrangement is the current pre-release build contract. A possible Git submodule migration is post-release organizational work and is not part of the accepted first-release implementation scope.
-
-The implemented shared UI project owns generic RimWorld IMGUI building blocks such as:
-
-* style and metric registries;
-* project-owned panels and controls;
-* search fields and sortable headers;
-* scrolling and list-layout helpers;
-* visible-range calculations for practical list virtualization;
-* contextual icon actions and tooltips;
-* safe restoration of global `Text`, `GUI` and related IMGUI state.
-
-It must not own:
-
-* trade-specific models or filtering rules;
-* genetics-specific models from Xenogerm Planner;
-* persistence for either consuming mod;
-* direct lifecycle ownership for a consuming mod's windows;
-* localization keys owned by a consuming mod.
-
-The shared UI API remains driven by concrete consuming-project needs rather than a speculative universal framework. Canonical deterministic helpers are covered by `Escarval.RimWorld.UI.Tests` through the standalone `../../Escarval.RimWorld.UI/src/Escarval.RimWorld.UI.sln`, and STO retains an assembly-boundary test proving that shared types are compiled into its production assembly. The STO solution retains the shared production project only for navigation and build ordering, without changing the source-only compilation model.
-
-The implemented shared icon extension provides consumer-neutral tint support for icons rendered directly by project code. Code-rendered monochrome textures use normalized white source pixels and receive an explicit semantic tint from the consumer; disabled actions use the shared disabled-tint contract. Multicolor textures retain source-defined colors and are drawn with a neutral white tint, while RimWorld-owned Def, metadata and gameplay icons remain under their native rendering paths. Trade- and genetics-specific colors and presentation semantics remain in the respective mods.
-
-## Optional Xenogerm Planner integration boundary
-
-The accepted first-release architecture enriches genepack trade rows through a compatible Xenogerm Planner API, while the integration remains optional and read-only. STO must load, browse and refresh settlement stock normally when Planner is absent, inactive, unavailable or exposes an incompatible API version.
-
-The accepted dependency direction is:
-
-```text
-Settlement Trade Overview runtime-free genepack composition
-        ↓ optional soft binding
-versioned public Xenogerm Planner API
-        ↓
-API status + stable PlanId + DisplayName matches
-        ↓
-STO transient row presentation
-```
-
-STO must not reference Planner implementation types as a mandatory compile-time or runtime dependency and must not inspect private Planner state. The implemented API version `1` is discovered through limited soft binding to `XenogermPlanner.Api.XenogermPlannerApi, XenogermPlanner`. The adapter reads the public static `ApiVersion` property before resolving and invoking `QueryGenepackRelevance`, and it supports only the explicitly known value `1`. A value greater than `1` is not assumed compatible. Expected absence of the optional mod, unavailable Planner context or an unsupported API version is not an error condition. The exact request, response and status contract is defined by the public Xenogerm Planner integration API version `1`.
-
-Planner owns relevance semantics. STO supplies the composition and displays the returned matches. The accepted semantics are:
-
-* Coverage considers an offered pack relevant when it contains at least one Planner-defined missing target gene; additional offered genes are allowed;
-* Exact payload requires no offered genes outside the plan target and at least one Planner-defined `Missing` or `ExactPayloadConflict` target gene;
-* only `NotReady` plans are returned;
-* `Ready`, `EmptyTarget`, `Degraded` and `Unavailable` plans are excluded;
-* prerequisite-only genepacks are not returned;
-* trade offers do not become Planner product inventory and do not satisfy readiness.
-
-The response keeps stable plan IDs even though the user-facing tooltip displays names. Planner's accepted unique-name policy reduces visual ambiguity but does not replace stable identity.
-
-The integration projection is transient and presentation-owned. Plan changes do not invalidate stock snapshots, do not alter full or lightweight cache keys and do not update an already open window. Reopening a window with a reusable stock snapshot performs a new relevance projection without another public stock read.
-
-The indicator is rendered through the shared `TradeListView`, so the same behavior appears in the global overview and the settlement-specific stock window. It uses an STO-owned custom SVG source converted to a packaged PNG texture and is placed in the existing Details column. The Details header participates in the existing sortable-header and deterministic query boundaries. Sorting covers Planner match count, colonist and slave purchase outcomes, rideable speed factor and neutral rows through one query-owned sort-key contract. Rows without matches, rows without valid composition metadata and all non-genepack rows retain the ordinary presentation. Absence or incompatibility of the optional integration does not require a user-facing warning.
-
-## UI application boundary
-
-Settlement Trade Overview windows own transient interaction state such as:
-
-* active category;
-* search text;
-* selected sort mode and direction;
-* scroll position;
-* loading, empty, unavailable and error presentation states.
-
-The implemented global and settlement-specific windows consume the same project-owned query layer, presentation models, shared controls, category tabs, negotiator summary and trade-list boundary. The relevance indicator is implemented once in the existing Details column of this common `TradeListView` boundary so both surfaces remain behaviorally consistent. The Details header participates in the same sortable-state and deterministic query contracts as the other supported columns.
-
-UI state must be separate from vanilla trader stock and from authoritative cache data.
-
-UI windows must not read `ITrader.Goods` directly. Manual refresh and compatible-snapshot reuse are requested through the application/cache boundary.
-
-Large lists use project-owned projection and practical virtualization so drawing work scales with visible content rather than the complete stock set. Category tabs are derived from the current search-matching projection before applying the active category. The shared list exposes one Details column for Planner relevance or pawn purchase-outcome and rideable metadata rather than introducing a separate genetics column. Its visibility and sorting are based on the current filtered projection and the complete set of values rendered in that column.
-
-The UI owns cached projection metadata and immutable row presentation derived from a specific snapshot and query state. Count, price, distance, restock, relevance and static row tooltip strings are prepared when the projection changes rather than during every IMGUI draw event. Runtime `Pawn`, `Settlement`, representative `Thing` and `ThingDef` targets are resolved only through integration caches for visible interactions and are not stored in row presentation.
-
-Contextual row tooltips should be registered only when the corresponding cell or action is hovered where the current shared-control contract permits it. Native item and pawn tooltips remain available on hover.
-
-Localized labels of different lengths remain part of layout design. The implemented English, Russian and Ukrainian resources use the same window, shared-control and presentation boundaries.
-
-## Settings boundary
-
-Mod settings are mod-owned persisted configuration and are implemented only for supported first-release behavior.
-
-The implemented settings are:
-
-* global tab visibility, enabled by default;
-* powered communications-console requirement, enabled by default;
-* Industrial-or-higher technology requirement, enabled by default;
-* optional maximum-distance filtering, enabled by default;
-* maximum distance in world tiles, default `40` and normalized to the supported range up to `3000`;
-* reachable-settlement requirement, enabled by default;
-* Royalty-aware trade-permission requirement, disabled by default and safely ignored when Royalty is inactive.
-
-The powered-console rule is centralized and accepts a powered `Building_CommsConsole` on the current map or another player-home map. Other maps are identified through `Map.IsPlayerHome`; the rule does not use `ParentFaction` as a home-map proxy.
-
-Settings are normalized and converted to the existing `SettlementEligibilityCriteria` by one settings policy. Eligibility changes invalidate incompatible snapshot state and update the cache/reuse compatibility context. Global-tab visibility remains an independent UI setting and does not disable the settlement-specific native command.
-
-Immediate-restock generation, automatic dirty-cache refresh, trader-specific partial refresh and a continuously updating restock timer are not exposed as settings.
-
-Dependencies between settings belong to the settings policy boundary and must not be reimplemented independently in UI and runtime services.
-
-## Localization boundary
-
-The accepted first-release languages are:
-
-* English;
-* Russian;
-* Ukrainian.
-
-English, Russian and Ukrainian localization is implemented for the overview, settlement entry point, settings, Planner relevance, Details, distance, restock presentation and disabled reasons. The three language sets use matching Keyed and DefInjected contracts, including equivalent placeholders and markup.
-
-Player-facing wording has been audited for clarity and unnecessary implementation terminology. Exact API and architecture terminology remains technical where precision is required.
-
-All STO localization keys use the `STO.*` prefix.
-
-Chinese Simplified localization is not part of the first-release scope. The legacy translation is not migrated because it uses obsolete identifiers and does not match the current string set. Any future Chinese Simplified localization would be separate post-release work and is not currently committed.
-
-## Project and build boundary
-
-The project uses:
-
-* the `src/SettlementTradeOverview.sln` solution;
-* an SDK-style C# production project targeting `net472` under `src/SettlementTradeOverview`;
-* the `SettlementTradeOverview.Tests` project under `tests/SettlementTradeOverview.Tests`;
-* a sibling `Escarval.RimWorld.UI` project resolved through relative build-time paths;
-* packaged mod content under `mod/`;
-* machine-specific paths in `src/SettlementTradeOverview.Local.props`;
-* a tracked template at `docs/SettlementTradeOverview.Local.props.example`;
-* post-build development deployment to the configured mod Assemblies directory.
-
-The normalized solution entry resolves the STO test project under `tests/SettlementTradeOverview.Tests`, and that project references production through `../../src/SettlementTradeOverview/SettlementTradeOverview.csproj`. The shared UI test project is owned by its standalone solution rather than the STO solution. Assembly names, namespaces, source-only shared compilation and runtime package contents remain unchanged.
-
-Local RimWorld and deployment paths must not be embedded in tracked project files.
-
-`src/SettlementTradeOverview.Local.props` is intentionally local and ignored by Git.
-
-The production project, local configuration, tracked configuration template and mod metadata are Harmony-free. The external shared-project path, source-only compilation and assembly boundary are implemented. Current Debug and Release build validation confirms the expected assembly references and the absence of a runtime dependency on a standalone `Escarval.RimWorld.UI.dll`. Release packaging remains a separate distribution process and must preserve this boundary.
-
-## Performance boundary
-
-Representative profiling covered the global `All` view under an extreme configuration and compared the rebuilt implementation with the legacy prototype on the same system. After caching projection metadata, runtime targets, row presentation and compatible snapshot reopen state, no measurable TPS or FPS difference remained between the two versions within the tested system limits.
-
-These measurements validate the current architecture and remove trader-specific partial refresh from the first-release plan. They are not universal workstation-independent performance guarantees.
-
-The known performance risk is temporary synchronous work during first snapshot construction or manual refresh when public `ITrader.Goods` causes RimWorld to generate stock for many eligible settlements. The project accepts this public vanilla behavior as a release performance consideration. Eligibility filters can reduce the number of processed settlements, but the mod does not impose a universal settlement-count limit or manipulate private stock generation.
-
-## Resolved scope decisions
-
-The following first-release scope decisions are established:
-
-* Royalty-aware settlement eligibility is included and must degrade safely when Royalty is not active;
-* first-release localization is limited to English, Russian and Ukrainian;
-* Chinese Simplified localization is outside the first-release scope and is not a committed post-release deliverable;
-* persisted settings are limited to implemented UI visibility and settlement-eligibility behavior;
-* compatible loaded snapshots may be reused without full settlement rediscovery;
-* trader-specific partial refresh is not required for the first release based on current profiling;
-* synchronous initial/manual stock generation hitches are documented as a performance consideration rather than addressed through private vanilla lifecycle control;
-* Xenogerm Planner integration is optional, read-only and presentation-only;
-* Planner relevance is recomputed on window reopen over reusable stock data and never participates in stock cache invalidation;
-* the indicator is shown in both global and settlement-specific lists through the common trade-list boundary;
-* the relevance indicator uses an STO-owned custom SVG source converted to a packaged PNG and is placed in the sortable Details column;
-* each supported genepack row has one canonical composition copied from `Tradeable.AnyThing` as distinct non-empty `GeneDef.defName` values in deterministic ordinal order;
-* malformed, empty or unavailable genepack composition data preserves the ordinary trade row but produces no composition metadata or relevance;
-* source-derived vanilla grouping behavior and the accepted single-composition snapshot contract have been confirmed through the completed runtime compatibility matrix;
-* approximate distance and ground-route reachability are independent snapshot values, with route failure presented as a warning beside the numeric distance;
-* expected restock time is a snapshot-time value formatted relative to the active trade origin rather than the trader settlement;
-* code-rendered monochrome icons use white source textures and code-defined tint, while multicolor assets retain source-defined colors;
-* the final primary icon designs, normalized SVG source library and regenerated packaged textures are part of the implemented baseline;
-* the external sibling shared UI source is compiled into the STO assembly and is not a user-installed dependency.
+Only STO's DLL belongs in the mod's assembly package. Game/reference DLLs, a separate shared UI assembly and test assemblies are not distributed. Compilation, opt-in DLL deployment, complete package preparation, runtime acceptance and publication are distinct steps.

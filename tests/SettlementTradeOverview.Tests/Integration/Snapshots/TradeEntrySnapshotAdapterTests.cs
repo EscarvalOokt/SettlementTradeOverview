@@ -95,7 +95,8 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
             Assert.That(
                 membership,
                 Is.EqualTo(
-                    TradeCategoryMembership.Foods | TradeCategoryMembership.ResourcesRaw |
+                    TradeCategoryMembership.Foods |
+                    TradeCategoryMembership.ResourcesRaw |
                     TradeCategoryMembership.Weapons));
 
             Assert.That(

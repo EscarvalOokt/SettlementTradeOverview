@@ -11,11 +11,9 @@ namespace SettlementTradeOverview.Cache
         public TradeInventorySnapshotCacheState State { get; private set; } =
             TradeInventorySnapshotCacheState.NotLoaded;
 
-        public TradeInventorySnapshot Snapshot =>
-            _snapshot;
+        public TradeInventorySnapshot Snapshot => _snapshot;
 
-        public bool HasSnapshot =>
-            _snapshot != null;
+        public bool HasSnapshot => _snapshot != null;
 
         public bool TryGetReusableSnapshot(TradeInventorySnapshotReuseKey reuseKey, out TradeInventorySnapshot snapshot)
         {

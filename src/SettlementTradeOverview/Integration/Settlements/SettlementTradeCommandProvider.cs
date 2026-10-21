@@ -87,8 +87,13 @@ namespace SettlementTradeOverview.Integration.Settlements
 
         private static bool IsStructurallySupported(Settlement settlement)
         {
-            return settlement != null && !settlement.Destroyed && settlement.Spawned && settlement.ID >= 0 &&
-                   settlement.Tile.Valid && settlement.Faction != null && settlement.TraderKind != null;
+            return settlement != null &&
+                   !settlement.Destroyed &&
+                   settlement.Spawned &&
+                   settlement.ID >= 0 &&
+                   settlement.Tile.Valid &&
+                   settlement.Faction != null &&
+                   settlement.TraderKind != null;
         }
 
         private static bool IsPlayerOwned(Settlement settlement)
