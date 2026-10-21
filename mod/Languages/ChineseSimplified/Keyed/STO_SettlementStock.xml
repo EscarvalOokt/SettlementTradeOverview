@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <STO.SettlementStock.Loading>正在加载据点贸易库存...</STO.SettlementStock.Loading>
+    <STO.SettlementStock.Header>{0} 当前贸易库存</STO.SettlementStock.Header>
+    <STO.SettlementStock.UnknownSettlement>据点</STO.SettlementStock.UnknownSettlement>
+    <STO.SettlementStock.RestockSummary>补货：{0}</STO.SettlementStock.RestockSummary>
+    <STO.SettlementStock.CurrencyUnavailable>贸易货币信息不可用。</STO.SettlementStock.CurrencyUnavailable>
+    <STO.SettlementStock.Empty>该据点目前没有可显示的贸易库存。</STO.SettlementStock.Empty>
+    <STO.SettlementStock.NoTradeEntries>该商人目前没有可显示的贸易报价。</STO.SettlementStock.NoTradeEntries>
+    <STO.SettlementStock.NoMatches>没有贸易报价匹配当前分类和搜索条件。</STO.SettlementStock.NoMatches>
+    <STO.SettlementStock.Unavailable>该据点已不可用或其贸易库存不属于当前概览。</STO.SettlementStock.Unavailable>
+    <STO.SettlementStock.Partial>该据点的部分贸易报价无法加载。其余报价仍会显示。</STO.SettlementStock.Partial>
+    <STO.SettlementStock.Error>据点贸易库存无法加载。请查看日志获取详细信息。</STO.SettlementStock.Error>
+</LanguageData>

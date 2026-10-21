@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <STO.Settings.Category>据点贸易概览</STO.Settings.Category>
+
+    <STO.Settings.Section.Interface>界面</STO.Settings.Section.Interface>
+    <STO.Settings.ShowGlobalOverviewTab.Label>显示全局贸易概览选项卡</STO.Settings.ShowGlobalOverviewTab.Label>
+    <STO.Settings.ShowGlobalOverviewTab.Description>在主选项卡栏中显示据点贸易概览按钮。这不会影响据点特定的贸易库存命令。</STO.Settings.ShowGlobalOverviewTab.Description>
+
+    <STO.Settings.Section.Eligibility>显示的据点</STO.Settings.Section.Eligibility>
+    <STO.Settings.RequirePoweredCommsConsole.Label>需要已通电的通讯台</STO.Settings.RequirePoweredCommsConsole.Label>
+    <STO.Settings.RequirePoweredCommsConsole.Description>仅当当前地图或其他玩家家地图有已通电的通讯台时才显示据点。</STO.Settings.RequirePoweredCommsConsole.Description>
+    <STO.Settings.RequireIndustrialTechnology.Label>需要工业时代或更高科技</STO.Settings.RequireIndustrialTechnology.Label>
+    <STO.Settings.RequireIndustrialTechnology.Description>仅当其派系拥有工业时代或更高科技时才显示据点。</STO.Settings.RequireIndustrialTechnology.Description>
+    <STO.Settings.LimitMaximumDistance.Label>限制最大距离</STO.Settings.LimitMaximumDistance.Label>
+    <STO.Settings.LimitMaximumDistance.Description>仅当据点距当前位置在配置的世界格数内时才显示。</STO.Settings.LimitMaximumDistance.Description>
+    <STO.Settings.MaximumDistanceInTiles.Label>最大距离（格）</STO.Settings.MaximumDistanceInTiles.Label>
+    <STO.Settings.MaximumDistanceInTiles.Description>启用距离限制时距当前位置的最大距离。</STO.Settings.MaximumDistanceInTiles.Description>
+    <STO.Settings.RequireReachable.Label>需要可到达的路线</STO.Settings.RequireReachable.Label>
+    <STO.Settings.RequireReachable.Description>仅当从当前位置存在可通行的地面路线时才显示据点。</STO.Settings.RequireReachable.Description>
+    <STO.Settings.RequireRoyaltyTradePermission.Label>需要皇权贸易许可</STO.Settings.RequireRoyaltyTradePermission.Label>
+    <STO.Settings.RequireRoyaltyTradePermission.Description>当皇权DLC激活时，仅当有可用的殖民者满足其爵位要求时才显示据点。皇权未激活时此设置无效。</STO.Settings.RequireRoyaltyTradePermission.Description>
+</LanguageData>

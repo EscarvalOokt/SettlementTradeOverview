@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <STO.SettlementEntryPoint.Label>查看贸易库存</STO.SettlementEntryPoint.Label>
+    <STO.SettlementEntryPoint.Description>查看 {0} 当前提供的贸易库存。</STO.SettlementEntryPoint.Description>
+
+    <STO.SettlementEntryPoint.Disabled.ContextUnavailable>请先打开一个玩家地图，然后再查看据点贸易库存。</STO.SettlementEntryPoint.Disabled.ContextUnavailable>
+    <STO.SettlementEntryPoint.Disabled.TradeUnavailable>{0} 目前无法进行贸易。</STO.SettlementEntryPoint.Disabled.TradeUnavailable>
+    <STO.SettlementEntryPoint.Disabled.Hostile>当 {0} 处于敌对状态时无法查看贸易库存。</STO.SettlementEntryPoint.Disabled.Hostile>
+    <STO.SettlementEntryPoint.Disabled.TechnologyUnavailable>该据点的科技等级未知。</STO.SettlementEntryPoint.Disabled.TechnologyUnavailable>
+    <STO.SettlementEntryPoint.Disabled.TechnologyBelowMinimum>该据点必须拥有工业时代或更高的科技。</STO.SettlementEntryPoint.Disabled.TechnologyBelowMinimum>
+    <STO.SettlementEntryPoint.Disabled.PoweredCommsConsoleRequired>此地图或其他家地图需要有已通电的通讯台。</STO.SettlementEntryPoint.Disabled.PoweredCommsConsoleRequired>
+    <STO.SettlementEntryPoint.Disabled.DistanceUnavailable>无法计算距您当前位置的距离。</STO.SettlementEntryPoint.Disabled.DistanceUnavailable>
+    <STO.SettlementEntryPoint.Disabled.BeyondMaximumDistance>该据点距离超过配置的最大距离。</STO.SettlementEntryPoint.Disabled.BeyondMaximumDistance>
+    <STO.SettlementEntryPoint.Disabled.ReachabilityUnavailable>无法检查从您当前位置出发的地面路线可用性。</STO.SettlementEntryPoint.Disabled.ReachabilityUnavailable>
+    <STO.SettlementEntryPoint.Disabled.Unreachable>从您当前位置出发没有可通行的地面路线。</STO.SettlementEntryPoint.Disabled.Unreachable>
+    <STO.SettlementEntryPoint.Disabled.RoyaltyTradePermissionUnavailable>无法检查该据点的爵位要求。</STO.SettlementEntryPoint.Disabled.RoyaltyTradePermissionUnavailable>
+    <STO.SettlementEntryPoint.Disabled.RoyaltyTradePermissionDenied>没有可用的殖民者拥有与该据点贸易所需的爵位。</STO.SettlementEntryPoint.Disabled.RoyaltyTradePermissionDenied>
+    <STO.SettlementEntryPoint.Disabled.Fallback>该据点贸易库存当前不可用。</STO.SettlementEntryPoint.Disabled.Fallback>
+</LanguageData>
