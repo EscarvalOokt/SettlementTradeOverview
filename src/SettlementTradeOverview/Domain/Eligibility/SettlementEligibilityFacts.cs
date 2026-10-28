@@ -18,7 +18,7 @@ namespace SettlementTradeOverview.Domain.Eligibility
             if (!Enum.IsDefined(typeof(SettlementTechnologyLevel), technologyLevel))
                 throw new ArgumentOutOfRangeException(nameof(technologyLevel));
 
-            if (distanceInTiles.HasValue && distanceInTiles.Value < 0)
+            if (distanceInTiles is < 0)
                 throw new ArgumentOutOfRangeException(nameof(distanceInTiles));
 
             if (!Enum.IsDefined(typeof(SettlementReachabilityState), reachability))

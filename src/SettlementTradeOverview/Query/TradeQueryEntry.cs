@@ -3,16 +3,10 @@ using SettlementTradeOverview.Domain.Snapshots;
 
 namespace SettlementTradeOverview.Query
 {
-    public sealed class TradeQueryEntry
+    public sealed class TradeQueryEntry(TraderSnapshot trader, TradeEntrySnapshot entry)
     {
-        public TradeQueryEntry(TraderSnapshot trader, TradeEntrySnapshot entry)
-        {
-            Trader = trader ?? throw new ArgumentNullException(nameof(trader));
-            Entry = entry ?? throw new ArgumentNullException(nameof(entry));
-        }
+        public TraderSnapshot Trader { get; } = trader ?? throw new ArgumentNullException(nameof(trader));
 
-        public TraderSnapshot Trader { get; }
-
-        public TradeEntrySnapshot Entry { get; }
+        public TradeEntrySnapshot Entry { get; } = entry ?? throw new ArgumentNullException(nameof(entry));
     }
 }

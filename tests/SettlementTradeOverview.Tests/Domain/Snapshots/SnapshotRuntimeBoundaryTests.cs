@@ -11,7 +11,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
     public sealed class SnapshotRuntimeBoundaryTests
     {
         private static readonly Type[] _snapshotTypes =
-        {
+        [
             typeof(PawnTradeDetailKind),
             typeof(PawnTradeDetailsSnapshot),
             typeof(GenepackCompositionSnapshot),
@@ -22,15 +22,15 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             typeof(TradeNegotiatorSnapshot),
             typeof(TraderSnapshot),
             typeof(TradeInventorySnapshot)
-        };
+        ];
 
         private static readonly string[] _forbiddenNamespacePrefixes =
-        {
+        [
             "RimWorld",
             "Verse",
             "UnityEngine",
             "Escarval.RimWorld.UI"
-        };
+        ];
 
         [Test]
         public void SnapshotPublicProperties_DoNotExposeRuntimeOrUiTypes()

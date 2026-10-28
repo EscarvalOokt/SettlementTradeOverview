@@ -56,10 +56,10 @@ namespace SettlementTradeOverview.Query
             if (!HasQueryableData(snapshot.Availability))
                 return _emptyResult;
 
-            TraderSnapshot[] traders = new[]
-            {
+            TraderSnapshot[] traders =
+            [
                 snapshot
-            };
+            ];
 
             return ExecuteCore(traders, criteria ?? TradeQueryCriteria.Default, relevanceMatchCountResolver);
         }

@@ -8,10 +8,9 @@ namespace SettlementTradeOverview.Query
     internal static class TradeCategoryAvailability
     {
         private static readonly IReadOnlyList<TradeCategory> _allOnly = Array.AsReadOnly(
-            new[]
-            {
-                TradeCategory.All
-            });
+        [
+            TradeCategory.All
+        ]);
 
         public static IReadOnlyList<TradeCategory> Resolve(TradeInventorySnapshot snapshot, string searchText)
         {

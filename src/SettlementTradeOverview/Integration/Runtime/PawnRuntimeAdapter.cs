@@ -189,7 +189,7 @@ namespace SettlementTradeOverview.Integration.Runtime
 
         private static bool IsValid(Pawn pawn)
         {
-            return pawn != null && !pawn.Destroyed;
+            return pawn is { Destroyed: false };
         }
     }
 }

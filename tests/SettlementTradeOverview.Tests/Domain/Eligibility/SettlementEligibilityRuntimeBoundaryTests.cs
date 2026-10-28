@@ -11,7 +11,7 @@ namespace SettlementTradeOverview.Tests.Domain.Eligibility
     public sealed class SettlementEligibilityRuntimeBoundaryTests
     {
         private static readonly Type[] _contractTypes =
-        {
+        [
             typeof(SettlementTechnologyLevel),
             typeof(SettlementReachabilityState),
             typeof(SettlementRoyaltyTradePermissionState),
@@ -20,15 +20,15 @@ namespace SettlementTradeOverview.Tests.Domain.Eligibility
             typeof(SettlementEligibilityFailureReason),
             typeof(SettlementEligibilityResult),
             typeof(SettlementEligibilityPolicy)
-        };
+        ];
 
         private static readonly string[] _forbiddenNamespacePrefixes =
-        {
+        [
             "RimWorld",
             "Verse",
             "UnityEngine",
             "Escarval.RimWorld.UI"
-        };
+        ];
 
         [Test]
         public void EligibilityPublicContracts_DoNotExposeRuntimeOrUiTypes()

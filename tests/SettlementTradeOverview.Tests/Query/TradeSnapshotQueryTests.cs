@@ -14,7 +14,7 @@ namespace SettlementTradeOverview.Tests.Query
     public sealed class TradeSnapshotQueryTests
     {
         private static readonly Type[] _publicContractTypes =
-        {
+        [
             typeof(TradeCategory),
             typeof(TradeCategoryMembership),
             typeof(TradeCategoryClassifier),
@@ -23,15 +23,15 @@ namespace SettlementTradeOverview.Tests.Query
             typeof(TradeQueryCriteria),
             typeof(TradeQueryEntry),
             typeof(TradeSnapshotQuery)
-        };
+        ];
 
         private static readonly string[] _forbiddenNamespacePrefixes =
-        {
+        [
             "RimWorld",
             "Verse",
             "UnityEngine",
             "Escarval.RimWorld.UI"
-        };
+        ];
 
         [Test]
         public void Execute_GlobalSnapshot_FlattensEntriesFromAllQueryableTraders()
@@ -41,21 +41,19 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel"),
                     CreateItem("Gold", "Gold")
-                });
+                ]);
 
             TraderSnapshot second = CreateTrader(
                 "Trader:2",
                 2,
                 "Beta",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreatePawn("Pawn:1", "Morgan")
-                });
+                ]);
 
             TradeInventorySnapshot snapshot = CreateInventory(SnapshotAvailability.Available, first, second);
 
@@ -65,12 +63,11 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result.Select(row => row.Entry.Label),
                 Is.EqualTo(
-                    new[]
-                    {
-                        "Gold",
-                        "Morgan",
-                        "Steel"
-                    }));
+                [
+                    "Gold",
+                    "Morgan",
+                    "Steel"
+                ]));
 
             Assert.That(result.Select(row => row.Trader.SettlementLabel), Does.Contain("Alpha"));
 
@@ -85,11 +82,10 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Meal", "Fine meal", TradeCategoryMembership.Foods),
                     CreateItem("Rifle", "Assault rifle", TradeCategoryMembership.Weapons)
-                });
+                ]);
 
             var criteria = new TradeQueryCriteria(TradeCategory.Weapons, "rifle");
 
@@ -108,10 +104,9 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel")
-                },
+                ],
                 new TradeCurrencySnapshot(new TradeEntryIdentity("Silver"), "Silver", "Silver", 1000));
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(trader, TradeQueryCriteria.Default);
@@ -128,7 +123,7 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                Array.Empty<TradeEntrySnapshot>(),
+                [],
                 new TradeCurrencySnapshot(new TradeEntryIdentity("Silver"), "Silver", "Silver", 1000));
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(trader, TradeQueryCriteria.Default);
@@ -144,12 +139,11 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Meal", "Meal", TradeCategoryMembership.Foods),
                     CreateItem("Steel", "Steel", TradeCategoryMembership.ResourcesRaw),
                     CreatePawn("Pawn:1", "Morgan")
-                });
+                ]);
 
             TradeQueryCriteria criteria = TradeQueryCriteria.Default;
 
@@ -166,12 +160,11 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Meal", "Meal", TradeCategoryMembership.Foods),
                     CreateItem("Steel", "Steel", TradeCategoryMembership.ResourcesRaw),
                     CreatePawn("Pawn:1", "Morgan")
-                });
+                ]);
 
             var criteria = new TradeQueryCriteria(TradeCategory.Pawns);
 
@@ -190,21 +183,19 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha Colony",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Component", "Advanced component"),
                     CreatePawn("Pawn:1", "Morgan Bell")
-                });
+                ]);
 
             TraderSnapshot beta = CreateTrader(
                 "Trader:2",
                 2,
                 "Beta Outpost",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel")
-                });
+                ]);
 
             TradeInventorySnapshot snapshot = CreateInventory(SnapshotAvailability.Available, alpha, beta);
 
@@ -238,10 +229,9 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Entry:1", "Visible label", definitionName: "HiddenDefinition")
-                },
+                ],
                 traderLabel: "Hidden trader label");
 
             IReadOnlyList<TradeQueryEntry> definitionResult = TradeSnapshotQuery.Execute(
@@ -266,11 +256,10 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel"),
                     CreateItem("Gold", "Gold")
-                });
+                ]);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(
                 trader,
@@ -284,7 +273,7 @@ namespace SettlementTradeOverview.Tests.Query
         [TestCase(SnapshotAvailability.Failed)]
         public void Execute_NonQueryableGlobalAvailability_ReturnsEmptyResult(SnapshotAvailability availability)
         {
-            var snapshot = new TradeInventorySnapshot(availability, 0, null, null, null, Array.Empty<TraderSnapshot>());
+            var snapshot = new TradeInventorySnapshot(availability, 0, null, null, null, []);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(snapshot, TradeQueryCriteria.Default);
 
@@ -296,12 +285,7 @@ namespace SettlementTradeOverview.Tests.Query
         [TestCase(SnapshotAvailability.Failed)]
         public void Execute_NonQueryableTraderAvailability_ReturnsEmptyResult(SnapshotAvailability availability)
         {
-            TraderSnapshot trader = CreateTrader(
-                "Trader:1",
-                1,
-                "Alpha",
-                availability,
-                Array.Empty<TradeEntrySnapshot>());
+            TraderSnapshot trader = CreateTrader("Trader:1", 1, "Alpha", availability, []);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(trader, TradeQueryCriteria.Default);
 
@@ -316,17 +300,11 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Partial,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel")
-                });
+                ]);
 
-            TraderSnapshot failed = CreateTrader(
-                "Trader:2",
-                2,
-                "Beta",
-                SnapshotAvailability.Failed,
-                Array.Empty<TradeEntrySnapshot>());
+            TraderSnapshot failed = CreateTrader("Trader:2", 2, "Beta", SnapshotAvailability.Failed, []);
 
             TradeInventorySnapshot snapshot = CreateInventory(SnapshotAvailability.Partial, available, failed);
 
@@ -344,22 +322,20 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel"),
                     CreateItem("Gold", "Gold")
-                });
+                ]);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(trader, null);
 
             Assert.That(
                 result.Select(row => row.Entry.Label),
                 Is.EqualTo(
-                    new[]
-                    {
-                        "Gold",
-                        "Steel"
-                    }));
+                [
+                    "Gold",
+                    "Steel"
+                ]));
         }
 
         [Test]
@@ -370,10 +346,9 @@ namespace SettlementTradeOverview.Tests.Query
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Steel", "Steel")
-                });
+                ]);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(trader, TradeQueryCriteria.Default);
 
@@ -395,21 +370,19 @@ namespace SettlementTradeOverview.Tests.Query
                 2,
                 "Beta",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     steel,
                     gold
-                });
+                ]);
 
             TraderSnapshot alpha = CreateTrader(
                 "Trader:1",
                 1,
                 "Alpha",
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateItem("Medicine", "Medicine")
-                });
+                ]);
 
             TradeInventorySnapshot snapshot = CreateInventory(SnapshotAvailability.Available, beta, alpha);
 

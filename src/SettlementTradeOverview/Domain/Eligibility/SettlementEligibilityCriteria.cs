@@ -13,7 +13,7 @@ namespace SettlementTradeOverview.Domain.Eligibility
         {
             ValidateMinimumTechnologyLevel(minimumTechnologyLevel);
 
-            if (maximumDistanceInTiles.HasValue && maximumDistanceInTiles.Value < 0)
+            if (maximumDistanceInTiles is < 0)
                 throw new ArgumentOutOfRangeException(nameof(maximumDistanceInTiles));
 
             RequirePoweredCommsConsole = requirePoweredCommsConsole;

@@ -42,21 +42,16 @@ namespace SettlementTradeOverview.Integration.Runtime
 
         private static bool IsValidRepresentative(Thing representative)
         {
-            return representative != null && !representative.Destroyed;
+            return representative is { Destroyed: false };
         }
     }
 
-    internal sealed class TradeEntryRuntimeTargetRegistry<TTarget> where TTarget : class
+    internal sealed class TradeEntryRuntimeTargetRegistry<TTarget>(Func<TTarget, bool> isValid) where TTarget : class
     {
-        private readonly Func<TTarget, bool> _isValid;
+        private readonly Func<TTarget, bool> _isValid = isValid ?? throw new ArgumentNullException(nameof(isValid));
 
         private readonly Dictionary<TradeEntryIdentity, TTarget> _targets =
             new Dictionary<TradeEntryIdentity, TTarget>();
-
-        public TradeEntryRuntimeTargetRegistry(Func<TTarget, bool> isValid)
-        {
-            _isValid = isValid ?? throw new ArgumentNullException(nameof(isValid));
-        }
 
         public bool TryRegister(TradeEntryIdentity identity, TTarget target)
         {

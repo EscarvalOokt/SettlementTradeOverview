@@ -11,20 +11,20 @@ namespace SettlementTradeOverview.Tests.Cache
     public sealed class TradeInventorySnapshotCacheRuntimeBoundaryTests
     {
         private static readonly Type[] _contractTypes =
-        {
+        [
             typeof(TradeInventorySnapshotCacheState),
             typeof(TradeInventorySnapshotReuseKey),
             typeof(TradeInventorySnapshotCacheKey),
             typeof(TradeInventorySnapshotCache)
-        };
+        ];
 
         private static readonly string[] _forbiddenNamespacePrefixes =
-        {
+        [
             "RimWorld",
             "Verse",
             "UnityEngine",
             "Escarval.RimWorld.UI"
-        };
+        ];
 
         [Test]
         public void CacheContracts_DoNotExposeRuntimeOrUiTypes()

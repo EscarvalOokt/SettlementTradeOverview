@@ -37,10 +37,9 @@ namespace SettlementTradeOverview.UI.SettlementStock
             Array.AsReadOnly(Array.Empty<TradeListRowPresentation>());
 
         private static readonly IReadOnlyList<TradeCategory> _allCategoryOnly = Array.AsReadOnly(
-            new[]
-            {
-                TradeCategory.All
-            });
+        [
+            TradeCategory.All
+        ]);
 
         private readonly SettlementIdentity _settlementIdentity;
         private TradeCategory _activeCategory = TradeCategory.All;
@@ -538,9 +537,9 @@ namespace SettlementTradeOverview.UI.SettlementStock
                 iconSize,
                 iconSize);
 
-            const float CountWidth = 96f;
+            const float countWidth = 96f;
 
-            var countRect = new Rect(rect.xMax - CountWidth, rect.y, CountWidth, rect.height);
+            var countRect = new Rect(rect.xMax - countWidth, rect.y, countWidth, rect.height);
 
             var labelRect = new Rect(
                 infoRect.xMax + RimWorldUiStyle.Metrics.IconButtonGap,

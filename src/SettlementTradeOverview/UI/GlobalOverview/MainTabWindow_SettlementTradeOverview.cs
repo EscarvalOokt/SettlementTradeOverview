@@ -31,10 +31,9 @@ namespace SettlementTradeOverview.UI.GlobalOverview
             Array.AsReadOnly(Array.Empty<TradeListRowPresentation>());
 
         private static readonly IReadOnlyList<TradeCategory> _allCategoryOnly = Array.AsReadOnly(
-            new[]
-            {
-                TradeCategory.All
-            });
+        [
+            TradeCategory.All
+        ]);
 
         private TradeCategory _activeCategory = TradeCategory.All;
         private IReadOnlyList<TradeCategory> _availableCategories = _allCategoryOnly;

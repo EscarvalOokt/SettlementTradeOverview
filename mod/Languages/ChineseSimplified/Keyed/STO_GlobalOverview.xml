@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <STO.GlobalOverview.Loading>正在加载据点贸易数据...</STO.GlobalOverview.Loading>
-    <STO.GlobalOverview.AvailableSummary>已加载 {0} 个据点，共 {1} 条贸易报价。</STO.GlobalOverview.AvailableSummary>
-    <STO.GlobalOverview.NegotiatorSummary>以 {0} 作为谈判者估算价格（贸易价格优惠 {1}）。</STO.GlobalOverview.NegotiatorSummary>
+    <STO.GlobalOverview.Loading>正在加载定居点贸易数据...</STO.GlobalOverview.Loading>
+    <STO.GlobalOverview.AvailableSummary>已加载 {0} 个定居点，共 {1} 条贸易报价。</STO.GlobalOverview.AvailableSummary>
+    <STO.GlobalOverview.NegotiatorSummary>以 {0} 作为谈判者估算价格（交易价格改善 {1}）。</STO.GlobalOverview.NegotiatorSummary>
     <STO.GlobalOverview.NoNegotiatorSummary>没有可用的有效谈判者。无法计算谈判价格时将显示市场价值。</STO.GlobalOverview.NoNegotiatorSummary>
-    <STO.GlobalOverview.Empty>未找到符合条件的据点或贸易报价。</STO.GlobalOverview.Empty>
+    <STO.GlobalOverview.Empty>未找到符合条件的定居点或贸易报价。</STO.GlobalOverview.Empty>
     <STO.GlobalOverview.Unavailable>贸易数据不可用，因为没有活跃的玩家地图或用于距离计算的起始点。</STO.GlobalOverview.Unavailable>
-    <STO.GlobalOverview.Partial>部分据点无法加载。其余据点的贸易报价仍会显示。</STO.GlobalOverview.Partial>
-    <STO.GlobalOverview.Error>据点贸易数据无法加载。请查看日志获取详细信息。</STO.GlobalOverview.Error>
-    <STO.GlobalOverview.Search>搜索物品或据点</STO.GlobalOverview.Search>
+    <STO.GlobalOverview.Partial>部分定居点无法加载。其余定居点的贸易报价仍会显示。</STO.GlobalOverview.Partial>
+    <STO.GlobalOverview.Error>定居点贸易数据无法加载。请查看日志获取详细信息。</STO.GlobalOverview.Error>
+    <STO.GlobalOverview.Search>搜索物品或定居点</STO.GlobalOverview.Search>
     <STO.GlobalOverview.ClearSearch>清除搜索</STO.GlobalOverview.ClearSearch>
     <STO.GlobalOverview.Refresh>刷新贸易数据</STO.GlobalOverview.Refresh>
     <STO.GlobalOverview.NoMatches>没有贸易报价匹配当前分类和搜索条件。</STO.GlobalOverview.NoMatches>
@@ -17,18 +17,18 @@
     <STO.TradeCategory.Foods>食物</STO.TradeCategory.Foods>
     <STO.TradeCategory.ResourcesRaw>原材料</STO.TradeCategory.ResourcesRaw>
     <STO.TradeCategory.Manufactured>制成品</STO.TradeCategory.Manufactured>
-    <STO.TradeCategory.Apparel>服装</STO.TradeCategory.Apparel>
+    <STO.TradeCategory.Apparel>衣物</STO.TradeCategory.Apparel>
     <STO.TradeCategory.Weapons>武器</STO.TradeCategory.Weapons>
     <STO.TradeCategory.Items>物品</STO.TradeCategory.Items>
     <STO.TradeCategory.Buildings>建筑</STO.TradeCategory.Buildings>
-    <STO.TradeCategory.Pawns>人物</STO.TradeCategory.Pawns>
+    <STO.TradeCategory.Pawns>生物</STO.TradeCategory.Pawns>
     <STO.TradeCategory.Other>其他</STO.TradeCategory.Other>
 
     <STO.TradeList.Column.Item>物品</STO.TradeList.Column.Item>
     <STO.TradeList.Column.Details>详情</STO.TradeList.Column.Details>
-    <STO.TradeList.Column.DetailsTooltip>按此处显示的详情排序，包括匹配的异种胚芽规划方案和人物贸易信息。</STO.TradeList.Column.DetailsTooltip>
+    <STO.TradeList.Column.DetailsTooltip>按此处显示的详情排序，包括匹配的异种胚芽规划方案和生物贸易信息。</STO.TradeList.Column.DetailsTooltip>
     <STO.TradeList.Column.Count>数量</STO.TradeList.Column.Count>
-    <STO.TradeList.Column.Settlement>据点</STO.TradeList.Column.Settlement>
+    <STO.TradeList.Column.Settlement>定居点</STO.TradeList.Column.Settlement>
     <STO.TradeList.Column.Price>价格</STO.TradeList.Column.Price>
     <STO.TradeList.Column.Distance>距离</STO.TradeList.Column.Distance>
     <STO.TradeList.Column.Restock>补货</STO.TradeList.Column.Restock>
@@ -51,8 +51,8 @@
 
     <STO.TradeList.Restock.ScheduledTooltip>上次刷新列表时距离补货的剩余时间：{0}。此值不会持续更新。</STO.TradeList.Restock.ScheduledTooltip>
     <STO.TradeList.Restock.ScheduledWithExpectedTimeTooltip>当前位置的预计补货日期和时间：{0}&#10;上次刷新列表时的剩余时间：{1}&#10;&#10;此值不会持续更新。</STO.TradeList.Restock.ScheduledWithExpectedTimeTooltip>
-    <STO.TradeList.Restock.PendingGenerationTooltip>该据点未提供计划补货时间。其贸易库存可能尚未可用。</STO.TradeList.Restock.PendingGenerationTooltip>
-    <STO.TradeList.Restock.UnavailableTooltip>此据点的补货信息不可用。</STO.TradeList.Restock.UnavailableTooltip>
+    <STO.TradeList.Restock.PendingGenerationTooltip>该定居点未提供计划补货时间。其贸易库存可能尚未可用。</STO.TradeList.Restock.PendingGenerationTooltip>
+    <STO.TradeList.Restock.UnavailableTooltip>此定居点的补货信息不可用。</STO.TradeList.Restock.UnavailableTooltip>
 
     <STO.TradeList.Navigation.JumpToSettlement>跳转到 {0}</STO.TradeList.Navigation.JumpToSettlement>
     <STO.TradeList.Navigation.SettlementUnavailable>{0} 已不在世界地图上。</STO.TradeList.Navigation.SettlementUnavailable>

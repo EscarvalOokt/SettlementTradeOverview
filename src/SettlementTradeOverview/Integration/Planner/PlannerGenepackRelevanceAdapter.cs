@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using SettlementTradeOverview.Domain.Snapshots;
 
 namespace SettlementTradeOverview.Integration.Planner
 {
     internal static class PlannerGenepackRelevanceAdapter
     {
-        private static readonly object _bindingLock = new object();
+        private static readonly Lock _bindingLock = new Lock();
 
         private static volatile XenogermPlannerApiV1Binding _binding;
 

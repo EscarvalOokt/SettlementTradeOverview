@@ -11,18 +11,18 @@
         public const bool DefaultRequireReachable = true;
         public const bool DefaultRequireRoyaltyTradePermission = false;
 
-        public bool ShowGlobalOverviewTab { get; set; } = DefaultShowGlobalOverviewTab;
+        public bool ShowGlobalOverviewTab { get; init; } = DefaultShowGlobalOverviewTab;
 
-        public bool RequirePoweredCommsConsole { get; set; } = DefaultRequirePoweredCommsConsole;
+        public bool RequirePoweredCommsConsole { get; init; } = DefaultRequirePoweredCommsConsole;
 
-        public bool RequireIndustrialTechnology { get; set; } = DefaultRequireIndustrialTechnology;
+        public bool RequireIndustrialTechnology { get; init; } = DefaultRequireIndustrialTechnology;
 
-        public bool LimitMaximumDistance { get; set; } = DefaultLimitMaximumDistance;
+        public bool LimitMaximumDistance { get; init; } = DefaultLimitMaximumDistance;
 
         public int MaximumDistanceInTiles { get; set; } = DefaultMaximumDistanceInTiles;
 
-        public bool RequireReachable { get; set; } = DefaultRequireReachable;
+        public bool RequireReachable { get; init; } = DefaultRequireReachable;
 
-        public bool RequireRoyaltyTradePermission { get; set; } = DefaultRequireRoyaltyTradePermission;
+        public bool RequireRoyaltyTradePermission { get; init; } = DefaultRequireRoyaltyTradePermission;
     }
 }

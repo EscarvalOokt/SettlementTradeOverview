@@ -13,7 +13,7 @@ namespace SettlementTradeOverview.Domain.Snapshots
     {
         private TradeDistance(int? tiles, TradeRouteState routeState)
         {
-            if (tiles.HasValue && tiles.Value < 0)
+            if (tiles is < 0)
                 throw new ArgumentOutOfRangeException(nameof(tiles));
 
             if (!Enum.IsDefined(typeof(TradeRouteState), routeState))

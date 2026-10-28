@@ -7,51 +7,39 @@ using Verse;
 
 namespace SettlementTradeOverview.UI.TradeList
 {
-    internal sealed class TradeListRowPresentation
+    internal sealed class TradeListRowPresentation(
+        TradeQueryEntry queryEntry,
+        string countText,
+        string infoTooltip,
+        string settlementNavigationTooltip,
+        TradeCellPresentation price,
+        TradeCellPresentation distance,
+        TradeCellPresentation restock,
+        PlannerTradeEntryRelevance relevance,
+        string relevanceTooltip)
     {
-        private readonly TradeQueryEntry _queryEntry;
-
-        public TradeListRowPresentation(
-            TradeQueryEntry queryEntry,
-            string countText,
-            string infoTooltip,
-            string settlementNavigationTooltip,
-            TradeCellPresentation price,
-            TradeCellPresentation distance,
-            TradeCellPresentation restock,
-            PlannerTradeEntryRelevance relevance,
-            string relevanceTooltip)
-        {
+        private readonly TradeQueryEntry
             _queryEntry = queryEntry ?? throw new ArgumentNullException(nameof(queryEntry));
-            CountText = countText ?? throw new ArgumentNullException(nameof(countText));
-            InfoTooltip = infoTooltip ?? throw new ArgumentNullException(nameof(infoTooltip));
-            SettlementNavigationTooltip = settlementNavigationTooltip;
-            Price = price;
-            Distance = distance;
-            Restock = restock;
-            Relevance = relevance;
-            RelevanceTooltip = relevanceTooltip;
-        }
 
         public TraderSnapshot Trader => _queryEntry.Trader;
 
         public TradeEntrySnapshot Entry => _queryEntry.Entry;
 
-        public string CountText { get; }
+        public string CountText { get; } = countText ?? throw new ArgumentNullException(nameof(countText));
 
-        public string InfoTooltip { get; }
+        public string InfoTooltip { get; } = infoTooltip ?? throw new ArgumentNullException(nameof(infoTooltip));
 
-        public string SettlementNavigationTooltip { get; }
+        public string SettlementNavigationTooltip { get; } = settlementNavigationTooltip;
 
-        public TradeCellPresentation Price { get; }
+        public TradeCellPresentation Price { get; } = price;
 
-        public TradeCellPresentation Distance { get; }
+        public TradeCellPresentation Distance { get; } = distance;
 
-        public TradeCellPresentation Restock { get; }
+        public TradeCellPresentation Restock { get; } = restock;
 
-        public PlannerTradeEntryRelevance Relevance { get; }
+        public PlannerTradeEntryRelevance Relevance { get; } = relevance;
 
-        public string RelevanceTooltip { get; }
+        public string RelevanceTooltip { get; } = relevanceTooltip;
     }
 
     internal static class TradeListRowPresentationBuilder
@@ -195,23 +183,17 @@ namespace SettlementTradeOverview.UI.TradeList
             }
         }
 
-        private readonly struct TraderRowPresentation
+        private readonly struct TraderRowPresentation(
+            TradeCellPresentation distance,
+            TradeCellPresentation restock,
+            string navigationTooltip)
         {
-            public TraderRowPresentation(
-                TradeCellPresentation distance,
-                TradeCellPresentation restock,
-                string navigationTooltip)
-            {
-                Distance = distance;
-                Restock = restock;
-                NavigationTooltip = navigationTooltip ?? throw new ArgumentNullException(nameof(navigationTooltip));
-            }
+            public TradeCellPresentation Distance { get; } = distance;
 
-            public TradeCellPresentation Distance { get; }
+            public TradeCellPresentation Restock { get; } = restock;
 
-            public TradeCellPresentation Restock { get; }
-
-            public string NavigationTooltip { get; }
+            public string NavigationTooltip { get; } =
+                navigationTooltip ?? throw new ArgumentNullException(nameof(navigationTooltip));
         }
     }
 }

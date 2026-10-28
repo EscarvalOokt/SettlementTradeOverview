@@ -58,8 +58,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         [Test]
         public void ItemSuccess_EmptyMatches_IsValid()
         {
-            var result =
-                PlannerGenepackRelevanceItemResult.CreateSuccess(Array.Empty<PlannerGenepackRelevancePlanMatch>());
+            var result = PlannerGenepackRelevanceItemResult.CreateSuccess([]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceItemStatus.Success));
             Assert.That(result.Matches, Is.Empty);
@@ -69,8 +68,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void ItemSuccess_NullMatch_Throws()
         {
             Assert.That(
-                (Action)(() => PlannerGenepackRelevanceItemResult.CreateSuccess(
-                    new PlannerGenepackRelevancePlanMatch[] { null })),
+                (Action)(() => PlannerGenepackRelevanceItemResult.CreateSuccess([null])),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -105,7 +103,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void ItemMatches_ExposedCollection_IsReadOnly()
         {
             var result = PlannerGenepackRelevanceItemResult.CreateSuccess(
-                new[] { new PlannerGenepackRelevancePlanMatch("plan-1", "Alpha") });
+            [
+                new PlannerGenepackRelevancePlanMatch("plan-1", "Alpha")
+            ]);
 
             var matches = (IList<PlannerGenepackRelevancePlanMatch>)result.Matches;
 
@@ -128,14 +128,13 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             source.Clear();
 
             Assert.That(batch.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
-            Assert.That(batch.Results, Is.EqualTo(new[] { first, second }));
+            Assert.That(batch.Results, Is.EqualTo([first, second]));
         }
 
         [Test]
         public void BatchSuccess_EmptyResults_IsValid()
         {
-            var batch = PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                Array.Empty<PlannerGenepackRelevanceItemResult>());
+            var batch = PlannerGenepackRelevanceBatchResult.CreateSuccess([]);
 
             Assert.That(batch.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(batch.Results, Is.Empty);
@@ -145,8 +144,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void BatchSuccess_NullResult_Throws()
         {
             Assert.That(
-                (Action)(() => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new PlannerGenepackRelevanceItemResult[] { null })),
+                (Action)(() => PlannerGenepackRelevanceBatchResult.CreateSuccess([null])),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -162,8 +160,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         [Test]
         public void BatchResults_ExposedCollection_IsReadOnly()
         {
-            var batch = PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                Array.Empty<PlannerGenepackRelevanceItemResult>());
+            var batch = PlannerGenepackRelevanceBatchResult.CreateSuccess([]);
 
             var results = (IList<PlannerGenepackRelevanceItemResult>)batch.Results;
 
@@ -178,22 +175,21 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ConstructorInfo constructor = typeof(PlannerGenepackRelevanceItemResult).GetConstructor(
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 binder: null,
-                types: new[]
-                {
+                types:
+                [
                     typeof(PlannerGenepackRelevanceItemStatus),
                     typeof(IEnumerable<PlannerGenepackRelevancePlanMatch>)
-                },
+                ],
                 modifiers: null);
 
             Assert.That(constructor, Is.Not.Null);
 
             TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
                 (Action)(() => constructor.Invoke(
-                    new object[]
-                    {
-                        (PlannerGenepackRelevanceItemStatus)999,
-                        Array.Empty<PlannerGenepackRelevancePlanMatch>()
-                    })));
+                [
+                    (PlannerGenepackRelevanceItemStatus)999,
+                    Array.Empty<PlannerGenepackRelevancePlanMatch>()
+                ])));
 
             Assert.That(exception?.InnerException, Is.TypeOf<ArgumentOutOfRangeException>());
         }
@@ -204,22 +200,21 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ConstructorInfo constructor = typeof(PlannerGenepackRelevanceBatchResult).GetConstructor(
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 binder: null,
-                types: new[]
-                {
+                types:
+                [
                     typeof(PlannerGenepackRelevanceBatchStatus),
                     typeof(IEnumerable<PlannerGenepackRelevanceItemResult>)
-                },
+                ],
                 modifiers: null);
 
             Assert.That(constructor, Is.Not.Null);
 
             TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
                 (Action)(() => constructor.Invoke(
-                    new object[]
-                    {
-                        (PlannerGenepackRelevanceBatchStatus)999,
-                        Array.Empty<PlannerGenepackRelevanceItemResult>()
-                    })));
+                [
+                    (PlannerGenepackRelevanceBatchStatus)999,
+                    Array.Empty<PlannerGenepackRelevanceItemResult>()
+                ])));
 
             Assert.That(exception?.InnerException, Is.TypeOf<ArgumentOutOfRangeException>());
         }

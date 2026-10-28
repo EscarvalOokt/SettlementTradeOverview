@@ -8,17 +8,11 @@ using Verse;
 
 namespace SettlementTradeOverview.Integration.Snapshots
 {
-    internal readonly struct TradeNegotiatorSelection
+    internal readonly struct TradeNegotiatorSelection(Pawn negotiator, TradeNegotiatorSnapshot snapshot)
     {
-        public TradeNegotiatorSelection(Pawn negotiator, TradeNegotiatorSnapshot snapshot)
-        {
-            Negotiator = negotiator;
-            Snapshot = snapshot;
-        }
+        public Pawn Negotiator { get; } = negotiator;
 
-        public Pawn Negotiator { get; }
-
-        public TradeNegotiatorSnapshot Snapshot { get; }
+        public TradeNegotiatorSnapshot Snapshot { get; } = snapshot;
     }
 
     internal static class TradeNegotiatorAdapter

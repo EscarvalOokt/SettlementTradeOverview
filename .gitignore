@@ -35,9 +35,9 @@ docs/release/
 # Local machine configuration
 src/SettlementTradeOverview.Local.props
 
-# Generated/deployed mod assemblies
+# Obsolete/generated assembly layouts are not source content
 mod/Assemblies/
-mod/1.7/Assemblies/
+mod/Current/
 # mod/1.6/Assemblies contains the preserved historical DLL and is versioned.
 
 # OS-generated files

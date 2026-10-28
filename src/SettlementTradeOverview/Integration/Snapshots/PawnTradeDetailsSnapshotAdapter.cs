@@ -28,7 +28,7 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
             float? caravanRidingSpeedFactor = kind == PawnTradeDetailKind.Rideable
                 ? pawn.GetStatValue(StatDefOf.CaravanRidingSpeedFactor)
-                : (float?)null;
+                : null;
 
             return PawnTradeDetailsSnapshotPolicy.CreateSnapshot(kind, caravanRidingSpeedFactor);
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using SettlementTradeOverview.Domain.Snapshots;
 using SettlementTradeOverview.Integration.Snapshots;
@@ -13,28 +12,33 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         public void CreateSnapshot_ReorderedNames_ReturnsOrdinalOrder()
         {
             GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { "GeneC", "GeneA", "GeneB" });
+            [
+                "GeneC", "GeneA", "GeneB"
+            ]);
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB", "GeneC" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB", "GeneC"]));
         }
 
         [Test]
         public void CreateSnapshot_DuplicateNames_RemovesDuplicates()
         {
             GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { "GeneB", "GeneA", "GeneA", "GeneB" });
+            [
+                "GeneB", "GeneA", "GeneA", "GeneB"
+            ]);
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
 
         [Test]
         public void CreateSnapshot_ReorderedAndDuplicatedInputs_ProduceEquivalentOutput()
         {
             GenepackCompositionSnapshot first = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { "GeneB", "GeneA", "GeneA" });
+            [
+                "GeneB", "GeneA", "GeneA"
+            ]);
 
-            GenepackCompositionSnapshot second = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { "GeneA", "GeneB" });
+            GenepackCompositionSnapshot second = GenepackCompositionSnapshotPolicy.CreateSnapshot(["GeneA", "GeneB"]);
 
             Assert.That(first.GeneDefNames, Is.EqualTo(second.GeneDefNames));
         }
@@ -50,8 +54,7 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         [Test]
         public void CreateSnapshot_EmptyInput_ReturnsNull()
         {
-            GenepackCompositionSnapshot snapshot =
-                GenepackCompositionSnapshotPolicy.CreateSnapshot(Array.Empty<string>());
+            GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot([]);
 
             Assert.That(snapshot, Is.Null);
         }
@@ -60,7 +63,9 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         public void CreateSnapshot_OnlyInvalidNames_ReturnsNull()
         {
             GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { null, string.Empty, "   " });
+            [
+                null, string.Empty, "   "
+            ]);
 
             Assert.That(snapshot, Is.Null);
         }
@@ -69,18 +74,22 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         public void CreateSnapshot_PartiallyInvalidInput_PreservesValidNames()
         {
             GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { null, "GeneB", string.Empty, "GeneA", "   " });
+            [
+                null, "GeneB", string.Empty, "GeneA", "   "
+            ]);
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
 
         [Test]
         public void CreateSnapshot_OrdinalDistinctness_IsCaseSensitive()
         {
             GenepackCompositionSnapshot snapshot = GenepackCompositionSnapshotPolicy.CreateSnapshot(
-                new[] { "geneA", "GeneA", "geneA" });
+            [
+                "geneA", "GeneA", "geneA"
+            ]);
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "geneA" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "geneA"]));
         }
 
         [Test]
@@ -111,7 +120,7 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
             input[0] = "Changed";
             input.Clear();
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
     }
 }

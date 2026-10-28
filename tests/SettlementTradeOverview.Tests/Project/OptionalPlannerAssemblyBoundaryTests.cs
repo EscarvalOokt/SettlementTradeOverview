@@ -11,7 +11,7 @@ namespace SettlementTradeOverview.Tests.Project
     public sealed class OptionalPlannerAssemblyBoundaryTests
     {
         private static readonly Type[] _integrationTypes =
-        {
+        [
             typeof(PlannerGenepackRelevanceBatchStatus),
             typeof(PlannerGenepackRelevanceItemStatus),
             typeof(PlannerGenepackRelevancePlanMatch),
@@ -22,7 +22,7 @@ namespace SettlementTradeOverview.Tests.Project
             typeof(PlannerTradeRelevanceProjectionBuilder),
             typeof(XenogermPlannerApiV1Binding),
             typeof(PlannerGenepackRelevanceAdapter)
-        };
+        ];
 
         [Test]
         public void ProductionAssembly_DoesNotReferenceXenogermPlanner()
@@ -58,12 +58,12 @@ namespace SettlementTradeOverview.Tests.Project
                     }
                 }
 
-                const BindingFlags PropertyFlags = BindingFlags.Instance |
+                const BindingFlags propertyFlags = BindingFlags.Instance |
                                                    BindingFlags.Static |
                                                    BindingFlags.Public |
                                                    BindingFlags.NonPublic;
 
-                foreach (PropertyInfo property in integrationType.GetProperties(PropertyFlags))
+                foreach (PropertyInfo property in integrationType.GetProperties(propertyFlags))
                 {
                     MethodInfo getter = property.GetGetMethod(nonPublic: true);
                     MethodInfo setter = property.GetSetMethod(nonPublic: true);
@@ -74,12 +74,12 @@ namespace SettlementTradeOverview.Tests.Project
                     AssertTypeIsPlannerFree(integrationType, $"property '{property.Name}'", property.PropertyType);
                 }
 
-                const BindingFlags MethodFlags = BindingFlags.Instance |
+                const BindingFlags methodFlags = BindingFlags.Instance |
                                                  BindingFlags.Static |
                                                  BindingFlags.Public |
                                                  BindingFlags.NonPublic;
 
-                foreach (MethodInfo method in integrationType.GetMethods(MethodFlags))
+                foreach (MethodInfo method in integrationType.GetMethods(methodFlags))
                 {
                     if (method.IsPrivate || method.IsSpecialName || method.DeclaringType != integrationType)
                         continue;

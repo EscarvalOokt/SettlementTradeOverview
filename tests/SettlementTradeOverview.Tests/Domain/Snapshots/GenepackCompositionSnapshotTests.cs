@@ -11,10 +11,10 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         [Test]
         public void Constructor_CanonicalInput_PreservesValues()
         {
-            var snapshot = new GenepackCompositionSnapshot(new[] { "GeneA", "GeneB" });
+            var snapshot = new GenepackCompositionSnapshot(["GeneA", "GeneB"]);
 
             Assert.That(snapshot.Count, Is.EqualTo(2));
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
 
         [Test]
@@ -26,13 +26,13 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             source[0] = "Changed";
             source.Clear();
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
 
         [Test]
         public void GeneDefNames_ExposedCollection_IsReadOnly()
         {
-            var snapshot = new GenepackCompositionSnapshot(new[] { "GeneA" });
+            var snapshot = new GenepackCompositionSnapshot(["GeneA"]);
             var exposedCollection = (IList<string>)snapshot.GeneDefNames;
 
             Assert.That((Action)(() => exposedCollection.Add("GeneB")), Throws.TypeOf<NotSupportedException>());
@@ -50,7 +50,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_EmptyInput_Throws()
         {
             Assert.That(
-                (Action)(() => { _ = new GenepackCompositionSnapshot(Array.Empty<string>()); }),
+                (Action)(() => { _ = new GenepackCompositionSnapshot([]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -60,7 +60,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_EmptyGeneDefinitionName_Throws(string geneDefName)
         {
             Assert.That(
-                (Action)(() => { _ = new GenepackCompositionSnapshot(new[] { geneDefName }); }),
+                (Action)(() => { _ = new GenepackCompositionSnapshot([geneDefName]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -68,7 +68,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_DuplicateNames_Throws()
         {
             Assert.That(
-                (Action)(() => { _ = new GenepackCompositionSnapshot(new[] { "GeneA", "GeneA" }); }),
+                (Action)(() => { _ = new GenepackCompositionSnapshot(["GeneA", "GeneA"]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -76,16 +76,16 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_NonOrdinalOrdering_Throws()
         {
             Assert.That(
-                (Action)(() => { _ = new GenepackCompositionSnapshot(new[] { "GeneB", "GeneA" }); }),
+                (Action)(() => { _ = new GenepackCompositionSnapshot(["GeneB", "GeneA"]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
         public void Constructor_OrdinalOrdering_IsCaseSensitive()
         {
-            var snapshot = new GenepackCompositionSnapshot(new[] { "GeneA", "geneA" });
+            var snapshot = new GenepackCompositionSnapshot(["GeneA", "geneA"]);
 
-            Assert.That(snapshot.GeneDefNames, Is.EqualTo(new[] { "GeneA", "geneA" }));
+            Assert.That(snapshot.GeneDefNames, Is.EqualTo(["GeneA", "geneA"]));
         }
     }
 }

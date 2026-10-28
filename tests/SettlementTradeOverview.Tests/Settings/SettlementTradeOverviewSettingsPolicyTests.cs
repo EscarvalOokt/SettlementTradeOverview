@@ -79,13 +79,13 @@ namespace SettlementTradeOverview.Tests.Settings
             SettlementEligibilityCriteria baseline = SettlementEligibilityCriteria.Default;
 
             SettlementEligibilityCriteria[] alternatives =
-            {
+            [
                 new SettlementEligibilityCriteria(requirePoweredCommsConsole: false),
                 new SettlementEligibilityCriteria(minimumTechnologyLevel: null),
                 new SettlementEligibilityCriteria(maximumDistanceInTiles: 20),
                 new SettlementEligibilityCriteria(requireReachable: false),
                 new SettlementEligibilityCriteria(requireRoyaltyTradePermission: true)
-            };
+            ];
 
             foreach (SettlementEligibilityCriteria alternative in alternatives)
             {

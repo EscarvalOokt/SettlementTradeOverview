@@ -9,20 +9,33 @@
         <RimWorldManagedDir>C:\Path\To\RimWorld</RimWorldManagedDir>
 
         <!--
-        Ordinary build and test commands do not deploy to the game.
-        Set this optional destination before explicitly building with
-        -p:DeployToGame=true. The destination must end in 1.7\Assemblies.
-        Only the current SettlementTradeOverview.dll is copied; first install
-        the complete package prepared with -t:PackageMod in a clean directory.
-        The preserved 1.6 DLL is never rebuilt or deployed by this project.
+        Ordinary build and test commands leave the installed mod unchanged.
+        Set an absolute destination ending in Current\Assemblies (with this
+        casing), then explicitly build with -p:DeployToGame=true.
+        Deployment creates or updates the complete mod: shared content,
+        historical DLLs and the current DLL. Managed content directories are
+        replaced, so keep personal files outside them. Historical checksums
+        and the destination are validated before cleanup. Close RimWorld first.
+        An external staging directory can be used instead of the game installation.
         -->
-        <!-- <RimWorldModAssembliesDir>C:\Path\To\RimWorld\Mods\SettlementTradeOverview\1.7\Assemblies</RimWorldModAssembliesDir> -->
+        <!-- <RimWorldModAssembliesDir>C:\Path\To\RimWorld\Mods\SettlementTradeOverview\Current\Assemblies</RimWorldModAssembliesDir> -->
 
         <!--
-        Shared UI source is detected when its checkout is next to the mod,
-        or next to the parent Released directory. Override this path only
-        for a different workspace layout. The provider project is not built.
+        Download and extract the complete source archive from:
+        https://github.com/EscarvalOokt/Escarval.RimWorld.UI/releases/tag/v1.0.0
+        Set an absolute path to the extracted src/Escarval.RimWorld.UI directory
+        containing Escarval.RimWorld.UI.Source.projitems, as in the example below.
+        Specify the directory, not the source root or the .projitems file itself.
+        The versioned archive folder is not discovered automatically.
+
+        A checkout of tag v1.0.0 named Escarval.RimWorld.UI can also be discovered
+        in either of these locations, relative to the mod repository root:
+        ../Escarval.RimWorld.UI/src/Escarval.RimWorld.UI
+        ../../Escarval.RimWorld.UI/src/Escarval.RimWorld.UI
+        The project imports the shared source directly from this directory;
+        it does not download the library or enforce the selected version.
+        The shared UI standalone project does not need to be built.
         -->
-        <!-- <EscarvalRimWorldUiProjectDir>C:\Path\To\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir> -->
+        <!-- <EscarvalRimWorldUiProjectDir>C:\Dependencies\Escarval.RimWorld.UI-1.0.0\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir> -->
     </PropertyGroup>
 </Project>

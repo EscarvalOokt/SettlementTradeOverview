@@ -65,7 +65,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
 
             Assert.That(created, Is.False);
             Assert.That(binding, Is.Null);
-            Assert.That(requestedTypeNames, Is.EqualTo(new[] { XenogermPlannerApiV1Binding.FacadeTypeName }));
+            Assert.That(requestedTypeNames, Is.EqualTo([XenogermPlannerApiV1Binding.FacadeTypeName]));
         }
 
         [Test]
@@ -138,23 +138,22 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
                 return new ValidBatchResult(
                     ValidBatchStatus.Success,
                     ValidUnavailableReason.None,
-                    new[]
-                    {
+                    [
                         ValidItemResult.Success(),
                         ValidItemResult.Success()
-                    });
+                    ]);
             };
 
-            var first = new GenepackCompositionSnapshot(new[] { "GeneA", "GeneB" });
-            var second = new GenepackCompositionSnapshot(new[] { "GeneC" });
+            var first = new GenepackCompositionSnapshot(["GeneA", "GeneB"]);
+            var second = new GenepackCompositionSnapshot(["GeneC"]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { first, second });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([first, second]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(capturedRequests, Is.Not.Null);
             Assert.That(capturedRequests.Count, Is.EqualTo(2));
-            Assert.That(capturedRequests[0].GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
-            Assert.That(capturedRequests[1].GeneDefNames, Is.EqualTo(new[] { "GeneC" }));
+            Assert.That(capturedRequests[0].GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
+            Assert.That(capturedRequests[1].GeneDefNames, Is.EqualTo(["GeneC"]));
             Assert.That(capturedRequests[0], Is.Not.SameAs(first));
             Assert.That(capturedRequests[1], Is.Not.SameAs(second));
         }
@@ -164,7 +163,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(Array.Empty<GenepackCompositionSnapshot>());
+            PlannerGenepackRelevanceBatchResult result = binding.Query([]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(result.Results, Is.Empty);
@@ -178,9 +177,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[] { ValidItemResult.Success() });
+                [ValidItemResult.Success()]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(result.Results.Count, Is.EqualTo(1));
@@ -196,12 +195,11 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[]
-                {
+                [
                     ValidItemResult.Success(new ValidMatch("plan-2", "Beta"), new ValidMatch("plan-1", "Alpha"))
-                });
+                ]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Results[0].Matches.Count, Is.EqualTo(2));
             Assert.That(result.Results[0].Matches[0].PlanId, Is.EqualTo("plan-2"));
@@ -216,12 +214,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
 
-            ValidFacade.QueryHandler = _ => new ValidBatchResult(
-                status,
-                ValidUnavailableReason.None,
-                Array.Empty<ValidItemResult>());
+            ValidFacade.QueryHandler = _ => new ValidBatchResult(status, ValidUnavailableReason.None, []);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
             Assert.That(result.Results, Is.Empty);
@@ -234,12 +229,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
 
-            ValidFacade.QueryHandler = _ => new ValidBatchResult(
-                ValidBatchStatus.Unavailable,
-                unavailableReason,
-                Array.Empty<ValidItemResult>());
+            ValidFacade.QueryHandler = _ => new ValidBatchResult(ValidBatchStatus.Unavailable, unavailableReason, []);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
             Assert.That(result.Results, Is.Empty);
@@ -253,9 +245,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 (ValidBatchStatus)999,
                 ValidUnavailableReason.None,
-                Array.Empty<ValidItemResult>());
+                []);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
         }
@@ -266,7 +258,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
             ValidFacade.QueryHandler = _ => null;
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
         }
@@ -279,9 +271,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                Array.Empty<ValidItemResult>());
+                []);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
         }
@@ -297,9 +289,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[] { new ValidItemResult(reflectedStatus, Array.Empty<ValidMatch>()) });
+                [new ValidItemResult(reflectedStatus, [])]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Results[0].Status, Is.EqualTo(expectedStatus));
             Assert.That(result.Results[0].Matches, Is.Empty);
@@ -313,12 +305,11 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[]
-                {
-                    new ValidItemResult((ValidItemStatus)999, Array.Empty<ValidMatch>())
-                });
+                [
+                    new ValidItemResult((ValidItemStatus)999, [])
+                ]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(result.Results[0].Status, Is.EqualTo(PlannerGenepackRelevanceItemStatus.Failed));
@@ -332,18 +323,16 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[]
-                {
+                [
                     ValidItemResult.WithThrowingStatus(),
                     ValidItemResult.Success(new ValidMatch("plan-1", "Alpha"))
-                });
+                ]);
 
             PlannerGenepackRelevanceBatchResult result = binding.Query(
-                new[]
-                {
-                    CreateComposition("GeneA"),
-                    CreateComposition("GeneB")
-                });
+            [
+                CreateComposition("GeneA"),
+                CreateComposition("GeneB")
+            ]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Success));
             Assert.That(result.Results[0].Status, Is.EqualTo(PlannerGenepackRelevanceItemStatus.Failed));
@@ -359,12 +348,11 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             ValidFacade.QueryHandler = _ => new ValidBatchResult(
                 ValidBatchStatus.Success,
                 ValidUnavailableReason.None,
-                new[]
-                {
+                [
                     ValidItemResult.Success(new ValidMatch("plan-1", "Alpha"), new ValidMatch(string.Empty, "Invalid"))
-                });
+                ]);
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Results[0].Status, Is.EqualTo(PlannerGenepackRelevanceItemStatus.Failed));
             Assert.That(result.Results[0].Matches, Is.Empty);
@@ -376,7 +364,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
             ValidFacade.QueryHandler = _ => throw new InvalidOperationException("Failure from fake API.");
 
-            PlannerGenepackRelevanceBatchResult result = binding.Query(new[] { CreateComposition("GeneA") });
+            PlannerGenepackRelevanceBatchResult result = binding.Query([CreateComposition("GeneA")]);
 
             Assert.That(result.Status, Is.EqualTo(PlannerGenepackRelevanceBatchStatus.Unavailable));
             Assert.That(result.Results, Is.Empty);
@@ -387,9 +375,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             XenogermPlannerApiV1Binding binding = CreateValidBinding();
 
-            Assert.That(
-                (Action)(() => binding.Query(new GenepackCompositionSnapshot[] { null })),
-                Throws.TypeOf<ArgumentException>());
+            Assert.That((Action)(() => binding.Query([null])), Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
@@ -416,7 +402,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
 
         private static GenepackCompositionSnapshot CreateComposition(string geneDefName)
         {
-            return new GenepackCompositionSnapshot(new[] { geneDefName });
+            return new GenepackCompositionSnapshot([geneDefName]);
         }
 
         private static Func<string, Type> CreateResolver(
@@ -481,59 +467,40 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             Failed
         }
 
-        public sealed class ValidRequest
+        public sealed class ValidRequest(IEnumerable<string> geneDefNames)
         {
-            public ValidRequest(IEnumerable<string> geneDefNames)
-            {
-                GeneDefNames = new List<string>(geneDefNames).AsReadOnly();
-            }
-
-            public IReadOnlyList<string> GeneDefNames { get; }
+            public IReadOnlyList<string> GeneDefNames { get; } = new List<string>(geneDefNames).AsReadOnly();
         }
 
-        public sealed class ValidMatch
+        public sealed class ValidMatch(string planId, string displayName)
         {
-            public ValidMatch(string planId, string displayName)
-            {
-                PlanId = planId;
-                DisplayName = displayName;
-            }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
+            public string PlanId { get; } = planId;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public string PlanId { get; }
-
-            // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public string DisplayName { get; }
+            public string DisplayName { get; } = displayName;
         }
 
-        public sealed class ValidItemResult
+        public sealed class ValidItemResult(
+            ValidItemStatus status,
+            IReadOnlyList<ValidMatch> matches,
+            // Intentionally simulates a failing reflected property getter.
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+            bool throwOnStatusRead = false)
         {
-            private readonly ValidItemStatus _status;
-            private readonly bool _throwOnStatusRead;
-
-            public ValidItemResult(
-                ValidItemStatus status,
-                IReadOnlyList<ValidMatch> matches,
-                bool throwOnStatusRead = false)
-            {
-                _status = status;
-                Matches = matches;
-                _throwOnStatusRead = throwOnStatusRead;
-            }
-
             public ValidItemStatus Status
             {
                 get
                 {
-                    if (_throwOnStatusRead)
+                    if (throwOnStatusRead)
                         throw new InvalidOperationException("Malformed item status.");
 
-                    return _status;
+                    return status;
                 }
             }
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public IReadOnlyList<ValidMatch> Matches { get; }
+            public IReadOnlyList<ValidMatch> Matches { get; } = matches;
 
             public static ValidItemResult Success(params ValidMatch[] matches)
             {
@@ -542,30 +509,23 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
 
             public static ValidItemResult WithThrowingStatus()
             {
-                return new ValidItemResult(ValidItemStatus.Success, Array.Empty<ValidMatch>(), throwOnStatusRead: true);
+                return new ValidItemResult(ValidItemStatus.Success, [], throwOnStatusRead: true);
             }
         }
 
-        public sealed class ValidBatchResult
+        public sealed class ValidBatchResult(
+            ValidBatchStatus status,
+            ValidUnavailableReason unavailableReason,
+            IReadOnlyList<ValidItemResult> results)
         {
-            public ValidBatchResult(
-                ValidBatchStatus status,
-                ValidUnavailableReason unavailableReason,
-                IReadOnlyList<ValidItemResult> results)
-            {
-                Status = status;
-                UnavailableReason = unavailableReason;
-                Results = results;
-            }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
+            public ValidBatchStatus Status { get; } = status;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public ValidBatchStatus Status { get; }
+            public ValidUnavailableReason UnavailableReason { get; } = unavailableReason;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public ValidUnavailableReason UnavailableReason { get; }
-
-            // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public IReadOnlyList<ValidItemResult> Results { get; }
+            public IReadOnlyList<ValidItemResult> Results { get; } = results;
         }
 
         public static class ValidFacade

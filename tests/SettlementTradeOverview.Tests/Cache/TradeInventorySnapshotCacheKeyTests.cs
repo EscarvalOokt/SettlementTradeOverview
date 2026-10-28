@@ -106,25 +106,25 @@ namespace SettlementTradeOverview.Tests.Cache
         public void TraderIdentityContentOrOrderChange_ChangesFullKeyButPreservesReuseKey()
         {
             TradeInventorySnapshotCacheKey baseline = CreateAvailableKey(
-                traderIdentities: new[]
-                {
+                traderIdentities:
+                [
                     new TraderIdentity("Settlement:1"),
                     new TraderIdentity("Settlement:2")
-                });
+                ]);
 
             TradeInventorySnapshotCacheKey differentContent = CreateAvailableKey(
-                traderIdentities: new[]
-                {
+                traderIdentities:
+                [
                     new TraderIdentity("Settlement:1"),
                     new TraderIdentity("Settlement:3")
-                });
+                ]);
 
             TradeInventorySnapshotCacheKey differentOrder = CreateAvailableKey(
-                traderIdentities: new[]
-                {
+                traderIdentities:
+                [
                     new TraderIdentity("Settlement:2"),
                     new TraderIdentity("Settlement:1")
-                });
+                ]);
 
             Assert.That(baseline.Equals(differentContent), Is.False);
             Assert.That(baseline.Equals(differentOrder), Is.False);
@@ -186,10 +186,9 @@ namespace SettlementTradeOverview.Tests.Cache
             bool isRoyaltyActive = false)
         {
             IReadOnlyList<TraderIdentity> effectiveTraderIdentities = traderIdentities ??
-                                                                      new[]
-                                                                      {
-                                                                          new TraderIdentity("Settlement:1")
-                                                                      };
+            [
+                new TraderIdentity("Settlement:1")
+            ];
 
             TradeInventorySnapshotReuseKey reuseKey = CreateReuseKey(
                 mapId,

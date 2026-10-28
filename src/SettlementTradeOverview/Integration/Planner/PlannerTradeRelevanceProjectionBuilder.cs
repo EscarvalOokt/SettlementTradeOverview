@@ -118,17 +118,15 @@ namespace SettlementTradeOverview.Integration.Planner
             }
         }
 
-        private readonly struct ProjectionCandidate
+        private readonly struct ProjectionCandidate(
+            TradeEntryIdentity entryIdentity,
+            GenepackCompositionSnapshot composition)
         {
-            public ProjectionCandidate(TradeEntryIdentity entryIdentity, GenepackCompositionSnapshot composition)
-            {
-                EntryIdentity = entryIdentity ?? throw new ArgumentNullException(nameof(entryIdentity));
-                Composition = composition ?? throw new ArgumentNullException(nameof(composition));
-            }
+            public TradeEntryIdentity EntryIdentity { get; } =
+                entryIdentity ?? throw new ArgumentNullException(nameof(entryIdentity));
 
-            public TradeEntryIdentity EntryIdentity { get; }
-
-            public GenepackCompositionSnapshot Composition { get; }
+            public GenepackCompositionSnapshot Composition { get; } =
+                composition ?? throw new ArgumentNullException(nameof(composition));
         }
     }
 }

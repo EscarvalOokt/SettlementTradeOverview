@@ -16,7 +16,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
         public void ShouldShow_EmptyResultAndInactiveSort_ReturnsFalse()
         {
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                Array.Empty<TradeQueryEntry>(),
+                [],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: false);
 
@@ -29,7 +29,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
             TradeQueryEntry queryEntry = CreateItemQueryEntry("Thing:Steel");
 
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { queryEntry },
+                [queryEntry],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: false);
 
@@ -44,7 +44,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
                 new PawnTradeDetailsSnapshot(PawnTradeDetailKind.None));
 
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { queryEntry },
+                [queryEntry],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: false);
 
@@ -58,7 +58,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
             TradeQueryEntry queryEntry = CreatePawnQueryEntry("Pawn:1", new PawnTradeDetailsSnapshot(kind));
 
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { queryEntry },
+                [queryEntry],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: false);
 
@@ -73,7 +73,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
                 new PawnTradeDetailsSnapshot(PawnTradeDetailKind.Rideable, 1.6f));
 
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { queryEntry },
+                [queryEntry],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: false);
 
@@ -86,10 +86,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
             TradeQueryEntry queryEntry = CreateItemQueryEntry("Thing:Genepack:1");
             PlannerTradeRelevanceProjection projection = CreateProjection(queryEntry.Entry.Identity);
 
-            bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { queryEntry },
-                projection,
-                isDetailsSortActive: false);
+            bool result = TradeDetailsColumnPolicy.ShouldShow([queryEntry], projection, isDetailsSortActive: false);
 
             Assert.That(result, Is.True);
         }
@@ -101,10 +98,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
             PlannerTradeRelevanceProjection projection = CreateProjection(
                 new TradeEntryIdentity("Thing:Genepack:Filtered"));
 
-            bool result = TradeDetailsColumnPolicy.ShouldShow(
-                new[] { visibleEntry },
-                projection,
-                isDetailsSortActive: false);
+            bool result = TradeDetailsColumnPolicy.ShouldShow([visibleEntry], projection, isDetailsSortActive: false);
 
             Assert.That(result, Is.False);
         }
@@ -113,7 +107,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
         public void ShouldShow_ActiveDetailsSortWithoutDetails_ReturnsTrue()
         {
             bool result = TradeDetailsColumnPolicy.ShouldShow(
-                Array.Empty<TradeQueryEntry>(),
+                [],
                 PlannerTradeRelevanceProjection.Empty,
                 isDetailsSortActive: true);
 
@@ -126,7 +120,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
             TradeQueryEntry queryEntry = CreateItemQueryEntry("Thing:Genepack:1");
             PlannerTradeRelevanceProjection projection = CreateProjection(queryEntry.Entry.Identity);
 
-            _ = TradeDetailsColumnPolicy.ShouldShow(new[] { queryEntry }, projection, isDetailsSortActive: false);
+            _ = TradeDetailsColumnPolicy.ShouldShow([queryEntry], projection, isDetailsSortActive: false);
 
             Assert.That(projection.Count, Is.EqualTo(1));
             Assert.That(projection.GetMatchCount(queryEntry.Entry.Identity), Is.EqualTo(1));
@@ -143,25 +137,20 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
                 Throws.TypeOf<ArgumentNullException>());
 
             Assert.That(
-                (Action)(() => TradeDetailsColumnPolicy.ShouldShow(
-                    Array.Empty<TradeQueryEntry>(),
-                    null,
-                    isDetailsSortActive: false)),
+                (Action)(() => TradeDetailsColumnPolicy.ShouldShow([], null, isDetailsSortActive: false)),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
         private static PlannerTradeRelevanceProjection CreateProjection(TradeEntryIdentity identity)
         {
             return new PlannerTradeRelevanceProjection(
-                new[]
-                {
-                    new PlannerTradeEntryRelevance(
-                        identity,
-                        new[]
-                        {
-                            new PlannerGenepackRelevancePlanMatch("Plan:1", "First plan")
-                        })
-                });
+            [
+                new PlannerTradeEntryRelevance(
+                    identity,
+                    [
+                        new PlannerGenepackRelevancePlanMatch("Plan:1", "First plan")
+                    ])
+            ]);
         }
 
         private static TradeQueryEntry CreateItemQueryEntry(string identity)
@@ -203,7 +192,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
                 SnapshotAvailability.Available,
                 TradeDistance.Reachable(10),
                 TradeRestock.Scheduled(2000),
-                new[] { entry },
+                [entry],
                 null);
 
             return new TradeQueryEntry(trader, entry);

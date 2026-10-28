@@ -58,7 +58,7 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
                             entries.Add(entry);
 
-                            if (entry.Kind == TradeEntryKind.Item && tradeable.AnyThing is Thing representative)
+                            if (entry.Kind == TradeEntryKind.Item && tradeable.AnyThing is { } representative)
                             {
                                 runtimeTargets.Add(
                                     new KeyValuePair<TradeEntryIdentity, Thing>(entry.Identity, representative));

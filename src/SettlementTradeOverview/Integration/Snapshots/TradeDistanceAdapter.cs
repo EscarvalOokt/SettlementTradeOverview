@@ -73,7 +73,7 @@ namespace SettlementTradeOverview.Integration.Snapshots
 
         private static bool IsValidDistance(int? distance)
         {
-            return distance.HasValue && distance.Value >= 0;
+            return distance is >= 0;
         }
     }
 }

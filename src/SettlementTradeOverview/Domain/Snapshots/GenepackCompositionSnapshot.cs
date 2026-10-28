@@ -28,7 +28,7 @@ namespace SettlementTradeOverview.Domain.Snapshots
                 }
 
                 if (copiedGeneDefNames.Count > 0 &&
-                    StringComparer.Ordinal.Compare(copiedGeneDefNames[copiedGeneDefNames.Count - 1], geneDefName) >= 0)
+                    StringComparer.Ordinal.Compare(copiedGeneDefNames[^1], geneDefName) >= 0)
                 {
                     throw new ArgumentException(
                         "Gene definition names must be distinct and sorted in ordinal order.",

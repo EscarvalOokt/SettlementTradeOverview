@@ -18,11 +18,10 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
 
             TraderSnapshot snapshot = CreateTrader(
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     first,
                     second
-                },
+                ],
                 currency: null,
                 distance: TradeDistance.Reachable(18),
                 restock: TradeRestock.Scheduled(90000));
@@ -63,10 +62,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         {
             TraderSnapshot snapshot = CreateTrader(
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateEntry("Steel")
-                });
+                ]);
 
             var mutableView = (IList<TradeEntrySnapshot>)snapshot.Entries;
 
@@ -79,10 +77,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             Assert.That(
                 (Action)(() => CreateTrader(
                     SnapshotAvailability.Available,
-                    new TradeEntrySnapshot[]
-                    {
+                    [
                         null
-                    })),
+                    ])),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -90,17 +87,14 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void AvailableSnapshot_RequiresEntryOrCurrency()
         {
             Assert.That(
-                (Action)(() => CreateTrader(SnapshotAvailability.Available, Array.Empty<TradeEntrySnapshot>())),
+                (Action)(() => CreateTrader(SnapshotAvailability.Available, [])),
                 Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
         public void AvailableSnapshot_CanContainCurrencyWithoutEntries()
         {
-            TraderSnapshot snapshot = CreateTrader(
-                SnapshotAvailability.Available,
-                Array.Empty<TradeEntrySnapshot>(),
-                CreateCurrency());
+            TraderSnapshot snapshot = CreateTrader(SnapshotAvailability.Available, [], CreateCurrency());
 
             Assert.That(snapshot.EntryCount, Is.Zero);
             Assert.That(snapshot.Currency, Is.Not.Null);
@@ -109,7 +103,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         [Test]
         public void EmptySnapshot_RequiresNoStockData()
         {
-            TraderSnapshot snapshot = CreateTrader(SnapshotAvailability.Empty, Array.Empty<TradeEntrySnapshot>());
+            TraderSnapshot snapshot = CreateTrader(SnapshotAvailability.Empty, []);
 
             Assert.That(snapshot.EntryCount, Is.Zero);
             Assert.That(snapshot.Currency, Is.Null);
@@ -121,10 +115,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             Assert.That(
                 (Action)(() => CreateTrader(
                     SnapshotAvailability.Empty,
-                    new[]
-                    {
+                    [
                         CreateEntry("Steel")
-                    })),
+                    ])),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -133,10 +126,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         {
             TraderSnapshot snapshot = CreateTrader(
                 SnapshotAvailability.Partial,
-                new[]
-                {
+                [
                     CreateEntry("Steel")
-                },
+                ],
                 CreateCurrency());
 
             Assert.That(snapshot.Availability, Is.EqualTo(SnapshotAvailability.Partial));
@@ -151,10 +143,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             Assert.That(
                 (Action)(() => CreateTrader(
                     availability,
-                    new[]
-                    {
+                    [
                         CreateEntry("Steel")
-                    })),
+                    ])),
                 Throws.TypeOf<ArgumentException>());
         }
 

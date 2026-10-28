@@ -3,19 +3,13 @@ using SettlementTradeOverview.Domain.Eligibility;
 
 namespace SettlementTradeOverview.Settings
 {
-    internal readonly struct SettlementTradeOverviewSettingsApplyResult
+    internal readonly struct SettlementTradeOverviewSettingsApplyResult(
+        bool eligibilityChanged,
+        bool globalOverviewTabVisibilityChanged)
     {
-        public SettlementTradeOverviewSettingsApplyResult(
-            bool eligibilityChanged,
-            bool globalOverviewTabVisibilityChanged)
-        {
-            EligibilityChanged = eligibilityChanged;
-            GlobalOverviewTabVisibilityChanged = globalOverviewTabVisibilityChanged;
-        }
+        public bool EligibilityChanged { get; } = eligibilityChanged;
 
-        public bool EligibilityChanged { get; }
-
-        public bool GlobalOverviewTabVisibilityChanged { get; }
+        public bool GlobalOverviewTabVisibilityChanged { get; } = globalOverviewTabVisibilityChanged;
     }
 
     internal static class SettlementTradeOverviewSettingsService

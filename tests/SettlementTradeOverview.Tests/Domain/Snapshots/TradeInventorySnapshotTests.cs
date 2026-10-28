@@ -23,11 +23,10 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 15,
                 0,
                 null,
-                new[]
-                {
+                [
                     first,
                     second
-                });
+                ]);
 
             Assert.That(snapshot.Traders[0], Is.SameAs(first));
             Assert.That(snapshot.Traders[1], Is.SameAs(second));
@@ -64,10 +63,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 15,
                 0,
                 null,
-                new[]
-                {
+                [
                     CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
-                });
+                ]);
 
             var mutableView = (IList<TraderSnapshot>)snapshot.Traders;
 
@@ -85,10 +83,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 15,
                 3,
                 negotiator,
-                new[]
-                {
+                [
                     CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
-                });
+                ]);
 
             Assert.That(snapshot.CapturedAtTick, Is.EqualTo(120000));
             Assert.That(snapshot.OriginTile, Is.EqualTo(15));
@@ -105,10 +102,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 null,
                 null,
                 null,
-                new[]
-                {
+                [
                     CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
-                });
+                ]);
 
             Assert.That(snapshot.OriginTile, Is.Null);
             Assert.That(snapshot.OriginLayerId, Is.Null);
@@ -124,11 +120,10 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 15,
                 0,
                 null,
-                new[]
-                {
+                [
                     CreateEmptyTrader("Settlement:1", 1, "Alpha"),
                     CreateEmptyTrader("Settlement:2", 2, "Beta")
-                });
+                ]);
 
             Assert.That(snapshot.TraderCount, Is.EqualTo(2));
             Assert.That(snapshot.EntryCount, Is.Zero);
@@ -146,10 +141,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         15,
                         0,
                         null,
-                        new[]
-                        {
+                        [
                             CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
-                        });
+                        ]);
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -167,10 +161,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         15,
                         0,
                         null,
-                        new[]
-                        {
+                        [
                             CreateEmptyTrader("Settlement:1", 1, "Alpha")
-                        });
+                        ]);
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -187,10 +180,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         15,
                         0,
                         null,
-                        new[]
-                        {
+                        [
                             CreateEmptyTrader("Settlement:1", 1, "Alpha")
-                        });
+                        ]);
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -219,13 +211,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
             Assert.That(
                 (Action)(() =>
                 {
-                    _ = new TradeInventorySnapshot(
-                        SnapshotAvailability.Empty,
-                        -1,
-                        null,
-                        null,
-                        null,
-                        Array.Empty<TraderSnapshot>());
+                    _ = new TradeInventorySnapshot(SnapshotAvailability.Empty, -1, null, null, null, []);
                 }),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
         }
@@ -234,16 +220,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_NegativeOriginTile_Throws()
         {
             Assert.That(
-                (Action)(() =>
-                {
-                    _ = new TradeInventorySnapshot(
-                        SnapshotAvailability.Empty,
-                        0,
-                        -1,
-                        0,
-                        null,
-                        Array.Empty<TraderSnapshot>());
-                }),
+                (Action)(() => { _ = new TradeInventorySnapshot(SnapshotAvailability.Empty, 0, -1, 0, null, []); }),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
@@ -259,10 +236,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                         null,
                         null,
                         null,
-                        new TraderSnapshot[]
-                        {
+                        [
                             null
-                        });
+                        ]);
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -272,13 +248,13 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_IncompleteOrigin_Throws(int? originTile, int? originLayerId)
         {
             Assert.That(
-                (Action)(() => new TradeInventorySnapshot(
+                (Action)(() => _ = new TradeInventorySnapshot(
                     SnapshotAvailability.Empty,
                     0,
                     originTile,
                     originLayerId,
                     null,
-                    Array.Empty<TraderSnapshot>())),
+                    [])),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -286,13 +262,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         public void Constructor_NegativeOriginLayer_Throws()
         {
             Assert.That(
-                (Action)(() => new TradeInventorySnapshot(
-                    SnapshotAvailability.Empty,
-                    0,
-                    15,
-                    -1,
-                    null,
-                    Array.Empty<TraderSnapshot>())),
+                (Action)(() => _ = new TradeInventorySnapshot(SnapshotAvailability.Empty, 0, 15, -1, null, [])),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
@@ -304,10 +274,9 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 15,
                 0,
                 new TradeNegotiatorSnapshot("Pawn:7", "Alex", 0.18f),
-                new[]
-                {
+                [
                     CreateAvailableTrader("Settlement:1", 1, "Alpha", "Steel")
-                });
+                ]);
         }
 
         private static TraderSnapshot CreateAvailableTrader(
@@ -354,7 +323,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
                 SnapshotAvailability.Empty,
                 TradeDistance.Reachable(10),
                 TradeRestock.Scheduled(150000),
-                Array.Empty<TradeEntrySnapshot>(),
+                [],
                 null);
         }
     }

@@ -31,14 +31,13 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result,
                 Is.EqualTo(
-                    new[]
-                    {
-                        TradeCategory.All,
-                        TradeCategory.Foods,
-                        TradeCategory.Weapons,
-                        TradeCategory.Pawns,
-                        TradeCategory.Other
-                    }));
+                [
+                    TradeCategory.All,
+                    TradeCategory.Foods,
+                    TradeCategory.Weapons,
+                    TradeCategory.Pawns,
+                    TradeCategory.Other
+                ]));
         }
 
         [Test]
@@ -58,11 +57,10 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result,
                 Is.EqualTo(
-                    new[]
-                    {
-                        TradeCategory.All,
-                        TradeCategory.Weapons
-                    }));
+                [
+                    TradeCategory.All,
+                    TradeCategory.Weapons
+                ]));
         }
 
         [Test]
@@ -81,11 +79,10 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result,
                 Is.EqualTo(
-                    new[]
-                    {
-                        TradeCategory.All,
-                        TradeCategory.Weapons
-                    }));
+                [
+                    TradeCategory.All,
+                    TradeCategory.Weapons
+                ]));
         }
 
         [Test]
@@ -113,12 +110,11 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result,
                 Is.EqualTo(
-                    new[]
-                    {
-                        TradeCategory.All,
-                        TradeCategory.Foods,
-                        TradeCategory.Weapons
-                    }));
+                [
+                    TradeCategory.All,
+                    TradeCategory.Foods,
+                    TradeCategory.Weapons
+                ]));
         }
 
         [Test]
@@ -133,7 +129,7 @@ namespace SettlementTradeOverview.Tests.Query
 
             IReadOnlyList<TradeCategory> result = TradeCategoryAvailability.Resolve(trader, "medicine");
 
-            Assert.That(result, Is.EqualTo(new[] { TradeCategory.All }));
+            Assert.That(result, Is.EqualTo([TradeCategory.All]));
         }
 
         [Test]
@@ -143,7 +139,7 @@ namespace SettlementTradeOverview.Tests.Query
 
             IReadOnlyList<TradeCategory> result = TradeCategoryAvailability.Resolve(trader, string.Empty);
 
-            Assert.That(result, Is.EqualTo(new[] { TradeCategory.All }));
+            Assert.That(result, Is.EqualTo([TradeCategory.All]));
         }
 
         [Test]
@@ -165,11 +161,10 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 result,
                 Is.EqualTo(
-                    new[]
-                    {
-                        TradeCategory.All,
-                        TradeCategory.ResourcesRaw
-                    }));
+                [
+                    TradeCategory.All,
+                    TradeCategory.ResourcesRaw
+                ]));
         }
 
         [Test]
@@ -191,11 +186,11 @@ namespace SettlementTradeOverview.Tests.Query
         [Test]
         public void Contains_ReturnsWhetherCategoryIsAvailable()
         {
-            TradeCategory[] categories = new[]
-            {
+            TradeCategory[] categories =
+            [
                 TradeCategory.All,
                 TradeCategory.Items
-            };
+            ];
 
             Assert.That(TradeCategoryAvailability.Contains(categories, TradeCategory.Items), Is.True);
             Assert.That(TradeCategoryAvailability.Contains(categories, TradeCategory.Weapons), Is.False);
@@ -247,7 +242,7 @@ namespace SettlementTradeOverview.Tests.Query
                 SnapshotAvailability.Available,
                 TradeDistance.Reachable(10),
                 TradeRestock.Scheduled(2000),
-                Array.Empty<TradeEntrySnapshot>(),
+                [],
                 new TradeCurrencySnapshot(new TradeEntryIdentity("Silver"), "Silver", "Silver", 1000));
         }
 

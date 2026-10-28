@@ -6,6 +6,7 @@ namespace SettlementTradeOverview.Integration.Lifecycle
     // ReSharper disable once InconsistentNaming
     internal sealed class GameComponent_SettlementTradeOverview : GameComponent
     {
+        // ReSharper disable once UnusedParameter.Local
         public GameComponent_SettlementTradeOverview(Game _)
         {
         }

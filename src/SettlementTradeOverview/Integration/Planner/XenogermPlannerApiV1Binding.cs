@@ -126,7 +126,7 @@ namespace SettlementTradeOverview.Integration.Planner
                 ConstructorInfo requestConstructor = requestType.GetConstructor(
                     BindingFlags.Instance | BindingFlags.Public,
                     binder: null,
-                    types: new[] { typeof(IEnumerable<string>) },
+                    types: [typeof(IEnumerable<string>)],
                     modifiers: null);
 
                 if (requestConstructor == null)
@@ -224,25 +224,22 @@ namespace SettlementTradeOverview.Integration.Planner
 
             if (compositions.Count == 0)
             {
-                return PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    Array.Empty<PlannerGenepackRelevanceItemResult>());
+                return PlannerGenepackRelevanceBatchResult.CreateSuccess([]);
             }
 
             try
             {
-                var requests = (IList)Activator.CreateInstance(_requestListType);
+                if (Activator.CreateInstance(_requestListType) is not IList requests)
+                    return PlannerGenepackRelevanceBatchResult.CreateUnavailable();
 
                 foreach (GenepackCompositionSnapshot t in compositions)
                 {
-                    object request = _requestConstructor.Invoke(new object[] { t.GeneDefNames });
-
-                    if (request == null)
-                        return PlannerGenepackRelevanceBatchResult.CreateUnavailable();
+                    object request = _requestConstructor.Invoke([t.GeneDefNames]);
 
                     requests.Add(request);
                 }
 
-                object reflectedBatchResult = _queryMethod.Invoke(null, new object[] { requests });
+                object reflectedBatchResult = _queryMethod.Invoke(null, [requests]);
 
                 return ParseBatchResult(reflectedBatchResult, compositions.Count);
             }

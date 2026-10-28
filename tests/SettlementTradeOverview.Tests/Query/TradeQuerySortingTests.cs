@@ -534,13 +534,12 @@ namespace SettlementTradeOverview.Tests.Query
             Assert.That(
                 GetIdentityOrder(first),
                 Is.EqualTo(
-                    new[]
-                    {
-                        "Entry:A",
-                        "Entry:B",
-                        "Entry:C",
-                        "Entry:D"
-                    }));
+                [
+                    "Entry:A",
+                    "Entry:B",
+                    "Entry:C",
+                    "Entry:D"
+                ]));
         }
 
         [Test]
@@ -567,7 +566,7 @@ namespace SettlementTradeOverview.Tests.Query
             AssertOrder(
                 ExecuteWithRelevanceResolver(
                     TradeSortDirection.Ascending,
-                    identity => counts.TryGetValue(identity.Value, out int count) ? count : (int?)null,
+                    identity => counts.TryGetValue(identity.Value, out int count) ? count : null,
                     trader),
                 "One",
                 "Two",
@@ -599,7 +598,7 @@ namespace SettlementTradeOverview.Tests.Query
             AssertOrder(
                 ExecuteWithRelevanceResolver(
                     TradeSortDirection.Descending,
-                    identity => counts.TryGetValue(identity.Value, out int count) ? count : (int?)null,
+                    identity => counts.TryGetValue(identity.Value, out int count) ? count : null,
                     trader),
                 "Three",
                 "Two",
@@ -661,13 +660,7 @@ namespace SettlementTradeOverview.Tests.Query
                 CreateEntry("A", "A", count: 2));
 
             var resolverCallCount = 0;
-            var snapshot = new TradeInventorySnapshot(
-                SnapshotAvailability.Available,
-                1000,
-                10,
-                0,
-                null,
-                new[] { trader });
+            var snapshot = new TradeInventorySnapshot(SnapshotAvailability.Available, 1000, 10, 0, null, [trader]);
 
             IReadOnlyList<TradeQueryEntry> result = TradeSnapshotQuery.Execute(
                 snapshot,
@@ -731,7 +724,7 @@ namespace SettlementTradeOverview.Tests.Query
                     new PawnTradeDetailsSnapshot(PawnTradeDetailKind.JoinsAsColonist)),
                 CreateEntry("Relevant", "Relevant"));
 
-            Func<TradeEntryIdentity, int?> resolver = identity => identity.Value == "Relevant" ? 2 : (int?)null;
+            Func<TradeEntryIdentity, int?> resolver = identity => identity.Value == "Relevant" ? 2 : null;
 
             AssertOrder(
                 ExecuteWithRelevanceResolver(TradeSortDirection.Ascending, resolver, trader),
@@ -797,7 +790,7 @@ namespace SettlementTradeOverview.Tests.Query
             AssertOrder(
                 ExecuteWithRelevanceResolver(
                     TradeSortDirection.Ascending,
-                    identity => identity.Value == "RelevantPawn" ? 1 : (int?)null,
+                    identity => identity.Value == "RelevantPawn" ? 1 : null,
                     trader),
                 "RelevantPawn",
                 "Colonist");

@@ -7,23 +7,19 @@ using Verse;
 
 namespace SettlementTradeOverview.UI.TradeList
 {
-    internal readonly struct TradeCellPresentation
+    internal readonly struct TradeCellPresentation(
+        string text,
+        string tooltip,
+        Color color,
+        bool showWarningIcon = false)
     {
-        public TradeCellPresentation(string text, string tooltip, Color color, bool showWarningIcon = false)
-        {
-            Text = text ?? throw new ArgumentNullException(nameof(text));
-            Tooltip = tooltip;
-            Color = color;
-            ShowWarningIcon = showWarningIcon;
-        }
+        public string Text { get; } = text ?? throw new ArgumentNullException(nameof(text));
 
-        public string Text { get; }
+        public string Tooltip { get; } = tooltip;
 
-        public string Tooltip { get; }
+        public Color Color { get; } = color;
 
-        public Color Color { get; }
-
-        public bool ShowWarningIcon { get; }
+        public bool ShowWarningIcon { get; } = showWarningIcon;
     }
 
     internal static class TradeValuePresentation

@@ -83,19 +83,16 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
                 {
                     capturedCompositions = compositions;
                     return PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                        new[]
-                        {
-                            PlannerGenepackRelevanceItemResult.CreateSuccess(
-                                Array.Empty<PlannerGenepackRelevancePlanMatch>()),
-                            PlannerGenepackRelevanceItemResult.CreateSuccess(
-                                Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                        });
+                    [
+                        PlannerGenepackRelevanceItemResult.CreateSuccess([]),
+                        PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                    ]);
                 });
 
             Assert.That(capturedCompositions, Is.Not.Null);
             Assert.That(capturedCompositions.Count, Is.EqualTo(2));
-            Assert.That(capturedCompositions[0].GeneDefNames, Is.EqualTo(new[] { "GeneB" }));
-            Assert.That(capturedCompositions[1].GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneC" }));
+            Assert.That(capturedCompositions[0].GeneDefNames, Is.EqualTo(["GeneB"]));
+            Assert.That(capturedCompositions[1].GeneDefNames, Is.EqualTo(["GeneA", "GeneC"]));
         }
 
         [Test]
@@ -115,15 +112,13 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
                 {
                     capturedCompositions = compositions;
                     return PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                        new[]
-                        {
-                            PlannerGenepackRelevanceItemResult.CreateSuccess(
-                                Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                        });
+                    [
+                        PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                    ]);
                 });
 
             Assert.That(capturedCompositions.Count, Is.EqualTo(1));
-            Assert.That(capturedCompositions[0].GeneDefNames, Is.EqualTo(new[] { "GeneB" }));
+            Assert.That(capturedCompositions[0].GeneDefNames, Is.EqualTo(["GeneB"]));
         }
 
         [Test]
@@ -144,13 +139,10 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
                 {
                     queryCallCount++;
                     return PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                        new[]
-                        {
-                            PlannerGenepackRelevanceItemResult.CreateSuccess(
-                                Array.Empty<PlannerGenepackRelevancePlanMatch>()),
-                            PlannerGenepackRelevanceItemResult.CreateSuccess(
-                                Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                        });
+                    [
+                        PlannerGenepackRelevanceItemResult.CreateSuccess([]),
+                        PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                    ]);
                 });
 
             Assert.That(queryCallCount, Is.EqualTo(1));
@@ -170,11 +162,10 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { firstMatch }),
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { secondMatch })
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([firstMatch]),
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([secondMatch])
+                ]));
 
             Assert.That(projection.Count, Is.EqualTo(2));
             Assert.That(projection.TryGet(firstEntry.Identity, out PlannerTradeEntryRelevance first), Is.True);
@@ -192,15 +183,13 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(
-                            new[]
-                            {
-                                CreateMatch("Plan:2", "Second"),
-                                CreateMatch("Plan:1", "First")
-                            })
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess(
+                    [
+                        CreateMatch("Plan:2", "Second"),
+                        CreateMatch("Plan:1", "First")
+                    ])
+                ]));
 
             Assert.That(projection.TryGet(entry.Identity, out PlannerTradeEntryRelevance relevance), Is.True);
             Assert.That(relevance.Matches[0].PlanId, Is.EqualTo("Plan:2"));
@@ -216,11 +205,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(
-                            Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                ]));
 
             Assert.That(projection.Count, Is.Zero);
             Assert.That(projection.TryGet(entry.Identity, out _), Is.False);
@@ -283,11 +270,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(
-                            Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                ]));
 
             Assert.That(projection, Is.SameAs(PlannerTradeRelevanceProjection.Empty));
         }
@@ -316,11 +301,10 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { CreateMatch("Plan:1", "First") }),
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { CreateMatch("Plan:1", "First") })
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([CreateMatch("Plan:1", "First")]),
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([CreateMatch("Plan:1", "First")])
+                ]));
 
             Assert.That(projection.Count, Is.EqualTo(2));
             Assert.That(projection.TryGet(firstEntry.Identity, out _), Is.True);
@@ -337,16 +321,15 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { CreateMatch("Plan:1", "First") })
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([CreateMatch("Plan:1", "First")])
+                ]));
 
             Assert.That(snapshot.TraderCount, Is.EqualTo(1));
             Assert.That(snapshot.Traders[0], Is.SameAs(trader));
             Assert.That(trader.EntryCount, Is.EqualTo(1));
             Assert.That(trader.Entries[0], Is.SameAs(entry));
-            Assert.That(entry.GenepackComposition.GeneDefNames, Is.EqualTo(new[] { "GeneA", "GeneB" }));
+            Assert.That(entry.GenepackComposition.GeneDefNames, Is.EqualTo(["GeneA", "GeneB"]));
         }
 
         [Test]
@@ -358,19 +341,16 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection first = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { CreateMatch("Plan:1", "First") })
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([CreateMatch("Plan:1", "First")])
+                ]));
 
             PlannerTradeRelevanceProjection second = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(
-                            Array.Empty<PlannerGenepackRelevancePlanMatch>())
-                    }));
+                [
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([])
+                ]));
 
             Assert.That(first.TryGet(entry.Identity, out _), Is.True);
             Assert.That(second.TryGet(entry.Identity, out _), Is.False);
@@ -387,11 +367,10 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerTradeRelevanceProjection projection = PlannerTradeRelevanceProjectionBuilder.Build(
                 snapshot,
                 _ => PlannerGenepackRelevanceBatchResult.CreateSuccess(
-                    new[]
-                    {
-                        failedItem,
-                        PlannerGenepackRelevanceItemResult.CreateSuccess(new[] { CreateMatch("Plan:2", "Second") })
-                    }));
+                [
+                    failedItem,
+                    PlannerGenepackRelevanceItemResult.CreateSuccess([CreateMatch("Plan:2", "Second")])
+                ]));
 
             Assert.That(projection.TryGet(failedEntry.Identity, out _), Is.False);
             Assert.That(projection.TryGet(successfulEntry.Identity, out _), Is.True);

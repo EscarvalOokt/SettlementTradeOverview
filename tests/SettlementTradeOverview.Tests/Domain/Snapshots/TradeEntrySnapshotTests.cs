@@ -37,7 +37,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         [Test]
         public void Constructor_ItemWithGenepackComposition_PreservesComposition()
         {
-            var composition = new GenepackCompositionSnapshot(new[] { "GeneA", "GeneB" });
+            var composition = new GenepackCompositionSnapshot(["GeneA", "GeneB"]);
 
             var snapshot = new TradeEntrySnapshot(
                 new TradeEntryIdentity("Genepack:123"),
@@ -101,7 +101,7 @@ namespace SettlementTradeOverview.Tests.Domain.Snapshots
         [Test]
         public void Constructor_PawnWithGenepackComposition_Throws()
         {
-            var composition = new GenepackCompositionSnapshot(new[] { "GeneA" });
+            var composition = new GenepackCompositionSnapshot(["GeneA"]);
 
             Assert.That(
                 (Action)(() =>

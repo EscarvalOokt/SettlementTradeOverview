@@ -122,7 +122,7 @@ namespace SettlementTradeOverview.Integration.Runtime
 
         private static bool IsValid(Settlement settlement)
         {
-            return settlement != null && !settlement.Destroyed && settlement.Spawned && settlement.Tile.Valid;
+            return settlement is { Destroyed: false, Spawned: true, Tile.Valid: true };
         }
     }
 }

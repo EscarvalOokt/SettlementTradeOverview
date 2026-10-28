@@ -17,7 +17,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
 
             TradeRelevanceTooltipPresentation presentation = TradeRelevanceTooltipPresentationBuilder.Create(relevance);
 
-            Assert.That(presentation.DisplayNames, Is.EqualTo(new[] { "First plan" }));
+            Assert.That(presentation.DisplayNames, Is.EqualTo(["First plan"]));
             Assert.That(presentation.OmittedCount, Is.Zero);
         }
 
@@ -33,7 +33,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
 
             TradeRelevanceTooltipPresentation presentation = TradeRelevanceTooltipPresentationBuilder.Create(relevance);
 
-            Assert.That(presentation.DisplayNames, Is.EqualTo(new[] { "First", "Second", "Third", "Fourth", "Fifth" }));
+            Assert.That(presentation.DisplayNames, Is.EqualTo(["First", "Second", "Third", "Fourth", "Fifth"]));
             Assert.That(presentation.OmittedCount, Is.Zero);
         }
 
@@ -50,7 +50,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
 
             TradeRelevanceTooltipPresentation presentation = TradeRelevanceTooltipPresentationBuilder.Create(relevance);
 
-            Assert.That(presentation.DisplayNames, Is.EqualTo(new[] { "First", "Second", "Third", "Fourth", "Fifth" }));
+            Assert.That(presentation.DisplayNames, Is.EqualTo(["First", "Second", "Third", "Fourth", "Fifth"]));
             Assert.That(presentation.OmittedCount, Is.EqualTo(1));
         }
 
@@ -64,7 +64,7 @@ namespace SettlementTradeOverview.Tests.UI.TradeList
 
             TradeRelevanceTooltipPresentation presentation = TradeRelevanceTooltipPresentationBuilder.Create(relevance);
 
-            Assert.That(presentation.DisplayNames, Is.EqualTo(new[] { "Charlie", "Alpha", "Bravo" }));
+            Assert.That(presentation.DisplayNames, Is.EqualTo(["Charlie", "Alpha", "Bravo"]));
         }
 
         [Test]

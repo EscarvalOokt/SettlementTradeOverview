@@ -19,10 +19,10 @@ namespace SettlementTradeOverview.Domain.Snapshots
             if (capturedAtTick < 0)
                 throw new ArgumentOutOfRangeException(nameof(capturedAtTick));
 
-            if (originTile.HasValue && originTile.Value < 0)
+            if (originTile is < 0)
                 throw new ArgumentOutOfRangeException(nameof(originTile));
 
-            if (originLayerId.HasValue && originLayerId.Value < 0)
+            if (originLayerId is < 0)
                 throw new ArgumentOutOfRangeException(nameof(originLayerId));
 
             if (originTile.HasValue != originLayerId.HasValue)

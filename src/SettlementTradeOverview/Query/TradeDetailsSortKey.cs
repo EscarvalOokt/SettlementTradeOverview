@@ -31,7 +31,7 @@ namespace SettlementTradeOverview.Query
             if (entry == null)
                 throw new ArgumentNullException(nameof(entry));
 
-            if (relevanceMatchCount.HasValue && relevanceMatchCount.Value > 0)
+            if (relevanceMatchCount is > 0)
             {
                 return new TradeDetailsSortKey(TradeDetailsSortKind.PlannerRelevance, relevanceMatchCount.Value);
             }

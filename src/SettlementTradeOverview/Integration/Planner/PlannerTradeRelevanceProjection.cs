@@ -61,14 +61,12 @@ namespace SettlementTradeOverview.Integration.Planner
                     throw new ArgumentException("Relevance projection cannot contain null entries.", nameof(entries));
                 }
 
-                if (_entriesByIdentity.ContainsKey(entry.EntryIdentity))
+                if (!_entriesByIdentity.TryAdd(entry.EntryIdentity, entry))
                 {
                     throw new ArgumentException(
                         "Relevance projection cannot contain duplicate trade entry identities.",
                         nameof(entries));
                 }
-
-                _entriesByIdentity.Add(entry.EntryIdentity, entry);
             }
         }
 
@@ -92,7 +90,7 @@ namespace SettlementTradeOverview.Integration.Planner
 
             return _entriesByIdentity.TryGetValue(entryIdentity, out PlannerTradeEntryRelevance relevance)
                 ? relevance.MatchCount
-                : (int?)null;
+                : null;
         }
     }
 }

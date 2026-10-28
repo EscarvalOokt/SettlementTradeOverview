@@ -8,11 +8,13 @@
         <li>1.6</li>
         <li>1.7</li>
     </supportedVersions>
-    <description>Settlement Trade Overview is a read-only planning and information mod for RimWorld trade. It lets you inspect the current trade stock offered by world settlements before deciding where to send your caravan.
+    <description>Settlement Trade Overview lets you inspect the current trade stock offered by world settlements before deciding where to send your caravan.
 
-Browse eligible settlements together in one global overview, or inspect a specific settlement directly from the world map. Search, filter and sort trade offers, compare estimated prices, check distance and ground-route availability, review restock information, and inspect relevant pawn trade details.
+Open the trade overview main tab to browse settlements together, or select a settlement on the world map and choose View trade stock. Search, filter and sort offers, compare estimated prices, check distance and ground-route availability, and review restock and pawn trade details.
 
-Choose which settlements are included using configurable rules for communications access, technology level, maximum distance, reachable ground routes, and optional Royalty trade permission. Trade data can be refreshed manually without forcing settlements to restock or changing RimWorld's normal restock schedule.
+By default, a powered communications console is required on the current map or another player home map. Mod settings let you change this requirement and filter settlements by technology, distance, reachable routes and Royalty trade permission.
+
+Use Refresh to read stock again. Reading stock can trigger RimWorld's normal stock generation; Refresh does not force an early restock. Displayed stock and restock times stay fixed until refreshed.
 
 Purchases are not performed through Settlement Trade Overview and still use the normal RimWorld trading system.
 
@@ -21,7 +23,8 @@ Optional Xenogerm Planner integration can highlight genepacks for sale that cont
 No DLC is required.
 Harmony is not required.
 
-Available in English, Russian, Ukrainian, Spanish, and Latin American Spanish.
+Available in English, Russian, Ukrainian, Spanish, Latin American Spanish, and Simplified Chinese.
 Spanish translations by Annabelesca.
+Simplified Chinese translation by OPPO9008.
     </description>
 </ModMetaData>

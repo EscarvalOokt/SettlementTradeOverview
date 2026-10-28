@@ -48,11 +48,10 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreateEmptyTrader("Trader:1", 1),
                     CreateEmptyTrader("Trader:2", 2)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Empty));
         }
@@ -62,10 +61,9 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreateAvailableTraderWithEntry("Trader:1", 1)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Available));
         }
@@ -75,10 +73,9 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreateAvailableTraderWithCurrency("Trader:1", 1)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Available));
         }
@@ -86,9 +83,7 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         [Test]
         public void ResolveInventory_DiscoveryFailure_ReturnsPartial()
         {
-            SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
-                true,
-                Array.Empty<TraderSnapshot>());
+            SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(true, []);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Partial));
         }
@@ -98,10 +93,9 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreatePartialTrader("Trader:1", 1)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Partial));
         }
@@ -111,11 +105,10 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreateAvailableTraderWithEntry("Trader:1", 1),
                     CreateFailedTrader("Trader:2", 2)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Partial));
         }
@@ -125,11 +118,10 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
         {
             SnapshotAvailability result = SnapshotAvailabilityResolver.ResolveInventory(
                 false,
-                new[]
-                {
+                [
                     CreateFailedTrader("Trader:1", 1),
                     CreateFailedTrader("Trader:2", 2)
-                });
+                ]);
 
             Assert.That(result, Is.EqualTo(SnapshotAvailability.Partial));
         }
@@ -144,12 +136,7 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
 
         private static TraderSnapshot CreateEmptyTrader(string traderId, int settlementId)
         {
-            return CreateTrader(
-                traderId,
-                settlementId,
-                SnapshotAvailability.Empty,
-                Array.Empty<TradeEntrySnapshot>(),
-                null);
+            return CreateTrader(traderId, settlementId, SnapshotAvailability.Empty, [], null);
         }
 
         private static TraderSnapshot CreateAvailableTraderWithEntry(string traderId, int settlementId)
@@ -158,10 +145,9 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
                 traderId,
                 settlementId,
                 SnapshotAvailability.Available,
-                new[]
-                {
+                [
                     CreateEntry(traderId + ":Entry")
-                },
+                ],
                 null);
         }
 
@@ -171,7 +157,7 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
                 traderId,
                 settlementId,
                 SnapshotAvailability.Available,
-                Array.Empty<TradeEntrySnapshot>(),
+                [],
                 new TradeCurrencySnapshot(new TradeEntryIdentity("Currency:Silver"), "Silver", "Silver", 100));
         }
 
@@ -181,21 +167,15 @@ namespace SettlementTradeOverview.Tests.Integration.Snapshots
                 traderId,
                 settlementId,
                 SnapshotAvailability.Partial,
-                new[]
-                {
+                [
                     CreateEntry(traderId + ":Entry")
-                },
+                ],
                 null);
         }
 
         private static TraderSnapshot CreateFailedTrader(string traderId, int settlementId)
         {
-            return CreateTrader(
-                traderId,
-                settlementId,
-                SnapshotAvailability.Failed,
-                Array.Empty<TradeEntrySnapshot>(),
-                null);
+            return CreateTrader(traderId, settlementId, SnapshotAvailability.Failed, [], null);
         }
 
         private static TraderSnapshot CreateTrader(

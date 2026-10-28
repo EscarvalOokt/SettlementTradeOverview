@@ -31,9 +31,9 @@ namespace SettlementTradeOverview.Settings
 
             SettlementTechnologyLevel? minimumTechnologyLevel = values.RequireIndustrialTechnology
                 ? SettlementTechnologyLevel.Industrial
-                : (SettlementTechnologyLevel?)null;
+                : null;
 
-            int? maximumDistanceInTiles = values.LimitMaximumDistance ? values.MaximumDistanceInTiles : (int?)null;
+            int? maximumDistanceInTiles = values.LimitMaximumDistance ? values.MaximumDistanceInTiles : null;
 
             return new SettlementEligibilityCriteria(
                 values.RequirePoweredCommsConsole,

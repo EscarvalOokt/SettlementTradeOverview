@@ -78,11 +78,10 @@ namespace SettlementTradeOverview.Tests.Cache
 
             var fullKey = TradeInventorySnapshotCacheKey.CreateAvailableContext(
                 reuseKey,
-                new[]
-                {
+                [
                     new TraderIdentity("Settlement:1"),
                     new TraderIdentity("Settlement:2")
-                },
+                ],
                 1);
 
             TradeInventorySnapshot expected = CreateAvailableSnapshot(100);
@@ -393,13 +392,7 @@ namespace SettlementTradeOverview.Tests.Cache
         {
             var cache = new TradeInventorySnapshotCache();
             TradeInventorySnapshot surface = CreateAvailableSnapshot(100);
-            var orbit = new TradeInventorySnapshot(
-                SnapshotAvailability.Empty,
-                200,
-                10,
-                1,
-                null,
-                Array.Empty<TraderSnapshot>());
+            var orbit = new TradeInventorySnapshot(SnapshotAvailability.Empty, 200, 10, 1, null, []);
             cache.GetOrBuild(CreateKey(1, originLayerId: 0), () => surface);
 
             bool reused = cache.TryGetReusableSnapshot(CreateReuseKey(1, originLayerId: 1), out _);
@@ -422,10 +415,9 @@ namespace SettlementTradeOverview.Tests.Cache
         {
             return TradeInventorySnapshotCacheKey.CreateAvailableContext(
                 CreateReuseKey(mapId, originLayerId),
-                new[]
-                {
+                [
                     new TraderIdentity("Settlement:1")
-                },
+                ],
                 0);
         }
 
@@ -458,22 +450,15 @@ namespace SettlementTradeOverview.Tests.Cache
                         10,
                         0,
                         null,
-                        new[]
-                        {
+                        [
                             CreateTrader(
                                 availability == SnapshotAvailability.Partial
                                     ? SnapshotAvailability.Partial
                                     : SnapshotAvailability.Available)
-                        });
+                        ]);
 
                 case SnapshotAvailability.Empty:
-                    return new TradeInventorySnapshot(
-                        SnapshotAvailability.Empty,
-                        capturedAtTick,
-                        10,
-                        0,
-                        null,
-                        Array.Empty<TraderSnapshot>());
+                    return new TradeInventorySnapshot(SnapshotAvailability.Empty, capturedAtTick, 10, 0, null, []);
 
                 case SnapshotAvailability.Unavailable:
                     return new TradeInventorySnapshot(
@@ -482,7 +467,7 @@ namespace SettlementTradeOverview.Tests.Cache
                         null,
                         null,
                         null,
-                        Array.Empty<TraderSnapshot>());
+                        []);
 
                 case SnapshotAvailability.Failed:
                     return new TradeInventorySnapshot(
@@ -491,7 +476,7 @@ namespace SettlementTradeOverview.Tests.Cache
                         null,
                         null,
                         null,
-                        Array.Empty<TraderSnapshot>());
+                        []);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(availability));
@@ -508,8 +493,7 @@ namespace SettlementTradeOverview.Tests.Cache
                 availability,
                 TradeDistance.Reachable(10),
                 TradeRestock.Scheduled(1000),
-                new[]
-                {
+                [
                     new TradeEntrySnapshot(
                         new TradeEntryIdentity("Thing:Steel"),
                         TradeEntryKind.Item,
@@ -518,7 +502,7 @@ namespace SettlementTradeOverview.Tests.Cache
                         "Steel",
                         10,
                         TradePrice.Negotiated(2f))
-                },
+                ],
                 null);
         }
     }

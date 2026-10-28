@@ -122,8 +122,8 @@ namespace SettlementTradeOverview.Tests.Application.Snapshots
             {
                 case SnapshotAvailability.Available:
                 case SnapshotAvailability.Partial:
-                    entries = new[]
-                    {
+                    entries =
+                    [
                         new TradeEntrySnapshot(
                             new TradeEntryIdentity(traderId + ":Steel"),
                             TradeEntryKind.Item,
@@ -132,7 +132,7 @@ namespace SettlementTradeOverview.Tests.Application.Snapshots
                             "Steel",
                             1,
                             TradePrice.Negotiated(10f))
-                    };
+                    ];
                     break;
 
                 case SnapshotAvailability.Empty:

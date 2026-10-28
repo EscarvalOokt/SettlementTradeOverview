@@ -16,7 +16,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             PlannerGenepackRelevancePlanMatch first = CreateMatch("Plan:1", "First");
             PlannerGenepackRelevancePlanMatch second = CreateMatch("Plan:2", "Second");
 
-            var relevance = new PlannerTradeEntryRelevance(identity, new[] { first, second });
+            var relevance = new PlannerTradeEntryRelevance(identity, [first, second]);
 
             Assert.That(relevance.EntryIdentity, Is.SameAs(identity));
             Assert.That(relevance.MatchCount, Is.EqualTo(2));
@@ -48,7 +48,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             var relevance = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:1"),
-                new[] { CreateMatch("Plan:1", "First") });
+                [CreateMatch("Plan:1", "First")]);
 
             var exposedMatches = (IList<PlannerGenepackRelevancePlanMatch>)relevance.Matches;
 
@@ -61,7 +61,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void EntryRelevance_NullIdentity_Throws()
         {
             Assert.That(
-                (Action)(() => { _ = new PlannerTradeEntryRelevance(null, new[] { CreateMatch("Plan:1", "First") }); }),
+                (Action)(() => { _ = new PlannerTradeEntryRelevance(null, [CreateMatch("Plan:1", "First")]); }),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
@@ -80,12 +80,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void EntryRelevance_EmptyMatchCollection_Throws()
         {
             Assert.That(
-                (Action)(() =>
-                {
-                    _ = new PlannerTradeEntryRelevance(
-                        new TradeEntryIdentity("Thing:Genepack:1"),
-                        Array.Empty<PlannerGenepackRelevancePlanMatch>());
-                }),
+                (Action)(() => { _ = new PlannerTradeEntryRelevance(new TradeEntryIdentity("Thing:Genepack:1"), []); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -95,9 +90,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
             Assert.That(
                 (Action)(() =>
                 {
-                    _ = new PlannerTradeEntryRelevance(
-                        new TradeEntryIdentity("Thing:Genepack:1"),
-                        new PlannerGenepackRelevancePlanMatch[] { null });
+                    _ = new PlannerTradeEntryRelevance(new TradeEntryIdentity("Thing:Genepack:1"), [null]);
                 }),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -107,9 +100,9 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             var stored = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:1"),
-                new[] { CreateMatch("Plan:1", "First") });
+                [CreateMatch("Plan:1", "First")]);
 
-            var projection = new PlannerTradeRelevanceProjection(new[] { stored });
+            var projection = new PlannerTradeRelevanceProjection([stored]);
 
             bool found = projection.TryGet(
                 new TradeEntryIdentity("Thing:Genepack:1"),
@@ -124,12 +117,11 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void Projection_MissingIdentity_ReturnsFalse()
         {
             var projection = new PlannerTradeRelevanceProjection(
-                new[]
-                {
-                    new PlannerTradeEntryRelevance(
-                        new TradeEntryIdentity("Thing:Genepack:1"),
-                        new[] { CreateMatch("Plan:1", "First") })
-                });
+            [
+                new PlannerTradeEntryRelevance(
+                    new TradeEntryIdentity("Thing:Genepack:1"),
+                    [CreateMatch("Plan:1", "First")])
+            ]);
 
             bool found = projection.TryGet(
                 new TradeEntryIdentity("Thing:Genepack:2"),
@@ -157,14 +149,14 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             var stored = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:1"),
-                new[] { CreateMatch("Plan:1", "First") });
+                [CreateMatch("Plan:1", "First")]);
 
             var entries = new List<PlannerTradeEntryRelevance> { stored };
             var projection = new PlannerTradeRelevanceProjection(entries);
 
             entries[0] = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:2"),
-                new[] { CreateMatch("Plan:2", "Second") });
+                [CreateMatch("Plan:2", "Second")]);
             entries.Clear();
 
             Assert.That(projection.Count, Is.EqualTo(1));
@@ -176,14 +168,14 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         {
             var first = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:1"),
-                new[] { CreateMatch("Plan:1", "First") });
+                [CreateMatch("Plan:1", "First")]);
 
             var second = new PlannerTradeEntryRelevance(
                 new TradeEntryIdentity("Thing:Genepack:1"),
-                new[] { CreateMatch("Plan:2", "Second") });
+                [CreateMatch("Plan:2", "Second")]);
 
             Assert.That(
-                (Action)(() => { _ = new PlannerTradeRelevanceProjection(new[] { first, second }); }),
+                (Action)(() => { _ = new PlannerTradeRelevanceProjection([first, second]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -195,7 +187,7 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
                 Throws.TypeOf<ArgumentNullException>());
 
             Assert.That(
-                (Action)(() => { _ = new PlannerTradeRelevanceProjection(new PlannerTradeEntryRelevance[] { null }); }),
+                (Action)(() => { _ = new PlannerTradeRelevanceProjection([null]); }),
                 Throws.TypeOf<ArgumentException>());
         }
 
@@ -211,16 +203,14 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void Projection_GetMatchCount_ExistingIdentity_ReturnsStoredCount()
         {
             var projection = new PlannerTradeRelevanceProjection(
-                new[]
-                {
-                    new PlannerTradeEntryRelevance(
-                        new TradeEntryIdentity("Thing:Genepack:1"),
-                        new[]
-                        {
-                            CreateMatch("Plan:1", "First"),
-                            CreateMatch("Plan:2", "Second")
-                        })
-                });
+            [
+                new PlannerTradeEntryRelevance(
+                    new TradeEntryIdentity("Thing:Genepack:1"),
+                    [
+                        CreateMatch("Plan:1", "First"),
+                        CreateMatch("Plan:2", "Second")
+                    ])
+            ]);
 
             int? count = projection.GetMatchCount(new TradeEntryIdentity("Thing:Genepack:1"));
 
@@ -232,12 +222,11 @@ namespace SettlementTradeOverview.Tests.Integration.Planner
         public void Projection_GetMatchCount_MissingIdentity_ReturnsNull()
         {
             var projection = new PlannerTradeRelevanceProjection(
-                new[]
-                {
-                    new PlannerTradeEntryRelevance(
-                        new TradeEntryIdentity("Thing:Genepack:1"),
-                        new[] { CreateMatch("Plan:1", "First") })
-                });
+            [
+                new PlannerTradeEntryRelevance(
+                    new TradeEntryIdentity("Thing:Genepack:1"),
+                    [CreateMatch("Plan:1", "First")])
+            ]);
 
             int? count = projection.GetMatchCount(new TradeEntryIdentity("Thing:Genepack:2"));
 

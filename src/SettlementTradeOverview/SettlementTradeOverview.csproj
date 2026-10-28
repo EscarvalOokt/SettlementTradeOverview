@@ -1,13 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <RootNamespace>SettlementTradeOverview</RootNamespace>
         <AssemblyName>SettlementTradeOverview</AssemblyName>
         <Version>1.1.0</Version>
         <Nullable>disable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <CurrentRimWorldVersion>1.7</CurrentRimWorldVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+        <HistoricalModVersion Include="1.6"
+                              Sha256="0F5EEDBEDEF855372328B2F2192366FF6E248A00347EDDEB6E74575F13F87099"/>
+    </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="SettlementTradeOverview.Tests"/>
@@ -18,22 +24,16 @@
 
     <PropertyGroup>
         <DeployToGame Condition="'$(DeployToGame)' == ''">false</DeployToGame>
-        <EscarvalRimWorldUiProjectDir Condition="'$(EscarvalRimWorldUiProjectDir)' == '' and Exists('$(MSBuildThisFileDirectory)..\..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI\Source')">$(MSBuildThisFileDirectory)..\..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir>
+        <EscarvalRimWorldUiProjectDir Condition="'$(EscarvalRimWorldUiProjectDir)' == '' and Exists('$(MSBuildThisFileDirectory)..\..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI\Escarval.RimWorld.UI.Source.projitems')">$(MSBuildThisFileDirectory)..\..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir>
         <EscarvalRimWorldUiProjectDir Condition="'$(EscarvalRimWorldUiProjectDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\..\Escarval.RimWorld.UI\src\Escarval.RimWorld.UI</EscarvalRimWorldUiProjectDir>
     </PropertyGroup>
 
+    <Import Project="$(EscarvalRimWorldUiProjectDir)\Escarval.RimWorld.UI.Source.projitems"
+            Condition="Exists('$(EscarvalRimWorldUiProjectDir)\Escarval.RimWorld.UI.Source.projitems')"
+            Label="Shared"/>
+
     <Target Name="ValidateLocalConfiguration"
             BeforeTargets="ResolveReferences">
-        <PropertyGroup Condition="'$(DeployToGame)' == 'true' and '$(RimWorldModAssembliesDir)' != ''">
-            <_DeploymentPath>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath('$(RimWorldModAssembliesDir)'))))</_DeploymentPath>
-            <_DeploymentPathForValidation>$(_DeploymentPath.Replace('\', '/').ToLowerInvariant())</_DeploymentPathForValidation>
-            <_DeploymentModRoot>$([System.IO.Path]::GetFullPath('$(_DeploymentPath)..\..'))</_DeploymentModRoot>
-        </PropertyGroup>
-
-        <ItemGroup Condition="'$(DeployToGame)' == 'true' and '$(_DeploymentModRoot)' != ''">
-            <_UnversionedDeploymentAssembly Include="$(_DeploymentModRoot)\Assemblies\**\*.dll"/>
-        </ItemGroup>
-
         <Error Condition="'$(RimWorldManagedDir)' == ''"
                Text="RimWorldManagedDir is not configured. Create src\SettlementTradeOverview.Local.props from docs\SettlementTradeOverview.Local.props.example and set the RimWorld 1.7 directory containing Assembly-CSharp.dll and UnityStubs.dll."/>
 
@@ -45,21 +45,12 @@
 
         <Error Condition="'$(DeployToGame)' != 'true' and '$(DeployToGame)' != 'false'"
                Text="DeployToGame must be true or false. Ordinary builds and tests do not deploy to the game."/>
-
-        <Error Condition="'$(DeployToGame)' == 'true' and '$(RimWorldModAssembliesDir)' == ''"
-               Text="DeployToGame requires RimWorldModAssembliesDir. Set the destination Assemblies directory in src\SettlementTradeOverview.Local.props or on the command line."/>
-
-        <Error Condition="'$(DeployToGame)' == 'true' and '$(RimWorldModAssembliesDir)' != '' and !$(_DeploymentPathForValidation.EndsWith('/1.7/assemblies/'))"
-               Text="The current project deploys only to a 1.7\Assemblies directory. Keep the preserved 1.6 assembly separate."/>
-
-        <Error Condition="'@(_UnversionedDeploymentAssembly)' != ''"
-               Text="The destination still contains unversioned Assemblies DLLs. Install the complete versioned package in a clean mod directory before deploying the 1.7 DLL."/>
     </Target>
 
     <Target Name="ValidateSharedUiSource"
             BeforeTargets="PrepareForBuild">
-        <Error Condition="!Exists('$(EscarvalRimWorldUiProjectDir)\Source\RimWorldUiApi.cs')"
-               Text="Escarval.RimWorld.UI source was not found at '$(EscarvalRimWorldUiProjectDir)\Source'. Set EscarvalRimWorldUiProjectDir to the shared UI checkout's src\Escarval.RimWorld.UI directory in src\SettlementTradeOverview.Local.props."/>
+        <Error Condition="!Exists('$(EscarvalRimWorldUiProjectDir)\Escarval.RimWorld.UI.Source.projitems')"
+               Text="Escarval.RimWorld.UI.Source.projitems was not found in '$(EscarvalRimWorldUiProjectDir)'. Set EscarvalRimWorldUiProjectDir to the shared UI checkout's src\Escarval.RimWorld.UI directory in src\SettlementTradeOverview.Local.props."/>
     </Target>
 
     <ItemGroup Condition="'$(RimWorldManagedDir)' != ''">
@@ -74,47 +65,5 @@
         </Reference>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Include="$(EscarvalRimWorldUiProjectDir)\Source\**\*.cs"
-                 Link="SharedUI\%(RecursiveDir)%(Filename)%(Extension)"/>
-    </ItemGroup>
-
-    <Target Name="PackageMod" DependsOnTargets="Build">
-        <PropertyGroup>
-            <_ModPackageDir>$(MSBuildThisFileDirectory)..\..\mod</_ModPackageDir>
-            <_HistoricalAssembly>$(_ModPackageDir)\1.6\Assemblies\SettlementTradeOverview.dll</_HistoricalAssembly>
-        </PropertyGroup>
-
-        <Error Condition="!Exists('$(_HistoricalAssembly)')"
-               Text="The preserved 1.6 DLL is missing. Restore mod\1.6\Assemblies\SettlementTradeOverview.dll; do not rebuild it from current sources."/>
-
-        <GetFileHash Files="$(_HistoricalAssembly)" Algorithm="SHA256">
-            <Output TaskParameter="Items" ItemName="_HistoricalAssemblyHash"/>
-        </GetFileHash>
-
-        <Error Condition="'%(_HistoricalAssemblyHash.FileHash)' != '0F5EEDBEDEF855372328B2F2192366FF6E248A00347EDDEB6E74575F13F87099'"
-               Text="The preserved 1.6 DLL has changed. Restore the historical artifact before packaging."/>
-
-        <ItemGroup>
-            <_UnversionedPackageAssembly Include="$(_ModPackageDir)\Assemblies\**\*.dll"/>
-        </ItemGroup>
-
-        <Error Condition="'@(_UnversionedPackageAssembly)' != ''"
-               Text="Remove unversioned DLLs from mod\Assemblies before packaging. LoadFolders.xml selects the 1.6 or 1.7 assembly directory."/>
-
-        <MakeDir Directories="$(_ModPackageDir)\1.7\Assemblies"/>
-        <Copy SourceFiles="$(TargetPath)"
-              DestinationFolder="$(_ModPackageDir)\1.7\Assemblies"
-              SkipUnchangedFiles="true"/>
-    </Target>
-
-    <Target Name="CopyAssemblyToMod"
-            AfterTargets="Build"
-            Condition="'$(DeployToGame)' == 'true' and '$(IsCrossTargetingBuild)' != 'true'">
-        <MakeDir Directories="$(RimWorldModAssembliesDir)"/>
-
-        <Copy SourceFiles="$(TargetPath)"
-              DestinationFolder="$(RimWorldModAssembliesDir)"
-              SkipUnchangedFiles="true"/>
-    </Target>
+    <Import Project="..\..\build\ModDeployment.targets"/>
 </Project>
